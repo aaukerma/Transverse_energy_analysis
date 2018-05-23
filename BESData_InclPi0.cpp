@@ -10,7 +10,23 @@ compl:--
 #include <string>
 #include <fstream>
 #include <iostream> // to use cout for debugging
+#include <iomanip>
 using namespace std;
+
+struct BinData { //
+  double pTl;
+  double pTh;
+  double pTSpec;
+  double ErrStat;
+  double ErrSys;
+};
+
+struct Bin {
+  int BinIndex;
+  BinData Dat;
+};
+
+void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vect2);
 
 int main(){
   string CollType;
@@ -28,17 +44,12 @@ int main(){
   int BinNum = 0;
   int j;
   int k;
-  struct BinData { //
-    double pTl;
-    double pTh;
-    double pTSpec;
-    double ErrStat;
-    double ErrSys;
-  };
+  int l=0;
   double DataPoint;
-  vector <vector <BinData>> PiMinus(1);
-  vector <vector <BinData>> PiPlus(1);
-  vector <vector <BinData>> Pi0(1);
+  vector <Bin> PiM(0);
+  vector <Bin> PiP(0);
+  vector <vector <Bin>> PiMinus(9);
+  vector <vector <Bin>> PiPlus(9);
 
   ifstream in;
 	in.open("./BESData_sorted.txt");
@@ -52,66 +63,91 @@ int main(){
     out<<CollEner<<" GeV"<<endl;
     for(int i = 0; i<8; i++) {in >> GARBAGE;} //skips up to species
     out <<title0<<endl<<title1<<" "<<title2<<" "<<title3<<" "<<title4<<" "<<title5<<endl;
+
     for(j = 0; j<9; j++) {
       in>>PartType;
-      out<<PartType<<" ";
+      if (j>=1){
+        in>>PartType;
+      }
+      else{}
+      out<<PartType<<"  ";
       in>>CentBin;
       out<<CentBin<<endl;
       if (PartType == "pi-") {//write in data for vector PiMinus and writes to new file
-        BinNum = 0;
         k=0;
-        while (in>>DataPoint){ //this will have to have to hold data for either each bin OR have to make j number of vectors
-          BinNum++;
-          PiMinus[j].push_back(BinData());
-            in>>PiMinus[j][k].pTl;
-            out<<PiMinus[j][k].pTl<<"\t";
-            in>>PiMinus[j][k].pTh;
-            out<<PiMinus[j][k].pTh<<"\t";
-            in>>PiMinus[j][k].pTSpec;
-            out<<PiMinus[j][k].pTSpec<<"\t";
-            in>>PiMinus[j][k].ErrStat;
-            out<<PiMinus[j][k].ErrStat<<"\t";
-            in>>PiMinus[j][k].ErrSys;
-            out<<PiMinus[j][k].ErrSys<<endl;
+        while (in>>DataPoint){ //This counts as a (in>>) therefore first bit not in>>
+          PiM.push_back(Bin());
+          PiM[k].BinIndex = k;
+          PiM[k].Dat.pTl = DataPoint;
+          out<<fixed<<setprecision(2)<<PiM[k].Dat.pTl<<" \t ";
+          in>>PiM[k].Dat.pTh;
+          out<<fixed<<setprecision(2)<<PiM[k].Dat.pTh<<" \t ";
+          in>>PiM[k].Dat.pTSpec;
+          out<<fixed<<setprecision(4)<<PiM[k].Dat.pTSpec<<" \t ";
+          in>>PiM[k].Dat.ErrStat;
+          out<<fixed<<setprecision(5)<<PiM[k].Dat.ErrStat<<" \t ";
+          in>>PiM[k].Dat.ErrSys;
+          out<<fixed<<setprecision(5)<<PiM[k].Dat.ErrSys<<endl;
+          PiMinus[j].push_back(Bin());
+          PiMinus[j][k]=PiM[k];
           k++;
         }
       }
-      if (PartType =="pi+") { //write in data for vector PiPlus and writes to new file
+      else if (PartType =="pi+") { //write in data for vector PiPlus and writes to new file
         BinNum = 0;
+        k=0;
         while (in>>DataPoint){
-          BinNum++;
-          PiPlus[j].push_back(BinData());
-            in>>PiPlus[j][k].pTl;
-            out<<PiPlus[j][k].pTl;
-            in>>PiPlus[j][k].pTh;
-            out<<PiPlus[j][k].pTh;
-            in>>PiPlus[j][k].pTSpec;
-            out<<PiPlus[j][k].pTSpec;
-            in>>PiPlus[j][k].ErrStat;
-            out<<PiPlus[j][k].ErrStat;
-            in>>PiPlus[j][k].ErrSys;
-            out<<PiPlus[j][k].ErrSys;
+          PiP.push_back(Bin());
+          PiP[k].BinIndex = k;
+          PiP[k].Dat.pTl = DataPoint;
+          out<<fixed<<setprecision(2)<<PiP[k].Dat.pTl<<" \t ";
+          in>>PiP[k].Dat.pTh;
+          out<<fixed<<setprecision(2)<<PiP[k].Dat.pTh<<" \t ";
+          in>>PiP[k].Dat.pTSpec;
+          out<<fixed<<setprecision(4)<<PiP[k].Dat.pTSpec<<" \t ";
+          in>>PiP[k].Dat.ErrStat;
+          out<<fixed<<setprecision(5)<<PiP[k].Dat.ErrStat<<" \t ";
+          in>>PiP[k].Dat.ErrSys;
+          out<<fixed<<setprecision(5)<<PiP[k].Dat.ErrSys<<endl;
+          PiPlus[j].push_back(Bin());
+          PiPlus[j][k]=PiP[k];
           k++;
         }
       }
       else {//writes to new file
         BinNum = 0;
+        k=0;
         while (in>>DataPoint){
           BinNum++;
-          out<<DataPoint;
-          out<<DataPoint;
-          out<<DataPoint;
-          out<<DataPoint;
-          out<<DataPoint;
-          out<<endl;
+          //in>>DataPoint; this is already done in boolean
+          out<<fixed<<setprecision(2)<<DataPoint<<" \t ";
+          in>>DataPoint;
+          out<<fixed<<setprecision(2)<<DataPoint<<" \t ";
+          in>>DataPoint;
+          out<<fixed<<setprecision(4)<<DataPoint<<" \t ";
+          in>>DataPoint;
+          out<<fixed<<setprecision(5)<<DataPoint<<" \t ";
+          in>>DataPoint;
+          out<<fixed<<setprecision(5)<<DataPoint<<endl;
         }
       }
-
+      out<<title0<<endl;
+      in.clear();
     } //end forloop ()
     in>>GARBAGE;
-    out<<title0<<endl;
+    pi0Builder(PiMinus, PiPlus);
+    out<<title6<<endl;
     in.clear();
+    l++;
   } //end while (in>>CollType)
 cout<<"done";
 return 0;
 } //end int 'main'
+
+
+//pi0Builder passes in vectors consisting of all pi- and pi+ data points.
+//pi0Builder takes average of all points and creates new vector with
+//all data for pi0 then writes it to file.
+void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vect2){
+
+}
