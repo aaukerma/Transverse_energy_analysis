@@ -1,0 +1,4 @@
+run with 
+root -b -q driver.C
+
+Note that getting the correct tune loaded in PYTHIA is non-trivial and requires a version of ROOT which is correctly cross compiled with a version of PYTHIA.  This is non-trivial.  However, code development can proceed with this.
