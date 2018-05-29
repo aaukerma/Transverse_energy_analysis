@@ -208,8 +208,16 @@ void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vec
       pizero.Dat.pTl=vect1[i][j].Dat.pTl;
       pizero.Dat.pTh=vect1[i][j].Dat.pTh;
       pizero.Dat.pTSpec= (pim.Dat.pTSpec+pip.Dat.pTSpec)/2;
-      pizero.Dat.ErrStat= (pim.Dat.ErrStat+pip.Dat.ErrStat)/2;
-      pizero.Dat.ErrSys= (pim.Dat.ErrSys+pip.Dat.ErrSys)/2;
+      if (pim.Dat.ErrStat >=pip.Dat.ErrStat){
+        pizero.Dat.ErrStat= pim.Dat.ErrStat;
+      }
+      else
+        pizero.Dat.ErrStat= pip.Dat.ErrStat;
+      if (pim.Dat.ErrSys >=pip.Dat.ErrSys){
+        pizero.Dat.ErrSys= pim.Dat.ErrSys;
+      }
+      else
+        pizero.Dat.ErrSys= pip.Dat.ErrSys;
       if (pizero.Dat.pTSpec !=0){
         Pi0[i].push_back(Bin());
         Pi0[i][j]=pizero;
