@@ -12,7 +12,7 @@ using namespace std;
 /*const char* */ string concatenateHistoname(string,string,string,string);
 
 int BESDataToRootFile(){ // main
-	string 				myString;// temporary string to hold ifstream instance	
+	string 				myString;// temporary string to hold ifstream instance
 	string				collidingSpecies;/////////////
 	string 				collisionEnergy;
 	string 				collisionEnergyStr;////////////////////
@@ -22,12 +22,12 @@ int BESDataToRootFile(){ // main
 	Int_t				histonum = 0; // track number of histos created/parsed
 	//TODO: std::vector<TH1D> 	histoList; // vector (list) of histograms
 	ifstream 			in;
-	
-	in.open(Form("./BESData_sorted.txt"));
+
+	in.open(Form("./BESData_sorted_PlusPi0.txt"));
 	// ^ data file with Beam Scan Energy data, !!!!!!bins sorted!!!!!
 	TFile* f = new TFile("BESData.root","RECREATE");// .root file to be created
 	//const char* collidingSpeciesPtr = NULL;
-	
+
 /*
 nested loop structure:
 
@@ -35,7 +35,7 @@ nested loop structure:
 		while
 
 	}
-*/	
+*/
 
 	while(in >> collidingSpecies){
 		while(collidingSpecies!="Au+Au") {in >> collidingSpecies;}
@@ -47,7 +47,10 @@ nested loop structure:
 			std::vector<Double_t> binContent;
 			std::vector<Double_t> binContentErrStat;
 			std::vector<Double_t> binContentErrSys;
-			
+
+			if (cent==0){
+				in>>myString;
+			}
 			in >> particleName;
 			if(!in.good()) cout<< "particleName not read correctly"<< endl;
 			in >> myString;// read & skip string corresponding to centrality
@@ -87,7 +90,7 @@ nested loop structure:
 			histonum++;// just to track
 			cout << "Histoname: " << histoname << ", Histonum: "<< histonum<< endl;
 			//for(int c = 0; c<binNum; c++){cout<< binEdgesArr[c]<<endl;}return 0;//////////////
-			// fourth arg in TH1D constructor is a pointer 
+			// fourth arg in TH1D constructor is a pointer
 			//to list (of bin edges), in this case a vector:
 			Double_t* a = &binEdgesVec[0];
 			TH1D *h = new TH1D(histonameConstCharPtr,histonameConstCharPtr, binNum, a);
@@ -102,14 +105,14 @@ nested loop structure:
 				h->SetBinContent(j,
 							binContent[j-1]);//*2*TMath::Pi());//*(binEdgesVec[j]+binEdgesVec[j+1])/2);
 				// ^ (data y-value multiplied by 2pi// not:*pt; pt = ptLow+0.5 of binWidth)
-				
+
 				// add errors in quadrature:
 				h->SetBinError(j,TMath::Sqrt(binContentErrStat[j-1]*binContentErrStat[j-1]
 								+binContentErrSys[j-1]*binContentErrSys[j-1]));
-				
+
 			}
 			cout <<"--------------------------------------------"<< endl<< endl;
-			// TODO: histoList.push_back(*h);	// Not necessary if histo list not created		
+			// TODO: histoList.push_back(*h);	// Not necessary if histo list not created
 		}// end of for loop to capture each centrality
 	}// end of global while loop to capture each collisionEnergy
 	in.close();
