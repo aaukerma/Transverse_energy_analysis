@@ -1,6 +1,8 @@
 //BESData_InclPi0.cpp
 /*This program will take data from BESData_sorted.txt and include
-approximated data for Pi0 particle. built from BESDataToRootFile.cpp
+approximated data for Pi0 particle.
+built from BESDataToRootFile.cpp
+TODO: ensure pi0 data works properly in biswas' code
 start:20180522.11:00
 compl:20180525.11:14
 */
@@ -46,6 +48,7 @@ int main(){
   int j;
   int k;
   int l=0;
+  int z=0;
   int PiSize;
   double DataPoint;
   vector <Bin> PiM(0);
@@ -61,6 +64,10 @@ int main(){
 
   while(in>>CollType){
     while(CollType!="Au+Au") {in>>CollType;}
+    if (z!=0){
+      out<<title0<<endl;
+      out<<title6<<endl;
+    }
     in>>CollEner;
     out<<CollType<<" ";
     out<<CollEner<<" GeV"<<endl;
@@ -68,6 +75,9 @@ int main(){
     out <<title0<<endl<<title1<<" "<<title2<<" "<<title3<<" "<<title4<<" "<<title5<<endl;
 
     for(j = 0; j<9; j++) {
+      if (j!=0) {
+        out<<title0<<endl;
+      }
       in>>PartType;
       if (j>=1){ //this is a quick fix, there is a 'title0' that appears and has to be skipped. doesnt work at end of loop for some reason
         in>>PartType;
@@ -130,13 +140,13 @@ int main(){
           out<<fixed<<setprecision(5)<<DataPoint<<endl;
         }
       }
-      out<<title0<<endl;
       in.clear();
     } //end forloop ()
     in>>GARBAGE;
-    out<<title6<<endl;
+    z++;
     if (l==1){
       pi0Builder(PiMinus, PiPlus, Pi0); //runs once for each energy group after pi+ is fed
+      out<<title0<<endl<<title6<<endl;
       out<<CollType<<" ";
       out<<CollEner<<" GeV"<<endl;
       out <<title0<<endl<<title1<<" "<<title2<<" "<<title3<<" "<<title4<<" "<<title5<<endl;
@@ -218,7 +228,7 @@ void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vec
       }
       else
         pizero.Dat.ErrSys= pip.Dat.ErrSys;
-      if (pizero.Dat.pTSpec !=0){
+      if (pizero.Dat.pTSpec !=0){ //solved problem with extra zero entries
         Pi0[i].push_back(Bin());
         Pi0[i][j]=pizero;
       }
