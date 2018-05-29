@@ -218,12 +218,12 @@ void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vec
       pizero.Dat.pTl=vect1[i][j].Dat.pTl;
       pizero.Dat.pTh=vect1[i][j].Dat.pTh;
       pizero.Dat.pTSpec= (pim.Dat.pTSpec+pip.Dat.pTSpec)/2;
-      if (pim.Dat.ErrStat >=pip.Dat.ErrStat){
+      if (pim.Dat.ErrStat >=pip.Dat.ErrStat){ //use standard error (partial deraivative)
         pizero.Dat.ErrStat= pim.Dat.ErrStat;
       }
       else
         pizero.Dat.ErrStat= pip.Dat.ErrStat;
-      if (pim.Dat.ErrSys >=pip.Dat.ErrSys){
+      if (pim.Dat.ErrSys >=pip.Dat.ErrSys){ //largest percent error
         pizero.Dat.ErrSys= pim.Dat.ErrSys;
       }
       else

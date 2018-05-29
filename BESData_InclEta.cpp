@@ -167,6 +167,11 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
       //this is HIGHLY INACCURATE! the eta to pi0 ratio should be a log not a const value (TODO:make a changing S such that is a log)
     //TODO: use PYTHIA v6 to find eta/pi0 vs pT ratio curve (based on "Common Suppression Patterns of [eta] and [pion0] Mesons at High Transverse Momentum in Au+Au collisions at sqrt(s_NN)=200GeV")
       //this ratio can be used to calculate S per centrality bin
+    //come up with solution (defend) [keep it simple]
+
+    //another possible assume its same as kaon (incr uncertainty)
+
+    //omega pythia based (see alice (bracket to pi0 or eta)) based on ET %
   Bin pi0;
   Bin n;
   for (int i=0; i<9; i++){
@@ -179,8 +184,8 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
       n.Dat.pTl=vect1[i][j].Dat.pTl;
       n.Dat.pTh=vect1[i][j].Dat.pTh;
       n.Dat.pTSpec= S*(pi0.Dat.pTSpec);
-      n.Dat.ErrStat=75; //TODO: FIND ERROR STAT rel to pi0
-      n.Dat.ErrSys=75; //TODO: Find ERROR STAT rel to pi0
+      n.Dat.ErrStat=75; //TODO: FIND ERROR STAT rel to pi0 //straight from pion0
+      n.Dat.ErrSys=75; //TODO: Find ERROR STAT rel to pi0 //straight from pion0
       if (n.Dat.pTSpec !=0){ //solved problem with extra zero entries
         Eta[i].push_back(Bin());
         Eta[i][j]=n; //installs value of eta to vector
