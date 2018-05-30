@@ -9,6 +9,7 @@ compl:20180525.11:14
 
 #include <cstdio>
 #include <vector>
+#include <cmath>
 #include <string>
 #include <fstream>
 #include <iostream> // to use cout for debugging
@@ -186,6 +187,12 @@ void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vec
   //int j=0; //size counter for vect1
   //int k=0; //size coutner for vect2 (may be different than vect1)
   int size;
+  double CompErr1;
+  double CompErr2;
+  double temp1;
+  double temp2;
+  double ErrA;
+  double ErrB;
   Bin pim;
   Bin pip;
   Bin pizero;
@@ -218,16 +225,23 @@ void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vec
       pizero.Dat.pTl=vect1[i][j].Dat.pTl;
       pizero.Dat.pTh=vect1[i][j].Dat.pTh;
       pizero.Dat.pTSpec= (pim.Dat.pTSpec+pip.Dat.pTSpec)/2;
-      if (pim.Dat.ErrStat >=pip.Dat.ErrStat){ //use standard error (partial deraivative)
-        pizero.Dat.ErrStat= pim.Dat.ErrStat;
+
+      ErrA=pow((.5*pim.Dat.ErrStat),2); //ie |partialF/partialA|*errA
+      ErrB=pow((.5*pip.Dat.ErrStat),2);
+      pizero.Dat.ErrStat= sqrt(ErrA+ErrB); //for ErrStat, standard error analysis used [ERR_F=sqrt((ERR_F_a)^2+(ERR_F_b)^2)]
+
+      CompErr1=pim.Dat.pTSpec-pim.Dat.ErrSys; //for ErrSys, the percent error is found and compared. largest is taken for pi0
+      CompErr2=pip.Dat.pTSpec-pip.Dat.ErrSys;
+      temp1=1-(CompErr1/pim.Dat.pTSpec);
+      temp2=1-(CompErr2/pip.Dat.pTSpec);
+      temp1=temp1*pizero.Dat.pTSpec;
+      temp2=temp2*pizero.Dat.pTSpec;
+      if (temp1>=temp2){
+        pizero.Dat.ErrSys=temp1;
       }
       else
-        pizero.Dat.ErrStat= pip.Dat.ErrStat;
-      if (pim.Dat.ErrSys >=pip.Dat.ErrSys){ //largest percent error
-        pizero.Dat.ErrSys= pim.Dat.ErrSys;
-      }
-      else
-        pizero.Dat.ErrSys= pip.Dat.ErrSys;
+        pizero.Dat.ErrSys=temp2;
+
       if (pizero.Dat.pTSpec !=0){ //solved problem with extra zero entries
         Pi0[i].push_back(Bin());
         Pi0[i][j]=pizero;
