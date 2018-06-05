@@ -139,9 +139,9 @@ int main(){
             out<<fixed<<setprecision(2)<<Eta[n][m].Dat.ErrSys<<endl;
           }
         }
+        if (n!=8)
         out<<title0<<endl;
       }
-      out<<title6<<endl;
     }
     l++;
     if (l==7) {l=0;}
