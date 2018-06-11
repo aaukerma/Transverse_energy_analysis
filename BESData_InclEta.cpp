@@ -9,6 +9,7 @@ compl:
 
 #include <cstdio>
 #include <vector>
+#include <cmath>
 #include <string>
 #include <fstream>
 #include <iostream> // to use cout for debugging
@@ -135,8 +136,8 @@ int main(){
             out<<fixed<<setprecision(2)<<Eta[n][m].Dat.pTl<<" \t ";
             out<<fixed<<setprecision(2)<<Eta[n][m].Dat.pTh<<" \t ";
             out<<fixed<<setprecision(4)<<Eta[n][m].Dat.pTSpec<<" \t ";
-            out<<fixed<<setprecision(2)<<Eta[n][m].Dat.ErrStat<<" \t ";
-            out<<fixed<<setprecision(2)<<Eta[n][m].Dat.ErrSys<<endl;
+            out<<fixed<<setprecision(5)<<Eta[n][m].Dat.ErrStat<<" \t ";
+            out<<fixed<<setprecision(5)<<Eta[n][m].Dat.ErrSys<<endl;
           }
         }
         if (n!=8)
@@ -161,17 +162,25 @@ The error is also created here and is TODO
 */
 void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   int size;
+  double pT;
+  double c;
   double S=0.482; //scale Factor TODO: find scale factor
-    //S=0.482 based on "Applicability of transverse mass scaling in harmonic collisions at LHC" (page6)
-      //this has a +- of 0.030 and is based on not pi0 but the average of pi+ and pi- (as was used as estimated pi0 for this program)
-      //this is HIGHLY INACCURATE! the eta to pi0 ratio should be a log not a const value (TODO:make a changing S such that is a log)
-    //TODO: use PYTHIA v6 to find eta/pi0 vs pT ratio curve (based on "Common Suppression Patterns of [eta] and [pion0] Mesons at High Transverse Momentum in Au+Au collisions at sqrt(s_NN)=200GeV")
-      //this ratio can be used to calculate S per centrality bin
-    //come up with solution (defend) [keep it simple]
+  double Se=0.030;
+    /*
+    S=0.482 based on "Applicability of transverse mass scaling in harmonic collisions at LHC" (page6)
+      this has a +- of 0.030 and is based on not pi0 but the average of pi+ and pi- (as was used as estimated pi0 for this program)
+      NOTE: this paper was used for the following reasons
+                  1: the momentums calculated for were nearest those used in the data sets include (between .025 and 2 GeV/c)
+                  2: the data was for higher momentums (where lower momentum data is preferred) in the paper "common suppression pattern of eta and pionzero mesons at high transverse momentum in au+au collisions at snn=200GeV"
+                  3: there was no clear correlation presented in "measurement of neutral mesons in p+p collisions as snn=200GeV and scaling properties of hadron production",
+                    also I feel it is preferred to use data based in au+au collision data as that is what we are using
+    TODO: use PYTHIA v6 to find eta/pi0 vs pT ratio curve (based on "Common Suppression Patterns of [eta] and [pion0] Mesons at High Transverse Momentum in Au+Au collisions at sqrt(s_NN)=200GeV")
+      this ratio can be used to calculate S per centrality bin
+    come up with solution (defend) [keep it simple]
+    another possible assume its same as kaon (incr uncertainty)
 
-    //another possible assume its same as kaon (incr uncertainty)
-
-    //omega pythia based (see alice (bracket to pi0 or eta)) based on ET %
+    omega pythia based (see alice (bracket to pi0 or eta)) based on ET %
+    */
   Bin pi0;
   Bin n;
   for (int i=0; i<9; i++){
@@ -184,8 +193,12 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
       n.Dat.pTl=vect1[i][j].Dat.pTl;
       n.Dat.pTh=vect1[i][j].Dat.pTh;
       n.Dat.pTSpec= S*(pi0.Dat.pTSpec);
-      n.Dat.ErrStat=75; //TODO: FIND ERROR STAT rel to pi0 //straight from pion0
-      n.Dat.ErrSys=75; //TODO: Find ERROR STAT rel to pi0 //straight from pion0
+      pT=pow((pi0.Dat.ErrStat*S),2);
+      c=pow(Se,2);
+      //pTe=pow(pi0.Dat.ErrStat,2);
+      //ce=pow(Se,2);
+      n.Dat.ErrStat=sqrt(pT+c); //TODO: FIND ERROR STAT rel to pi0 //straight from pion0
+      n.Dat.ErrSys=pi0.Dat.ErrSys*S; //TODO: Find ERROR STAT rel to pi0 //straight from pion0
       if (n.Dat.pTSpec !=0){ //solved problem with extra zero entries
         Eta[i].push_back(Bin());
         Eta[i][j]=n; //installs value of eta to vector
