@@ -26,15 +26,15 @@ Description (incomplete) of contents in the repository:
 directory: oldVersions
 	- created before learning git
 	- contains codes and results from the past
-	- not deleted because these codes contain 
+	- not deleted because these codes contain
 		functionalities that may be relevant in the future
-		
+
 directory: finalPlots
 	- contains subdirectories containing cross-check plots and new plots
-	
+
 directory: debugPlots
 	- contains plots produced while debugging
-	
+
 directory: publication
 	- contains (latex) documents under construction for publication
 
@@ -43,19 +43,19 @@ directory: publication
 	- particle multiplicity** in transverse momentum bins
 	- produced from Au+Au collisions
 	- at 5 different collision energies: {7.7,11.5,19.6,27,39} Gev
-	- data currently available for 6 different particles: 
+	- data currently available for 6 different particles:
 		pi-, pi+, k-, k+, proton and antiproton
 	- recorded at 9 different centralities:
 		0-5% (0), 5-10% (1), 10-20% (2), 20-30% (3), ....., 70-80% (8)
 	- ordinate is 1/(2pi*pT) * dN/dpT as opposed to dN/dpT
 	** per unit transverse momentum per unit pseudorapidity
-	
+
 2. BESDataToRootFile.cpp
-	- organizes 1. into TH1 Objects in a .root file
-	
+	- organizes 58. into TH1 Objects in a .root file
+
 3. BESData.root
 	- result of 2.
-	
+
 4. fitBESData4_oneByOne_6Params.h
 	- contains definitions of functions invoked by 5.
 
@@ -69,8 +69,8 @@ directory: publication
 	- result of 5.
 
 7. analyzeAllHistos.bash
-	- bash script that runs 8. and 9. in sequence
-	- 8. and 9. needed to be separated due to memory issues
+	- bash script that runs 8. 9. 59. 60. and 61. in sequence
+	- 8. 9. 59. 60. and 61. needed to be separated due to memory issues
 	- fits histograms in 3. with the Boltzmann-Gibbs Blast Wave function
 	- uses good-fit parameters to estimate quantities used in final plots
 	- outputs results into 11.
@@ -78,11 +78,11 @@ directory: publication
 	- ... see 22. (fitSampleSpec.cpp)
 
 8. fitBESData5_1.cpp
-	- used for first 140 histograms
-	
+	- used for first 72 histograms
+
 9. fitBESData5_2.cpp
-	- used for the last 130 histograms
-	
+	- used for histograms 73-144
+
 10. fitBESData5.h
 	- contains definitions of functions used by 8. and 9.
 
@@ -105,7 +105,7 @@ directory: publication
 
 15. parallelCoordPlot.png
 	- result of 14.
-	
+
 16. ALICE2013Data.txt
 	- old data; v2 in 31.
 	- combined pi- & pi+ spectrum (0-5% central) from ALICE 2013 data
@@ -166,16 +166,16 @@ directory: publication
 
 26. ALICE2013Spec_transformed_0.3.root
 	- result of 24, with pt = ptLow+0.3
-	
+
 27. fitALICE2013Data1.cpp
 	- same as 22. but customized specifically to use for 18.
-	
+
 28. fitALICE2013Data.h
 	- header file used by 27.
 
 29. fitALICE2013Data1_transformed.cpp
 	- same as 22. but customized specifically to use for 25. or 26.
-	
+
 30. fitALICE2013Data_transformed.h
 	- header file used by 29 or 34.
 	- accounts for the fact that a transformation had already been applied ...
@@ -266,7 +266,28 @@ directory: publication
 54. compare*.C
 	- macros to compare results with those from other experiments
 
+55. BESData_Inclpi0.cpp
+  - macro takes BESData_sorted.txt and adds in pi0 data
+	- pi0 data calculated from pi+ and pi- data (ptSpecta calculated as average thereof)
 
+56. BESData_InclEta.cpp
+	- macro takes BESData_sorted_PlusPi0.txt and creates data for eta meson
+	- eta calculated via mass scaling from pi0
+
+57. BESData_sorted_PlusPi0.txt
+	- same as BESData_sorted.txt only with pi0
+
+58. BESData_sorted_PlusEta.txt
+	- same as BESData_sorted_PlusPi0.txt only with eta meson
+
+59. fitBESData5_3.cpp
+	- used for histograms 145-216
+
+60. fitBESData5_4.cpp
+	- used for histograms 217-288
+
+61. fitBESData5_5.cpp
+		- used for histograms 289-360
 
 *******************************************************************************
 *******************************************************************************
@@ -274,10 +295,10 @@ ToDos:
 ..................................................................................
 - add error bars in the final plots: finalPlots_TGE.cpp
 - to the above plots, add lambda spectra from STAR Preliminary data on BES strangeness
-	1. clearify what "raw" means as opposed to "pT" in one of the directories, 
+	1. clearify what "raw" means as opposed to "pT" in one of the directories,
 	 and what cut30 and cut0 mean
 	 -> later
-	 	
+
 
 ..................................................................................
 - add errors to cross-check plots and see if they match better with:
@@ -300,15 +321,15 @@ Past ToDos and debugging notes:
 	modify existing code to read data that is pointwise instead
 	 of binned and turn it into TGraphErrors objects instead of TH1D objects
 	 2.0 try to read data from all the input files in the directories within
-	  a directory recursively -- that did not work, so trying 2.1 (see past 
-	  debugging note for why it didn't work) 
+	  a directory recursively -- that did not work, so trying 2.1 (see past
+	  debugging note for why it didn't work)
 	 2.1 copy data from different files into a sinlge file and convert it to
-	  almost-original BES data format -- DONE: BES_lambdas.txt 
+	  almost-original BES data format -- DONE: BES_lambdas.txt
 	 2.2 Turn data in almost-original BES format into TGraphErrors objects
-	  in a ROOT TFile object -- DONE: BES_lambdas.root 
+	  in a ROOT TFile object -- DONE: BES_lambdas.root
 	  using BESLambdasToRootFile.cpp
-	--> DONE 
-	
+	--> DONE
+
 	3. DONE --
 	modify existing code to use the fitting method of the TGraphErrors class
 	 instead of the TH1 class
@@ -320,7 +341,7 @@ Past ToDos and debugging notes:
 	 3.2 Add/modify methods in fitSpec.h
 		3.2.1 Modify method to estimate integral from data points
 		-> alternate solution to use: since the bins are not clear,
-			just obtain fitting curves (3.2) for TGraphs mentioned in 3.2.1.1 
+			just obtain fitting curves (3.2) for TGraphs mentioned in 3.2.1.1
 			and then use the Integral() method of the TF1 class to
 			implement 3.2.1.2
 		 - Inside the method getIntegralsAndErrorsFromData:
@@ -332,20 +353,20 @@ Past ToDos and debugging notes:
 			- integral from data points = 3.2.1.1.1
 			- integral err+ = 3.2.1.1.2 - 3.2.1.1.1
 			- integral err- = 3.2.1.1.1 - 3.2.1.1.3
-		3.2.2 Modify method to 
+		3.2.2 Modify method to
 	 3.2 Modify fitSampleSpec.cpp and test on individual spectra
 	 	-> file created: fitSampleSpec_TH_TGE.cpp
-	 3.3 Modify fitBESData5_1. cpp 
+	 3.3 Modify fitBESData5_1. cpp
 
-	 
-	4. DONE by interpolating -- 
-	figure out the correct method to take care of the fact that the lambda 
+
+	4. DONE by interpolating --
+	figure out the correct method to take care of the fact that the lambda
 	 spectra are available for slightly different centralities than the rest
 	 of the spectra; specifically, lambda spectra have centralities 40-60 and
 	 60-80 instead of 40-50, 50-60, 60-70, and 70-80; guess: combine the
 	 relevant centralities in the rest of the data to match lambda
 	 centralities; combine what quantities associated with the centralities
-	 though? the spectra (in which case, how do the errors add up?) 
+	 though? the spectra (in which case, how do the errors add up?)
 	 or the end results (in which case also, how do the errors add up)?
 	 -> for quantities k1 and k2 that add up as k = k1 + k2 and have
 	  associated uncertainties dk1 and dk2, the uncertainty in k is given
@@ -354,14 +375,14 @@ Past ToDos and debugging notes:
 ..................................................................................
 3. SCRATH THAT, JUST CONVERT THE GRAPHS TO HISTOGRAMS BECAUSE THAT'S WHAT THEY
 ARE SUPPOSED TO BE:
-	 
+
 	3. SCRATCH THAT, LAMBDAS DON'T CONTRIBUTE THAT MUCH TO THE ET, SO THAT
-	MUCH "ACCURACY" IS NOT NECESSARY 
+	MUCH "ACCURACY" IS NOT NECESSARY
 	Convert the TGraphErrors objets to TH1 objects because that's what
 		they are supposed to be
 		- algorithm: except for i=n, where n is the number of points
 		 in the graph, take the mid-point between the ith and the (i+1)th
-		 x-values 
+		 x-values
 
 ..................................................................................
 
@@ -369,11 +390,11 @@ ARE SUPPOSED TO BE:
  gcc's "#include <experimental/filesystem>", but that pointed to errors
  in gcc's header
 
-/usr/lib/gcc/x86_64-redhat-linux/6.4.1/../../../../include/c++/6.4.1/bits/locale_conv.h:33:2: error: 
+/usr/lib/gcc/x86_64-redhat-linux/6.4.1/../../../../include/c++/6.4.1/bits/locale_conv.h:33:2: error:
       unterminated conditional directive
 #if __cplusplus < 201103L
  ^
-/usr/lib/gcc/x86_64-redhat-linux/6.4.1/../../../../include/c++/6.4.1/bits/locale_conv.h:30:2: error: 
+/usr/lib/gcc/x86_64-redhat-linux/6.4.1/../../../../include/c++/6.4.1/bits/locale_conv.h:30:2: error:
       unterminated conditional directive
 #ifndef _LOCALE_CONV_H
  ^
@@ -438,7 +459,7 @@ Strategy 1.2: use maximum likelihood estimate/cross-validation instead of minimu
 	- However, dET/dEta estimates fairly match those in transverse energy analysis note
 Debugged: new estimates in agreement with publication
 (39 GeV 0-5% central pi- dET/dETA 76.6687, so that times 5 is around 380,
-a ballpark upper limit for total dET/dETA, which from publication, 
+a ballpark upper limit for total dET/dETA, which from publication,
 https://arxiv.org/pdf/1509.06727.pdf#page=25, is 303. Ballpark lower limit
 is 76*3, which is around 230, so reasonable.)
 ..................................................................................
@@ -463,7 +484,7 @@ Done upto 15. -- DONE
 
 ..................................................................................
 	- available BES data contains d^2N/(2pi*pt*dpt*dy)[(GeV/c)^-2] in pt bins
-	- taken care of in fitBESData5.h: Double_t dNdpt_normalized	= 2 * 
+	- taken care of in fitBESData5.h: Double_t dNdpt_normalized	= 2 *
 		TMath::Pi() * pt * norm * dNdptOverpt+type*0.;
 	- need to apply similar transformation in calculating integral from data points
 ..................................................................................
@@ -475,4 +496,4 @@ First Intro Meeting Notes
 
 - transverse energy concepts and big picture
 - TODO: email Ben link to master's thesis
-- 
+-
