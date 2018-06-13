@@ -31,7 +31,7 @@ struct Bin {
 
 void pi0Builder(const vector<vector<Bin>>& vect1, const vector<vector<Bin>>& vect2, vector<vector<Bin>>& Pi0);
 
-int main(){
+int BESData_InclPi0(){
   string CollType;
   string CollEner;
   string title0 = "------------------------"; //This is manually entered (it could potentially be read in directly)[applies to all "titleX"]

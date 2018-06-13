@@ -31,7 +31,7 @@ struct Bin {
 
 void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta);
 
-int main(){
+int BESData_InclEta(){
   string CollType;
   string CollEner;
   string title0 = "------------------------"; //This is manually entered (it could potentially be read in directly)[applies to all "titleX"]

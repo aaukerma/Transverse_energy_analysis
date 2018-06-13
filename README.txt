@@ -6,17 +6,17 @@ This method involves a manipulation of the transverse momentum spectra, utilizin
 
 *********************************************************************************************
 Tutorial sequence:
-
-1. root BESDataToRootFile.cpp
-2. source analyzeAllHistos.bash (~ 5 mins)
-3. root BESLambdasToRootFile_TH1.cpp
-4. root fitAllHistosInTFile.cpp (~ 5 mins)
-5. root interpLaCentTGE.cpp
-6. root interpLaCentTGE_y.cpp
-7. root finalPlots_TGE.cpp
-8. root finalPlots_TGE_y.cpp
-9. root stackFinalPlots.C
-10. root stackFinalPlots_y.C
+1. source IncludeParticles.bash
+2. root BESDataToRootFile.cpp
+3. source analyzeAllHistos.bash (~ 5 mins)
+4. root BESLambdasToRootFile_TH1.cpp
+5. root fitAllHistosInTFile.cpp (~ 5 mins)
+6. root interpLaCentTGE.cpp
+7. root interpLaCentTGE_y.cpp
+8. root finalPlots_TGE.cpp
+9. root finalPlots_TGE_y.cpp
+10. root stackFinalPlots.C
+11. root stackFinalPlots_y.C
 *********************************************************************************************
 Descriptionsof methods available in fitBESData5.h
 *********************************************************************************************
@@ -287,7 +287,10 @@ directory: publication
 	- used for histograms 217-288
 
 61. fitBESData5_5.cpp
-		- used for histograms 289-360
+	- used for histograms 289-360
+
+62. IncludeParticles.bash
+	- runs BESData_InclPi0.cpp and BESData_InclEta.cpp consecutively
 
 *******************************************************************************
 *******************************************************************************
