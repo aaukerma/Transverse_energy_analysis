@@ -42,7 +42,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 2.00);
 		}
 		else
-		{ 
+		{
 			graphName = "dETdEtaOverdNchdEtaSumCent" + std::to_string(centInd);
 			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.00);
 		}
@@ -51,7 +51,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		const char* graphTextConstCharPtr = graphText.c_str();
 		cout << "graphName: " << graphName << endl;
 		g1 = (TGraphErrors*)file1->Get(graphNameConstCharPtr);
-		
+
 		// Power law fit temporarity removed:
 		/*
 		if (graphInd == 0 && centInd==0)
@@ -63,7 +63,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 	  		//gStyle->SetOptFit(0111);
 		}
 		*/
-		
+
 		g1->SetMarkerSize(3);
 		if (centInd == 0) g1->Draw("A*E");
 		if(centInd == 4)
@@ -72,11 +72,11 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 			g1->SetLineColor(28);
 		}
 		else
-		{ 
+		{
 			g1->SetMarkerColor(1+centInd); // 4 is yellow
 			g1->SetLineColor(1+centInd);
 		}
-		g1 -> SetMarkerStyle(20+centInd); 
+		g1 -> SetMarkerStyle(20+centInd);
 		c1 -> SetLogx();
 		g1 -> Draw("PX"); // px if errors not wanted
 		//g1 -> Draw("PE");
@@ -86,9 +86,9 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		leg -> SetFillColor(0);
 		leg -> SetBorderSize(0);
 		leg -> Draw();
-		
+
 	} // end of for loop with index centInd
-						
+
 	// PHENIX plot for comparison:
 	/*
 	if (graphInd == 0)
@@ -103,8 +103,8 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 	*/
 	//c1->SetCanvasSize(2000, 2000);
 	//c1->SetWindowSize(500, 500);
-	imgPathAndName = 
-			"./publication/Biswas/figures/finalStacked/"+graphName+"s.png";
+	imgPathAndName =
+			"./finalStacked/"+graphName+"s.png";
 	c1 -> Update();
 	const char* imgPathAndNameConstCharPtr1 = imgPathAndName.c_str();
 	c1->SaveAs(imgPathAndNameConstCharPtr1);
@@ -118,14 +118,14 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 	TLegend* leg = new TLegend(0.7,0.1,0.9,0.4);
 	for(int enInd = 0; enInd < COLLENS; enInd++)
 	{
-		
+
 		if (graphInd == 2)
 		{
 			graphName = "dETdEtaOverNpartBy2SumEn" + doubToString(collEnArr[enInd]);
 			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 2.00);
 		}
 		else
-		{ 
+		{
 			graphName = "dETdEtaOverdNchdEtaSumEn" + doubToString(collEnArr[enInd]);
 			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.4, 1.00);
 		}
@@ -136,7 +136,7 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		g1 = (TGraphErrors*)file1->Get(graphNameConstCharPtr);
 		// suppress error bars along X-axis:
 		//gStyle -> SetErrorX(0.0001); // does not work
-		//c1->Update();		
+		//c1->Update();
 		for(int j=0;j<g1->GetN();j++){g1->SetPointError(j,0,g1->GetErrorY(j));}
 		g1->SetMarkerSize(2);
 		if (enInd == 0) g1 -> Draw("AP");
@@ -146,7 +146,7 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 			g1->SetLineColor(28);
 		}
 		else
-		{ 
+		{
 			g1->SetMarkerColor(1+enInd); // 4 is yellow
 			g1->SetLineColor(1+enInd);
 		}
@@ -160,12 +160,12 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		leg -> SetBorderSize(0);
 		leg -> Draw();
 		c1->SetCanvasSize(1000, 1000);
-		
+
 	} // end of for loop with index enInd
 
 	// save stuff:
-	imgPathAndName = 
-			"./publication/Biswas/figures/finalStacked/"+graphName+"s.png";
+	imgPathAndName =
+			"./finalStacked/"+graphName+"s.png";
 	c1 -> Update();
 	const char* imgPathAndNameConstCharPtr1 = imgPathAndName.c_str();
 	c1->SaveAs(imgPathAndNameConstCharPtr1);

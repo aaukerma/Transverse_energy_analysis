@@ -33,7 +33,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 2.00);
 		}
 		else
-		{ 
+		{
 			graphName = "dETdyOverdNchdySumCent" + std::to_string(centInd);
 			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.05);
 		}
@@ -50,7 +50,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 			g1->SetLineColor(28);
 		}
 		else
-		{ 
+		{
 			g1->SetMarkerColor(1+centInd); // 4 is yellow
 			g1->SetFillColor(1+centInd);
 		}
@@ -63,10 +63,10 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		leg -> SetFillColor(0);
 		leg -> SetBorderSize(0);
 		leg -> Draw();
-		
+
 		c1->SetCanvasSize(2000, 2000);
-		imgPathAndName = 
-			"./publication/Biswas/figures/finalStacked/"+graphName+"s.png";
+		imgPathAndName =
+			"./finalStacked/"+graphName+"s.png";
 		c1 -> Update();
 	} // end of for loop with index centInd
 	const char* imgPathAndNameConstCharPtr1 = imgPathAndName.c_str();
@@ -87,7 +87,7 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.0, 2.50);
 		}
 		else
-		{ 
+		{
 			graphName = "dETdyOverdNchdySumEn" + doubToString(collEnArr[enInd]);
 			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 1.10);
 		}
@@ -106,7 +106,7 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 			g1->SetLineColor(28);
 		}
 		else
-		{ 
+		{
 			g1->SetMarkerColor(1+enInd); // 4 is yellow
 			g1->SetLineColor(1+enInd);
 		}
@@ -120,8 +120,8 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		leg -> SetBorderSize(0);
 		leg -> Draw();
 		c1->SetCanvasSize(1000, 1000);
-		imgPathAndName = 
-			"./publication/Biswas/figures/finalStacked/"+graphName+"s.png";
+		imgPathAndName =
+			"./finalStacked/"+graphName+"s.png";
 		c1 -> Update();
 	} // end of for loop with index enInd
 	const char* imgPathAndNameConstCharPtr1 = imgPathAndName.c_str();
