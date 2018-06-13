@@ -20,22 +20,22 @@ Double_t collEnArr[5] = {7.7,11.5,19.6,27,39}; // To use in TGraphErrors
 
 // main function:
 int finalPlots_TGE_y(){
-	
+
 	ifstream in1; // input from dat file containing pi/k/p results
 	TFile* f; // .root file to be created
 	string skipContent;// read and skip content that has no use
 	const int CENTS 		= 9; // 9 different centralities
 	const int COLLENS 		= 5; // 5 different collision energies
-	const int PARTS 		= 8; // 8 different particles
+	const int PARTS 		= 10; // 8 different particles
 	Double_t collEn;
 	Double_t cent;// centrality value obtained from data file
 	string part; // particle name
 	//Double_t mass; // just to debug
-	Double_t dETdySum[CENTS][COLLENS] = {0.};// initialize element [0][0] to 0, 
-											//and initialize all other elements as if 
+	Double_t dETdySum[CENTS][COLLENS] = {0.};// initialize element [0][0] to 0,
+											//and initialize all other elements as if
 											// they had static storage duration, hence
 											// set them to zero as well
-											
+
 	Double_t dETdySum_errSq[CENTS][COLLENS] = {0}; // errors added in quadrature
 	Double_t dETdySum_err[CENTS][COLLENS] = {0.}; // sq root of the above
 	Double_t dNchdySum[CENTS][COLLENS] = {0.};
@@ -47,7 +47,7 @@ int finalPlots_TGE_y(){
 	Double_t dETdyOverNpartBy2Sum_err[CENTS][COLLENS] = {0.}; // use formula involving...
 					//partial derivatives to evaluate uncertainty
 	Double_t dETdyOverdNchdySum[CENTS][COLLENS] = {0.};
-	Double_t dETdyOverdNchdySum_err[CENTS][COLLENS] = {0.}; // 
+	Double_t dETdyOverdNchdySum_err[CENTS][COLLENS] = {0.}; //
 	// Add elements below (for all the particles)
 		// in order to get the above elements
 	Double_t dETdy[CENTS][COLLENS][PARTS] = {0.};
@@ -58,7 +58,7 @@ int finalPlots_TGE_y(){
 	f = new TFile("crossCheckGraphs_y.root","RECREATE");
 	for(int j=0; j<=270+70; j++){// for 270 rows below header in the data file in1
 								// and 70 rows below header in data file in2
-		if (j == 0) 
+		if (j == 0)
 		{
 			in1.open(Form("./fitResults5.dat"));
 			if (!in1.good())
@@ -103,17 +103,17 @@ int finalPlots_TGE_y(){
 		in1 >> skipContent;
 		}
 		in1 >> dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
-		cout << "dETdy: " << 
+		cout << "dETdy: " <<
 			dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)] << "\t";
 		in1 >> dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)];
 		for(int l=0; l<14; l++) in1 >> skipContent;
 		in1 >> dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
-		cout << "dNchdy: " << 
+		cout << "dNchdy: " <<
 			dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)] << "\t";
 		in1 >> dNchdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)];
 		//for(int l=0; l<8; l++) in1 >> skipContent;
 		in1 >> Npart[centIndex(cent)][enIndex(collEn)];
-		cout << "Npart: " << 
+		cout << "Npart: " <<
 			Npart[centIndex(cent)][enIndex(collEn)] << "\t";
 		in1 >> Npart_err[centIndex(cent)][enIndex(collEn)];
 		cout << Npart_err[centIndex(cent)][enIndex(collEn)] << "\n";
@@ -124,22 +124,22 @@ int finalPlots_TGE_y(){
 			dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)]		= 0.;
 			dNchdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]	= 0.;
 			if(centIndex(cent) == 5 || centIndex(cent) == 6)
-			{// set below variables to zero, 
+			{// set below variables to zero,
 			  // since they don't represent the common centralities;
 			  // the interpolated values corresponding to the common centralities...
-			  // will be retrieved later 
+			  // will be retrieved later
 				dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)] 		= 0.;
 				dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]	= 0.;
-			
+
 				Npart[centIndex(cent)][enIndex(collEn)]	= *getNpartAndErr(collEn,cent);
-				Npart_err[centIndex(cent)][enIndex(collEn)]= *(getNpartAndErr(collEn,cent)+1);		
+				Npart_err[centIndex(cent)][enIndex(collEn)]= *(getNpartAndErr(collEn,cent)+1);
 			}
 		}
-		cout << "dETdy: " << 
+		cout << "dETdy: " <<
 			dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)] << "\t";
-		cout << "dNchdy: " << 
+		cout << "dNchdy: " <<
 			dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)] << "\t";
-		cout << "Npart: " << 
+		cout << "Npart: " <<
 			Npart[centIndex(cent)][enIndex(collEn)] << "\t";
 		cout << Npart_err[centIndex(cent)][enIndex(collEn)] << "\n";
 		// TODO: what about lambdas while adding ET?
@@ -148,7 +148,7 @@ int finalPlots_TGE_y(){
 			// product are roughly the same
 			// which is not true at low energies since the colliding nuclei have +ve nucleons
 		if(partIndex(part)==0 || partIndex(part)==1){
-			dETdySum[centIndex(cent)][enIndex(collEn)] 
+			dETdySum[centIndex(cent)][enIndex(collEn)]
 			 += (3.0/2.0)*dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
 			// ^ since number of pi0 = num of pi+ or pi-
 			dETdySum_errSq[centIndex(cent)][enIndex(collEn)]
@@ -156,7 +156,7 @@ int finalPlots_TGE_y(){
 			    ((3.0/2.0)*dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]);
 			dETdySum_err[centIndex(cent)][enIndex(collEn)]
 			 =  TMath::Sqrt(dETdySum_errSq[centIndex(cent)][enIndex(collEn)]);
-								 	   
+
 			dNchdySum[centIndex(cent)][enIndex(collEn)]
 			 += dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
 			dNchdySum_errSq[centIndex(cent)][enIndex(collEn)]
@@ -175,13 +175,13 @@ int finalPlots_TGE_y(){
 			// ^ since num of k0_s ~ num of k0_l = num of k+ or k-
 				// also, num of p ~ num of pbar ~ num of n or nbar
 			dETdySum_err[centIndex(cent)][enIndex(collEn)]
-			 = TMath::Sqrt(dETdySum_errSq[centIndex(cent)][enIndex(collEn)]);						 	   
-			dNchdySum[centIndex(cent)][enIndex(collEn)] 		
+			 = TMath::Sqrt(dETdySum_errSq[centIndex(cent)][enIndex(collEn)]);
+			dNchdySum[centIndex(cent)][enIndex(collEn)]
 			 += dNchdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
-			dNchdySum_errSq[centIndex(cent)][enIndex(collEn)] 	
+			dNchdySum_errSq[centIndex(cent)][enIndex(collEn)]
 			 += dNchdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]*
 				dNchdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)];
-			dNchdySum_err[centIndex(cent)][enIndex(collEn)]		
+			dNchdySum_err[centIndex(cent)][enIndex(collEn)]
 			 = TMath::Sqrt(dNchdySum_errSq[centIndex(cent)][enIndex(collEn)]);
 		}
 		else if(partIndex(part)==6 || partIndex(part)==7){
@@ -197,7 +197,7 @@ int finalPlots_TGE_y(){
 		}
 	} //end of for loop with index j - captured all 270+70 rows from data file
 	in1.close();// all information from file extracted, so it should be closed
-	
+
 	// accomodate results for last 4 centralities for lambdas and antilambdas,
 	 // i.e., cents 5, 6, 7 and 8:
 	in1.open(Form("./lambdasInterpWithErr_y.dat"));
@@ -205,12 +205,12 @@ int finalPlots_TGE_y(){
 	 // interpolated lambdas table in lambdasInterpWithErr.dat:
 	for(int l=0;l<9;l++)
 	{ // loop through 9 column names
-		in1 >> skipContent; 
+		in1 >> skipContent;
 	}
 	for(int j=0; j<5; j++)
 	{
 		// temporary double to hold input stream value
-		Double_t dETdySumOrErr; 
+		Double_t dETdySumOrErr;
 		in1 >> collEn;
 		for(int i=0; i<4; i++)
 		{// first four data columns contain dETdy sum
@@ -260,7 +260,7 @@ int finalPlots_TGE_y(){
 																 );
 			}
 		}
-		
+
 	/// ------ begin - plot all snn graphs at once -------------------------------//
 	for(int centInd=0; centInd<CENTS; centInd++){ // loop through all centralities
 		centArr[centInd] = centInd*1.0;
@@ -268,7 +268,7 @@ int finalPlots_TGE_y(){
 		Double_t dETdyOverNpartBy2SumCentByCent_err[COLLENS];
 		Double_t dETdyOverdNchdySumCentByCent[COLLENS];
 		Double_t dETdyOverdNchdySumCentByCent_err[COLLENS];
-		for(int i=0; i<COLLENS; i++){ 
+		for(int i=0; i<COLLENS; i++){
 		// loop through all collEns for current centrality
 		// because TGraphErrors does not take a 2d array as argument
 			dETdyOverNpartBy2SumCentByCent[i] = dETdyOverNpartBy2Sum[centInd][i];
@@ -281,10 +281,10 @@ int finalPlots_TGE_y(){
 					NULL, dETdyOverNpartBy2SumCentByCent_err);
 				 // ^ NULL for axis without available errors
 		// unique identifier to be used in function:
-		g1 -> SetName("dETdyOverNpartBy2Sum_vs_en"); 
+		g1 -> SetName("dETdyOverNpartBy2Sum_vs_en");
 		formatGraph(g1, centArr, centInd);
-		delete g1;	
-	
+		delete g1;
+
 		// TODO make a function to take care of different types of graph instead of creating new objects here
 		TGraphErrors* g2;
 		g2 = new TGraphErrors(COLLENS, collEnArr, dETdyOverdNchdySumCentByCent,
@@ -292,19 +292,19 @@ int finalPlots_TGE_y(){
 		g2 -> SetName("dETdyOverdNchdySum_vs_en"); // unique identifier to be used in function:
 		formatGraph(g2, centArr, centInd);
 		delete g2;
-		
+
 	} // end of for loop with index centInd
 	/// ------ end - plot all snn graphs at once -------------------------------//
-	
+
 	Double_t NpartArrEnByEn[CENTS]; // for each collEn, there is a unique Npart Array
-	// unlike for the snn graphs in which 
+	// unlike for the snn graphs in which
 	// for each cent, there is the same collEnArr
 	// hence, the above array should be used in a loop instead of directly as in
 	// the usage of collEnArr.
 	Double_t NpartArrEnByEn_err[CENTS];
-	
-	
-	/// ------ begin - plot all Npart graphs at once---------------------/// 
+
+
+	/// ------ begin - plot all Npart graphs at once---------------------///
 	for(int enInd=0; enInd<COLLENS; enInd++){ // loop through all coll Ens
 		Double_t dETdyOverNpartBy2SumEnByEn[CENTS];// one graph per collEn;
 		Double_t dETdyOverNpartBy2SumEnByEn_err[CENTS];
@@ -325,17 +325,17 @@ int finalPlots_TGE_y(){
 		g1 -> SetName("dETdyOverNpartBy2Sum_vs_Npart"); // unique identifier for graph
 														// see use in function formatGraph
 		formatGraph(g1, collEnArr, enInd);
-		
+
 		delete g1;
-		
+
 		TGraphErrors* g2;
 		g2 = new TGraphErrors(CENTS, NpartArrEnByEn, dETdyOverdNchdySumEnByEn,
 						NpartArrEnByEn_err, dETdyOverdNchdySumEnByEn_err);
 		g2 -> SetName("dETdyOverdNchdySum_vs_Npart");
 		formatGraph(g2, collEnArr, enInd);
 		delete g2;
-		
-		
+
+
 	} // end of for loop with index enInd
 	/// ------ end - plot all npart graphs at once -------------------------------//
 	delete f;
@@ -372,7 +372,7 @@ void formatGraph(TGraphErrors* g, Double_t collEn_Or_NpartArr[], int en_Or_centI
 		ylabel = "#LTd#it{E}_{T}/dy#GT/#LT#it{N}_{part}/2#GT (GeV)";
 		graphText = centIndToPercent(en_Or_centInd)+" centrality";
 		graphName = "dETdyOverNpartBy2SumCent" + std::to_string(en_Or_centInd);
-		imgPathAndName = 
+		imgPathAndName =
 		"./finalPlots/crossCheckPlots/rapidity/dETdyOverNpartBy2_En/"+graphName+".png";
 	}
 	else if (g -> GetName()==snn2){
@@ -383,7 +383,7 @@ void formatGraph(TGraphErrors* g, Double_t collEn_Or_NpartArr[], int en_Or_centI
 		ylabel = "#LTd#it{E}_{T}/dy#GT/#LTd#it{N}_{ch}/dy#GT (GeV)";
 		graphText = centIndToPercent(en_Or_centInd)+" centrality";
 		graphName = "dETdyOverdNchdySumCent" + std::to_string(en_Or_centInd);
-		imgPathAndName = 
+		imgPathAndName =
 		"./finalPlots/crossCheckPlots/rapidity/dETdyOverdNchdy_En/"+graphName+".png";
 	}
 	else if (g -> GetName()==npart1){
@@ -393,7 +393,7 @@ void formatGraph(TGraphErrors* g, Double_t collEn_Or_NpartArr[], int en_Or_centI
 		ylabel= "#LTd#it{E}_{T}/dy#GT/#LT#it{N}_{part}/2#GT (GeV)";
 		graphText = "#sqrt{#it{s}_{NN}} ="+doubToString(collEn_Or_NpartArr[en_Or_centInd])+" GeV";
 		graphName = "dETdyOverNpartBy2SumEn" + doubToString(collEn_Or_NpartArr[en_Or_centInd]);
-		imgPathAndName = 
+		imgPathAndName =
 		"./finalPlots/crossCheckPlots/rapidity/dETdyOverNpartBy2_Npart/"+graphName+".png";
 	}
 	else if (g -> GetName()==npart2){
@@ -403,11 +403,11 @@ void formatGraph(TGraphErrors* g, Double_t collEn_Or_NpartArr[], int en_Or_centI
 		ylabel= "#LTd#it{E}_{T}/dy#GT/#LTd#it{N}_{ch}/dy#GT (GeV)";
 		graphText = "#sqrt{#it{s}_{NN}} ="+doubToString(collEn_Or_NpartArr[en_Or_centInd])+" GeV";
 		graphName = "dETdyOverdNchdySumEn" + doubToString(collEn_Or_NpartArr[en_Or_centInd]);
-		imgPathAndName = 
+		imgPathAndName =
 		"./finalPlots/crossCheckPlots/rapidity/dETdyOverdNchdy_Npart/"+graphName+".png";
 	}
 	//cout << g->GetName() << endl;
-	
+
 	g->GetHistogram()-> SetTitle(0);
 	g->GetHistogram()->GetXaxis()-> SetTitle(xlabel);
 	g->GetHistogram()->GetXaxis()-> SetTitleOffset(1.05);
@@ -420,19 +420,19 @@ void formatGraph(TGraphErrors* g, Double_t collEn_Or_NpartArr[], int en_Or_centI
 	//TText* t1 = new TText(200,.62,graphTextNpartConstCharPtr);
 	t1 -> SetNDC(kTRUE);
 	t1 -> DrawLatex(0.2,0.8,graphTextConstCharPtr);
-	
+
 	//t1 -> SetTextAlign(22);
 	t1 -> SetTextSize(0.05);
 	//t1 -> DrawText();
 	// FIXME t1 -> DrawText(0.2,0.8,graphTextNpartConstCharPtr);
-	
+
 				//c -> SaveAs("./fittedPlots/trial1.png");
 	TImage *png = TImage::Create();//TODO try to use canvas method instead of png object
 	png->FromPad(c);
 	const char* imgPathAndNameConstCharPtr1 = imgPathAndName.c_str();
 	png->WriteImage(imgPathAndNameConstCharPtr1);
 	// because graphs, unlike histograms, need to be explicitly written to TFile:
-	g -> Write(graphNameConstCharPtr); 
+	g -> Write(graphNameConstCharPtr);
 	delete t1;
 	delete c;
 	delete png;
@@ -479,5 +479,7 @@ int partIndex(string part)
 	else if (part == "pba") partIndex = 5;
 	else if (part == "la_") partIndex = 6;
 	else if (part == "ala") partIndex = 7;
+	else if (part == "pi0") partIndex = 8;
+	else if (part == "eta") partIndex = 9;
 	return partIndex;
 }

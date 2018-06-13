@@ -2,7 +2,7 @@
 // added centrality column in output file : DONE
 	// corresponding change in code to retreive centrality information from root file: DONE
 // changed all functions (esp the fitting function funcBGBW) to have 6 parameters
-	// otherwise the cov. matrix in later functions, with 5 parameters, is not consistent 
+	// otherwise the cov. matrix in later functions, with 5 parameters, is not consistent
 // added // h->SetMaximum(5*(h->GetMaximum()));
 
 #include <iostream>
@@ -27,7 +27,7 @@ Int_t* getNpartAndErr(Double_t collisionEnergy, string centrality);
 // main function:
 int fitBESData5_1(){
 	std::ofstream datFile ("fitResults5.dat", std::ofstream::out);
-	datFile << "CollEn"<< "\t"	
+	datFile << "CollEn"<< "\t"
 			<< "particle" << "\t"
 			<< "centrality" << "\t"
 			<< "mass" << "\t"
@@ -85,7 +85,7 @@ int fitBESData5_1(){
 	TF1* dNdEtaIntegrandFunc;
 	TF1* dNdyIntegrandFunc;
 	int breakOutForTesting =0;
-	int stop =140; // breakOut after this many iterations (if achieved); default: 140
+	int stop =72; // breakOut after this many iterations (if achieved); default: 140
 	cout << "Flag" << endl;
 	while((mikey=(TKey*)next())){
 		///cout << "Histo iter: " << breakOutForTesting+1 << endl;
@@ -95,13 +95,13 @@ int fitBESData5_1(){
 			mikey->DeleteBuffer();
 			continue;
 		}
-			
+
 		c1 = new TCanvas(); // a la Rademakers
 		funcBGBW = new TF1("getdNdpt",getdNdpt,0.00000000000001,10.,6); // actually has 5 parameters
 												// 6th parameter, type, multiplied by 0 and added
-												// for consistency of cov. matrix needed later		
-		dETdEtaIntegrandFunc = new TF1("dETdEtaIntegrand", 
-									getdETdEtaIntegrand, 
+												// for consistency of cov. matrix needed later
+		dETdEtaIntegrandFunc = new TF1("dETdEtaIntegrand",
+									getdETdEtaIntegrand,
 									0, 10, 6 );// function goes from 0 to 10
 										// and has 6 parameters"
 										// mass, beta, temp, n, norm, type
@@ -133,11 +133,11 @@ int fitBESData5_1(){
 		//get first three characters of particle name from histoName:
 		string particleID = histoName.substr(6,3);// starting position in array:6, 3 chars total
 		string centrality = histoName.substr(4,1);// starting position in array:4, 1 char total
-		
+
 		//------------ Assign mass & type to particle -----------------//
 		Double_t mass; // in GeV
-		
-		// type Double_t instead of Int_t 
+
+		// type Double_t instead of Int_t
 		 //to use as argument in TF1 method SetParameters()
 		Double_t type;// 0 for mesons, -1 for baryons, 1 for antibaryons
 		if		(particleID=="pi-"||particleID=="pi+")
@@ -148,15 +148,19 @@ int fitBESData5_1(){
 				{mass = 0.93827; type = -1.;}
 		else if	(particleID=="pba")
 				{mass = 0.93827; type = 1.;}
+		else if (particleID=="pi0")
+				{mass = 0.13497; type = 0.;}
+		else if (particleID=="eta")
+				{mass = 0.54786; type = 0.;}
 		else {cout << "Check particle: "
 				<< particleID<<endl;return 1;}
-		
+
 		Double_t* integralDataPtr;
 		// TODO : need to fix what function this should be:
 		integralDataPtr = getIntegralsAndErrorsFromData(h,type,mass);
 					// ^ method verified!!!
-		
-		
+
+
 		//------------- Begin BGBW fit --------------------------//
 		//FIXME when you delete, use the "C"? option to delete all the inherited objects as well
 		if (	histoName == "cent7_ka-_Au+Au_7.7"
@@ -166,12 +170,12 @@ int fitBESData5_1(){
 			||	histoName == "cent5_ka+_Au+Au_27"
 			||	histoName == "cent5_ka-_Au+Au_7.7"
 			||	histoName == "cent6_pi+_Au+Au_11.5"
-			
+
 			||	histoName == "cent3_pi-_Au+Au_7.7"
 			||	histoName == "cent4_pi-_Au+Au_7.7"
 			||	histoName == "cent5_pi-_Au+Au_7.7"
 			||	histoName == "cent7_pi-_Au+Au_7.7"
-			||	histoName == "cent1_pbar_Au+Au_7.7"	// NOT POS-DEF		
+			||	histoName == "cent1_pbar_Au+Au_7.7"	// NOT POS-DEF
 			||	histoName == "cent3_pbar_Au+Au_7.7"
 			||	histoName == "cent4_pbar_Au+Au_7.7"
 			||	histoName == "cent6_pbar_Au+Au_7.7"
@@ -191,15 +195,15 @@ int fitBESData5_1(){
 			)
 			{
 			funcBGBW->SetParameters(mass,0.9,0.03,0.01,10000.,type);
-			cout << "alternate init pars: 0.9,0.03,0.01,10000." << endl;
+			cout << "alternate init pars: 0.9,0.03,0.01,10000." << endl; //find final param pion //should look like average
 			}
-			
+
 		else if(histoName == "cent8_pbar_Au+Au_7.7")
 			{
 			cout << "check2" << endl;
 			funcBGBW->SetParameters(mass,0.99,0.30,0.1,1000.,type);
 			}
-				
+
 		else{
 			cout << "histoname is: " << histoName << endl;
 			funcBGBW->SetParameters(mass,0.95,0.05,0.1,1000000.,type);
@@ -230,8 +234,8 @@ int fitBESData5_1(){
 		Double_t nErr 			= funcBGBW->GetParError(3);
 		Double_t normErr 		= funcBGBW->GetParError(4);
 		//------------- end BGBW fit ----------------------------
-		
-		
+
+
 		//-------- Find integrals left and right of data points -------//
 		funcBGBW			 	-> SetParameters(mass,beta,temp,n,norm,type);
 		dETdEtaIntegrandFunc 	-> SetParameters(mass,beta,temp,n,norm,type);
@@ -247,13 +251,13 @@ int fitBESData5_1(){
 		dNdyIntegrandFunc		-> FixParameter(0,mass);
 		dNdyIntegrandFunc		-> FixParameter(5,type);
 
-		Int_t totBins 	= h->GetNbinsX();		
+		Int_t totBins 	= h->GetNbinsX();
 		Int_t binx1 	= 0;
 		Int_t binx2 	= totBins+1;
-		
-		Double_t leftCut 	= h->GetXaxis()->GetBinLowEdge(binx1+2); 
-		Double_t rightCut 	= h->GetXaxis()->GetBinUpEdge(binx2-1); 
-		
+
+		Double_t leftCut 	= h->GetXaxis()->GetBinLowEdge(binx1+2);
+		Double_t rightCut 	= h->GetXaxis()->GetBinUpEdge(binx2-1);
+
 		Double_t dETdEtaLeft 	= dETdEtaIntegrandFunc -> Integral(0.,leftCut);
 		Double_t dETdEtaRight 	= dETdEtaIntegrandFunc -> Integral(rightCut,10.);
 		Double_t dETdyLeft 		= dETdyIntegrandFunc -> Integral(0.,leftCut);
@@ -263,61 +267,61 @@ int fitBESData5_1(){
 		Double_t dNdyLeft 		= dNdyIntegrandFunc -> Integral(0.,leftCut);
 		Double_t dNdyRight 		= dNdyIntegrandFunc -> Integral(rightCut,10.);
 		// Errors:
-		Double_t dETdEtaLErr	= 
+		Double_t dETdEtaLErr	=
 		dETdEtaIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdEtaRErr	= 
+		Double_t dETdEtaRErr	=
 		dETdEtaIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdyLErr	= 
+		Double_t dETdyLErr	=
 		dETdyIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdyRErr	= 
+		Double_t dETdyRErr	=
 		dETdyIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdEtaLErr	= 
+		Double_t dNdEtaLErr	=
 		dNdEtaIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdEtaRErr	= 
+		Double_t dNdEtaRErr	=
 		dETdEtaIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdyLErr	= 
+		Double_t dNdyLErr	=
 		dNdyIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdyRErr	= 
+		Double_t dNdyRErr	=
 		dNdyIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-								
+
 		Double_t dETdEta_d = *(integralDataPtr+0);
 		Double_t dETdEta_d_err = *(integralDataPtr+1);
 		Double_t dETdEtaTotal = dETdEtaLeft+dETdEta_d+dETdEtaRight;
 		Double_t dETdEtaTErr = dETdEtaLErr+dETdEta_d_err+dETdEtaRErr;
-		
+
 		Double_t dETdy_d = *(integralDataPtr+2);
 		Double_t dETdy_d_err = *(integralDataPtr+3);
 		Double_t dETdyTotal = dETdyLeft+dETdy_d+dETdyRight;
 		Double_t dETdyTErr = dETdyLErr+dETdy_d_err+dETdyRErr;
-		
+
 		Double_t dNdEta_d = *(integralDataPtr+4);
 		Double_t dNdEta_d_err = *(integralDataPtr+5);
 		Double_t dNdEtaTotal = dNdEtaLeft+dNdEta_d+dNdEtaRight;
 		Double_t dNdEtaTErr = dNdEtaLErr+dNdEta_d_err+dNdEtaRErr;
-		
+
 		Double_t dNdy_d = *(integralDataPtr+6);
 		Double_t dNdy_d_err = *(integralDataPtr+7);
 		Double_t dNdyTotal = dNdyLeft+dNdy_d+dNdyRight;
 		Double_t dNdyTErr = dNdyLErr+dNdy_d_err+dNdyRErr;
-		
+
 		cout <<"Integral from data for histo "<<breakOutForTesting+1<<": "<<*(integralDataPtr+0)<<endl;// 357.633 for pi minus cent 0
-		cout<<"-----------------------------------"<<endl;				
+		cout<<"-----------------------------------"<<endl;
 		//------ end Find integrals left and right of data points ----//
 		//------ begin - assign Npart and errors from BES paper -----//
 		Int_t* NpartAndArrPtr;
@@ -326,9 +330,9 @@ int fitBESData5_1(){
 		NpartAndArrPtr = getNpartAndErr(collEn,centrality);
 		Npart = *(NpartAndArrPtr+0);
 		NpartErr = *(NpartAndArrPtr+1);
-		//------ end - assign Npart and errors from BES paper -------// 
+		//------ end - assign Npart and errors from BES paper -------//
 		//-- Output results to file-----------------------------
-		datFile << collEn << "\t"	
+		datFile << collEn << "\t"
 				<< particleID << "\t"
 				<< centrality << "\t"
 				<< mass << "\t"
@@ -374,7 +378,7 @@ int fitBESData5_1(){
 				<< dNdyTErr << "\t"
 				<< Npart << "\t"
 				<< NpartErr << "\n";
-		
+
 		//-- end- output results to file------------------------
 		c1->Update();
 		Double_t chi2BGBW = funcBGBW->GetChisquare();
@@ -383,10 +387,10 @@ int fitBESData5_1(){
 		Double_t e2 = funcBGBW->GetParError(2);
 
 
-	
-		//cout << "chi2: " << chi2BGBW << "\nndf: " 
+
+		//cout << "chi2: " << chi2BGBW << "\nndf: "
 			//<< nDFBGBW<< "\nchi2/ndf: " << chi2BGBW/nDFBGBW <<endl;
-	
+
 		/* FIXME */
 		string imgPathAndName = "./fittedPlots5/"+histoName+".png";
 				//c1 -> SaveAs("./fittedPlots/trial1.png");
@@ -398,13 +402,13 @@ int fitBESData5_1(){
 		//cout << "Draw class here: \n";
 		//h-> DrawClass();
 		///////h->Delete();// works
-		///////////FIXME c1->Clear();// 
+		///////////FIXME c1->Clear();//
 		/// sometimes when you delete objects, they stay in the program stack
 		//FIXME delete png;
 		mikey->DeleteBuffer();// works!
 		breakOutForTesting++;
 		if(breakOutForTesting>=stop) break;
-		
+
 		gSystem->ProcessEvents();
 		delete h;
 		delete funcBGBW;
@@ -427,8 +431,3 @@ int fitBESData5_1(){
 	datFile.close();
 return 0;
 }
-
-
-
-
-

@@ -129,7 +129,7 @@ int main(){
       for (int n=0; n<9; n++) { //writes in Pi0
         c1=n*10; //creates bins
         c2=(n+1)*10;
-        out<<"Eta  "<<c1<<"-"<<c2<<'%'<<endl;
+        out<<"eta  "<<c1<<"-"<<c2<<'%'<<endl;
         EtaSize=Eta[n].size();
         for (int m=0; m<EtaSize;m++) {
           if (Eta[n][m].Dat.pTl != 0) {

@@ -37,7 +37,7 @@ Double_t getdNdyIntegrand(Double_t* myPt, Double_t* par);
 Int_t* getNpartAndErr(Double_t collisionEnergy, string centrality);
 
 // main function:
-int fitBESData5_2(){
+int fitBESData5_3(){
 	std::ofstream datFile ("fitResults5.dat", std::ofstream::app);
 	/*datFile << "CollEn"<< "\t"
 			<< "particle" << "\t"
@@ -96,10 +96,10 @@ int fitBESData5_2(){
 	TF1* dNdEtaIntegrandFunc;
 	TF1* dNdyIntegrandFunc;
 	int breakOutForTesting =0;
-	int stop =144; // breakOut after this many iterations (if achieved); default: 140
+	int stop =216; // breakOut after this many iterations (if achieved); default: 140
 	while((mikey=(TKey*)next())){// TODO!!! delete mikey at the end of every loop
 		breakOutForTesting++;
-		if (breakOutForTesting<73) continue;// 140 histograms already analyzed
+		if (breakOutForTesting<145) continue;// 140 histograms already analyzed
 		class1 = gROOT->GetClass(mikey->GetClassName());
 		if(!class1->InheritsFrom("TH1")){
 			delete class1;

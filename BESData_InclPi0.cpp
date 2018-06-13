@@ -173,7 +173,6 @@ int main(){
     if (l==6) {l=0;}
     in.clear();
   } //end while (in>>CollType)
-cout<<"done";
 in.close();
 out.close();
 return 0;
