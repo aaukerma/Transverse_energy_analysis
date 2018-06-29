@@ -11,24 +11,34 @@ Complete:20180629.1402
 
 #include <iostream>
 #include <string>
-#include "TKey.h"
 #include <fstream>
-#include "fitBESData5.h"
+#include <cmath>
 using namespace std;
 
-int jacobianTest(){
-  double Alert=10; //Threshold of alert
+int main(){
+  double Alert=50; //Threshold of alert
   double eta = 1;
-  double J = pt/(TMath::Sqrt(pt*pt+mass*mass)); //Biswas method
-  double Ja = pt/(TMath::Sqrt(pt*pt+mass*mass)); //with eta=1
-  double comp = (Ja-J)/Ja;
-  if (comp < 0){
-    comp=comp*(-1.0);
-  }
-  comp=comp*100;
-  if (comp>Alert){
-    cout<<"JTEST FAIL"<<endl;
-  }
+  double pt=0; //average of bins
+  double mass = 0.93827; //pi+-
+  double J;
+  double Ja;
+  double comp;
 
+  for (int i=0;i<22;i++){
+    pt+=.25;
+    J = pt/(sqrt(pt*pt+mass*mass)); //Biswas method
+    Ja = (pt*cosh(eta))/(sqrt(pt*pt*cosh(eta)+mass*mass)); //with eta=1
+    comp = (Ja-J)/Ja;
+    if (comp < 0){
+      comp=comp*(-1.0);
+    }
+    comp=comp*100;
+    if (comp>Alert){
+      cout<<"JTEST FAIL"<<endl;
+      cout<<"Biswas code="<<J<<"|| With eta="<<Ja<<endl;
+    }
+    cout<<"%DIFF="<<comp<<endl;
+  }
+  cout<<"done"<<endl;
   return 0;
 }
