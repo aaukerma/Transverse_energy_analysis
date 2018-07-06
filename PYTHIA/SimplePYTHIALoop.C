@@ -114,11 +114,17 @@ TH1F *CreateTriggerHistogram(char *name){
   histo->GetXaxis()->SetTitle("p_{T}^{trig}");
   return histo;
 }
+TH1F *CreateSpeciesHistogram(char *name,int bin,int low,int hi){
+  TH1F *histo = new TH1F(name,name,bin,low,hi);
+  histo->GetYaxis()->SetTitle("N_{trig}");
+  histo->GetXaxis()->SetTitle("KFID");
+  return histo;
+}
 Double_t dPhi(Double_t phi1, Double_t phi2) {
   Double_t deltaPhi;
   deltaPhi = phi1 - phi2;
   if (deltaPhi>(1.5*TMath::Pi())) deltaPhi-=2*(TMath::Pi());
-  if (deltaPhi<(-0.5*TMath::Pi())) deltaPhi+=2*(TMath::Pi());  
+  if (deltaPhi<(-0.5*TMath::Pi())) deltaPhi+=2*(TMath::Pi());
   return deltaPhi;
 }
 
@@ -130,16 +136,16 @@ Double_t dEta(Double_t eta1, Double_t eta2) {
 
 Double_t RelativeEPPhi(Double_t jetAng){ // function to calculate angle between jet and EP in the 1st quadrant (0,Pi/2)
   Double_t dphi =  jetAng;
-  
+
 
   if( dphi<-1*TMath::Pi() ){
     dphi = dphi + 1*TMath::Pi();
-  }  
+  }
 
   if( dphi>1*TMath::Pi() ){
     dphi = dphi - 1*TMath::Pi();
-  }  
-  
+  }
+
   if( (dphi>0) && (dphi<1*TMath::Pi()/2) ){
     // Do nothing! we are in quadrant 1
   }else if( (dphi>1*TMath::Pi()/2) && (dphi<1*TMath::Pi()) ){
@@ -148,8 +154,8 @@ Double_t RelativeEPPhi(Double_t jetAng){ // function to calculate angle between 
     dphi = fabs(dphi);
   }else if( (dphi<-1*TMath::Pi()/2) && (dphi>-1*TMath::Pi()) ){
     dphi = dphi + 1*TMath::Pi();
-  } 
-  
+  }
+
   // test
   if( dphi < 0 || dphi > TMath::Pi()/2 ) cout<<" dPHI not in range [0, 0.5*Pi]!"<<endl;
 
@@ -209,7 +215,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   xmax[4]=0.5*TMath::Pi();
   nbins[4]=24;
   Double_t *fill = new Double_t[nDim];
-
+//NOTE:this is the THnSparse (DO NOT NEED)
   THnSparseF *hhCorr = new THnSparseF("hh","hh correlations", nDim, nbins,xmin,xmax);
   hhCorr->GetAxis(0)->SetTitle("#Delta#phi");
   hhCorr->GetAxis(1)->SetTitle("#Delta#eta");
@@ -220,7 +226,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 //Done
 
   TH1F * numTriggers = new TH1F("trigs", "Number of Triggers", 3, 0, 2);
- 
+
 //----------------Equation for Reaction Plane Dependence---------------
   TF1* trigPhi = new TF1("phiTrig","1+(2*TMath::Power(0.073086,2)*TMath::Cos(2*x))+(2*TMath::Power(0.092,2)*TMath::Cos(3*x))",-.5*TMath::Pi(),1.5*TMath::Pi());
 
@@ -263,12 +269,26 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 //   pythia->SetMSUB(93,1);
 //   pythia->SetMSUB(94,1);
 //   pythia->SetMSUB(95,1);
+//may be important but unlike
+
 
 //BEN THIS LINE IS IMPORTANT
   pythia->SetMSTJ(22,2);//decays unstable particles
-
+//if you see pion, KOS->pi+pi-
+//lambda-> p pi-
+//antilambda-> pbar pi+
+//sigmas may be different if not included.
+//MUST ACCOUNT FOR, account for lambdas with lambdas (see where pion comes from)
+//if you throw in rarer particles, better accuracy
+//the pi0 decays so fast (10^-20cm) all as 2 photons need to look up parent.
+//not sure have pi0
+//SIGMA (about as many as lambda)
+//see reference 4,5,6 in wikipedia, sigma zero decays into a lambda with a gamma
+//sigma- into pi- (not really neutron)
+//actually measured include lambdas from lambda
 
   UInt_t seed = (jobID+1)*17;
+  cout<<seed<<endl; //gives seed
   if( (seed>=0) && (seed<=900000000) ) {
     pythia->SetMRPY(1, seed);                   // set seed
     pythia->SetMRPY(2, 0);                      // use new seed
@@ -287,7 +307,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     return 1;
   }
 
-
+// NOTE: not required (for now)
   TFile *outfile = file;//new TFile(filename,"RECREATE");
     TH3F *hUnidentifiedCorrelations = CreateHistogram("hUnidentifiedCorrelations");
     TH3F *hK0Correlations = CreateHistogram("hK0Correlations");
@@ -311,8 +331,23 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     TH3F *hKAssocCorrelations = CreateHistogram("hKAssocCorrelations");
     TH1F *hKTriggers = CreateTriggerHistogram("hKTriggers");
 
+    TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
+    TH1F *hSP1 =CreateSpeciesHistogram("hSP1",200,-100,100);
+    TH1F *hSP2 =CreateSpeciesHistogram("hSP2",900,100,1000);
+    TH1F *hSP_2 =CreateSpeciesHistogram("hSP_2",900,-1000,-100);
+    TH1F *hSP3 =CreateSpeciesHistogram("hSP3",4200,1100,5300);
+    TH1F *hSP_3 =CreateSpeciesHistogram("hSP_3",4200,-5300,-1100);
+    //TH1F *hSP4 =CreateSpeciesHistogram("hSP4",400,10200,10600);
+    //TH1F *hSP_4 =CreateSpeciesHistogram("hSP_4",400,-10600,-10200);
+    //TH1F *hSP5 =CreateSpeciesHistogram("hSP5",300,20200,20500);
+    //TH1F *hSP_5 =CreateSpeciesHistogram("hSP_5",300,-20500,-20200);
+    //TH1F *hSP6 =CreateSpeciesHistogram("hSP6",100,1000000,1000100);
+    //TH1F *hSP7 =CreateSpeciesHistogram("hSP7",100,2000000,2000100);
+    //TH1F *hSP8 =CreateSpeciesHistogram("hSP8",400200,3000000,3400200);
+    //TH1F *hSP9 =CreateSpeciesHistogram("hSP9",20,4000000,4000020);
+    //TH1F *hSPE =CreateSpeciesHistogram("hSPE",2220,9900000,9902220);
 
-
+//NOTE: VERY IMPORTANT
     TH1F *hNEvents = new TH1F("hNEvents","Number of events",1,0,1.0);
     hNEvents->GetYaxis()->SetTitle("N_{events}");
     hNEvents->GetXaxis()->SetTitle("no title");
@@ -371,19 +406,51 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	//TObject *object = particles->At(part);
 	//cout<<"I am a "<<object->ClassName()<<endl;
 	TMCParticle *MPart = (TMCParticle *) particles->At(part);
-	Double_t pt= TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy()); 
+	Double_t pt= TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy());
 	Double_t phi = TMath::Pi()+TMath::ATan2(-MPart->GetPy(),-MPart->GetPx());
-	Double_t p =  TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy() +  MPart->GetPz() * MPart->GetPz()); 
+	Double_t p =  TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy() +  MPart->GetPz() * MPart->GetPz());
 	Double_t eta = 0.5*TMath::Log((p+MPart->GetPz())/(p-MPart->GetPz()));
 	//cout<<"phi "<<phi<<" pt "<<pt<<" p "<<p<<" eta "<<eta<<endl;
 	//if(MPart && MPart->GetPDG()) cout<<MPart->GetPDG()->GetName()<<endl;
 	if(pt>2.0 && TMath::Abs(eta)<trigEtaMax){
 	  TString mpart = MPart->GetName();
-	  //Int_t mpart  = MPart->GetPdgCode();
+    Int_t mpartKF = MPart->GetKF();
+	  //Int_t mpartPDG  = MPart->GetPdgCode();
 	  //cout<<"Part ID "<<mpart;
 	  //cout<<" MPart name "<<MPart->GetName();
 	  //if(MPart->GetPDG())cout<<" code "<<MPart->GetPDG()->PdgCode();
 	  //cout<<endl;
+    cout<<mpart<<" ID: "<<mpartKF<<endl;
+    hSPALL->Fill(mpartKF);
+
+    if ((-100<mpartKF)&&(100>mpartKF)){
+      hSP1->Fill(mpartKF);
+    }
+    if ((100<mpartKF)&&(mpartKF<1000)){
+      hSP2->Fill(mpartKF);
+    }
+    if ((-1000<mpartKF)&&(mpartKF<(-100))){
+      hSP_2->Fill(mpartKF);
+    }
+    if ((1100<mpartKF)&&(mpartKF<5300)){
+      hSP3->Fill(mpartKF);
+    }
+    if ((-1100>mpartKF)&&(mpartKF>(-5300))){
+      hSP_3->Fill(mpartKF);
+    }
+    /*if ((10100<mpartKF)&&(mpartKF<10600)){
+      hSP4->Fill(mpartKF);
+    }
+    if ((-10100>mpartKF)&&(mpartKF>(-10600))){
+      hSP_4->Fill(mpartKF);
+    }
+    if ((20200<mpartKF)&&(mpartKF<20500)){
+      hSP5->Fill(mpartKF);
+    }
+    if ((-20200<mpartKF)&&(mpartKF<(-20500))){
+      hSP_5->Fill(mpartKF);
+    }*/
+
 	  if(mpart==kshort && nK0Trig<maxNtrig){//K0S
 	    k0TrigPt[0][nK0Trig] = pt;
 	    k0TrigPt[1][nK0Trig] = phi;
@@ -444,9 +511,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
       if(nLamTrig>0 || nK0Trig>0 || nHTrig>0){//if any of the trigger particles have triggers, then and only then do we associate with particles
 	for (Int_t part=0; part<npart; part++) {
 	  TMCParticle *MPart = (TMCParticle *) particles->At(part);
-	  Double_t pt= TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy()); 
+	  Double_t pt= TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy());
 	  Double_t phi = TMath::Pi()+TMath::ATan2(-MPart->GetPy(),-MPart->GetPx());
-	  Double_t p =  TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy() +  MPart->GetPz() * MPart->GetPz()); 
+	  Double_t p =  TMath::Sqrt(MPart->GetPx() * MPart->GetPx() + MPart->GetPy() * MPart->GetPy() +  MPart->GetPz() * MPart->GetPz());
 	  Double_t eta = 0.5*TMath::Log((p+MPart->GetPz())/(p-MPart->GetPz()));
 	  if(pt>1.0 && TMath::Abs(eta)<assocEtaMax){
 	    //Int_t mpart  = MPart->GetPdgCode();
@@ -577,9 +644,22 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 
   }
 
-  //write histograms to file
+  //NOTE:write histograms to file
     numTriggers->Write();
-    hhCorr->Write();
+    //hhCorr->Write();
+    hUnidentifiedTriggers->Write();
+    hPiTriggers->Write();
+    hKTriggers->Write();
+    hK0Triggers->Write();
+    hLambdaTriggers->Write();
+    hProtonTriggers->Write();
+    hNEvents->Write();
+    hSPALL->Write();
+    hSP1->Write();
+    hSP2->Write();
+    hSP_2->Write();
+    hSP3->Write();
+    hSP_3->Write();
     outfile->Close();
   return 0;
 }
@@ -660,4 +740,3 @@ int main(int argc, char** argv)
 //
 // EOF
 //
-
