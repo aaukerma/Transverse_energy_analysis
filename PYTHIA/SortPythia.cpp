@@ -48,8 +48,8 @@ void SortPythia(){
   ifstream in;
   in.open("KF_Code.dat");
   ofstream file;
-  file.open("./PythiaData.txt");
-  TFile f("hh_outfile1.root");
+  file.open("./PythiaData3.txt");
+  TFile f("hh_outfile3.root");
   if (f.IsZombie()) {
     cout<<"error opening file"<<endl;
     exit(-1);
