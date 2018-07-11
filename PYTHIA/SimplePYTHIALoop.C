@@ -1,3 +1,10 @@
+//TODO: lib, look at TPYTHIA/6 look at how things are accounted for, I WANT ONLY FINAL STATE PARTICLEs
+//need to find decays
+//look TMCPARTICLE!! find parent daughter!! need to know where they come from (in particular pions)
+//loop over final state hadron.
+//get everything into histogram, this will cut back on file size NO MORE DATS WHEN DONE
+//check google
+
 //____________________________________________________________________
 //
 // Using Pythia6 with ROOT
@@ -81,6 +88,7 @@
 #include "TMCParticle.h"
 #include "THnSparse.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 #endif
 
@@ -92,6 +100,11 @@ using namespace std;
 class TH3F;
 class TH1F;
 class TPythia6;
+
+struct KF_Code {
+  Int_t KFc;
+  TString name;
+};
 
 // This function just load the needed libraries if we're executing from
 // an interactive session.
@@ -120,6 +133,45 @@ TH1F *CreateSpeciesHistogram(char *name,int bin,int low,int hi){
   histo->GetXaxis()->SetTitle("KFID");
   return histo;
 }
+TH3F *CreateParentHistogram(char *name,Int_t num){
+  TH3F *histo = new TH3F(name,name,246,0,246,246,0,246,100,0,num);
+  histo->GetYaxis()->SetTitle("PKF");
+  histo->GetXaxis()->SetTitle("KF");
+  histo->GetZaxis()->SetTitle("num");
+  return histo;
+}
+Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){
+  Int_t i=0;
+  Int_t j=0;
+  Int_t k=0;
+  Int_t n=1;
+  Int_t KF;
+  Int_t comp;
+  Int_t comp1;
+  TString name;
+  KF=kfc;
+
+  if (KF<0){
+    KF=KF*-1;
+    n=-1;
+  }
+  for (Int_t i=0;i<248;i++){
+    comp=partname[i].KFc;
+    if(comp==KF){
+      j=comp;
+      k=i;
+      break;
+    }
+  }
+  //NOTE: to include if -KF matters
+//  if (n==-1){
+//    name=partname[k].name+" BAR";
+//  }
+//  else
+//    name=partname[k].name;
+  return k;
+}
+
 Double_t dPhi(Double_t phi1, Double_t phi2) {
   Double_t deltaPhi;
   deltaPhi = phi1 - phi2;
@@ -179,8 +231,18 @@ gSystem->Load("/data/rhip/alice/cnattras/pythia6/libPythia6");
 // nEvents is how many events we want.
 int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax = 0.5, Float_t assocEtaMax = 0.9)
 {
+  Int_t l=0;
+  vector <KF_Code> partname(0);
+
   cout<<"I made it here, running "<<nEvents<<" events, job id "<<jobID<<", tune "<<tune<<endl;
   char *filename = Form("hh_outfile%i.root",jobID);
+  ifstream in;
+  in.open("KF_Code.dat");
+  while (in.good()){
+    partname.push_back(KF_Code());
+    in>>partname[l].KFc>>partname[l].name;
+    l++;
+  }
   //gSystem->Load("$PYTHIA6/libPythia6"); //change to your setup
   //gSystem->Load("libEGPythia6");
   // Load needed libraries
@@ -216,12 +278,12 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   nbins[4]=24;
   Double_t *fill = new Double_t[nDim];
 //NOTE:this is the THnSparse (DO NOT NEED)
-  THnSparseF *hhCorr = new THnSparseF("hh","hh correlations", nDim, nbins,xmin,xmax);
-  hhCorr->GetAxis(0)->SetTitle("#Delta#phi");
-  hhCorr->GetAxis(1)->SetTitle("#Delta#eta");
-  hhCorr->GetAxis(2)->SetTitle("p_{T}^{trigger}");
-  hhCorr->GetAxis(3)->SetTitle("p_{T}^{assoc}");
-  hhCorr->GetAxis(4)->SetTitle("#phi^{trigger}-#psi");
+  //THnSparseF *hhCorr = new THnSparseF("hh","hh correlations", nDim, nbins,xmin,xmax);
+  //hhCorr->GetAxis(0)->SetTitle("#Delta#phi");
+  //hhCorr->GetAxis(1)->SetTitle("#Delta#eta");
+  //hhCorr->GetAxis(2)->SetTitle("p_{T}^{trigger}");
+  //hhCorr->GetAxis(3)->SetTitle("p_{T}^{assoc}");
+  //hhCorr->GetAxis(4)->SetTitle("#phi^{trigger}-#psi");
 
 //Done
 
@@ -248,7 +310,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   //pythia->SetMSTJ(21,2);
   //pythia->SetMSTJ(22,1);
   //add switches for tunes
-  //tune A
+  //tune A/home/bs/Transverse_energy_analysis/PYTHIA/SimplePYTHIALoop.C
  /*      pythia->SetPARP(67,4.0);           // Regulates Initial State Radiation (value from best fit to D0 dijet analysis)
        pythia->SetMSTP(81,1);             // Double Gaussian Model
        pythia->SetMSTP(82,4);             // Double Gaussian Model
@@ -307,36 +369,35 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     return 1;
   }
 
-// NOTE: not required (for now)
   TFile *outfile = file;//new TFile(filename,"RECREATE");
-    TH3F *hUnidentifiedCorrelations = CreateHistogram("hUnidentifiedCorrelations");
-    TH3F *hK0Correlations = CreateHistogram("hK0Correlations");
-    TH3F *hLambdaCorrelations = CreateHistogram("hLambdaCorrelations");
-    TH3F *hK0AssocCorrelations = CreateHistogram("hK0AssocCorrelations");
-    TH3F *hLambdaAssocCorrelations = CreateHistogram("hLambdaAssocCorrelations");
+    //TH3F *hUnidentifiedCorrelations = CreateHistogram("hUnidentifiedCorrelations");
+    //TH3F *hK0Correlations = CreateHistogram("hK0Correlations");
+    //TH3F *hLambdaCorrelations = CreateHistogram("hLambdaCorrelations");
+    //TH3F *hK0AssocCorrelations = CreateHistogram("hK0AssocCorrelations");
+    //TH3F *hLambdaAssocCorrelations = CreateHistogram("hLambdaAssocCorrelations");
 
 
-    TH1F *hUnidentifiedTriggers = CreateTriggerHistogram("hUnidentifiedTriggers");
-    TH1F *hK0Triggers = CreateTriggerHistogram("hK0Triggers");
-    TH1F *hLambdaTriggers = CreateTriggerHistogram("hLambdaTriggers");
+    //TH1F *hUnidentifiedTriggers = CreateTriggerHistogram("hUnidentifiedTriggers");
+    //TH1F *hK0Triggers = CreateTriggerHistogram("hK0Triggers");
+    //TH1F *hLambdaTriggers = CreateTriggerHistogram("hLambdaTriggers");
 
 
-    TH3F *hPiCorrelations = CreateHistogram("hPiCorrelations");
-    TH3F *hPiAssocCorrelations = CreateHistogram("hPiAssocCorrelations");
-    TH1F *hPiTriggers = CreateTriggerHistogram("hPiTriggers");
-    TH3F *hProtonCorrelations = CreateHistogram("hProtonCorrelations");
-    TH3F *hProtonAssocCorrelations = CreateHistogram("hProtonAssocCorrelations");
-    TH1F *hProtonTriggers = CreateTriggerHistogram("hProtonTriggers");
-    TH3F *hKCorrelations = CreateHistogram("hKCorrelations");
-    TH3F *hKAssocCorrelations = CreateHistogram("hKAssocCorrelations");
-    TH1F *hKTriggers = CreateTriggerHistogram("hKTriggers");
+    //TH3F *hPiCorrelations = CreateHistogram("hPiCorrelations");
+    //TH3F *hPiAssocCorrelations = CreateHistogram("hPiAssocCorrelations");
+    //TH1F *hPiTriggers = CreateTriggerHistogram("hPiTriggers");
+    //TH3F *hProtonCorrelations = CreateHistogram("hProtonCorrelations");
+    //TH3F *hProtonAssocCorrelations = CreateHistogram("hProtonAssocCorrelations");
+    //TH1F *hProtonTriggers = CreateTriggerHistogram("hProtonTriggers");
+    //TH3F *hKCorrelations = CreateHistogram("hKCorrelations");
+    //TH3F *hKAssocCorrelations = CreateHistogram("hKAssocCorrelations");
+    //TH1F *hKTriggers = CreateTriggerHistogram("hKTriggers");
 
     TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
-    TH1F *hSP1 =CreateSpeciesHistogram("hSP1",200,-100,100);
-    TH1F *hSP2 =CreateSpeciesHistogram("hSP2",900,100,1000);
-    TH1F *hSP_2 =CreateSpeciesHistogram("hSP_2",900,-1000,-100);
-    TH1F *hSP3 =CreateSpeciesHistogram("hSP3",4200,1100,5300);
-    TH1F *hSP_3 =CreateSpeciesHistogram("hSP_3",4200,-5300,-1100);
+    //TH1F *hSP1 =CreateSpeciesHistogram("hSP1",200,-100,100);
+    //TH1F *hSP2 =CreateSpeciesHistogram("hSP2",900,100,1000);
+    //TH1F *hSP_2 =CreateSpeciesHistogram("hSP_2",900,-1000,-100);
+    //TH1F *hSP3 =CreateSpeciesHistogram("hSP3",4200,1100,5300);
+    //TH1F *hSP_3 =CreateSpeciesHistogram("hSP_3",4200,-5300,-1100);
     //TH1F *hSP4 =CreateSpeciesHistogram("hSP4",400,10200,10600);
     //TH1F *hSP_4 =CreateSpeciesHistogram("hSP_4",400,-10600,-10200);
     //TH1F *hSP5 =CreateSpeciesHistogram("hSP5",300,20200,20500);
@@ -346,6 +407,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     //TH1F *hSP8 =CreateSpeciesHistogram("hSP8",400200,3000000,3400200);
     //TH1F *hSP9 =CreateSpeciesHistogram("hSP9",20,4000000,4000020);
     //TH1F *hSPE =CreateSpeciesHistogram("hSPE",2220,9900000,9902220);
+    TH3F *hPar = CreateParentHistogram("hPar",200);
 
 //NOTE: VERY IMPORTANT
     TH1F *hNEvents = new TH1F("hNEvents","Number of events",1,0,1.0);
@@ -377,7 +439,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   for (Int_t event = 0; event < nEvents; event++) {
     // Show how far we got every 100'th event.
     if (event % 100 == 0)
-      cout << "Event # " << event << endl;
+      cout <<"Event # " << event <<endl;
     // Make one event.
     pythia->GenerateEvent();
 
@@ -399,7 +461,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	}
       }
 
-
+      //pythia->Pylist(1);
       Int_t npart = particles->GetEntries();
       //printf("Analyse %d Particles\n", npart);
       for (Int_t part=0; part<npart; part++) {
@@ -414,15 +476,29 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	//if(MPart && MPart->GetPDG()) cout<<MPart->GetPDG()->GetName()<<endl;
 	if(pt>2.0 && TMath::Abs(eta)<trigEtaMax){
 	  TString mpart = MPart->GetName();
+    Int_t mpartPKF=0;
     Int_t mpartKF = MPart->GetKF();
+    Int_t mpartKFCON=GetKFConversion(mpartKF,partname);
+    Int_t mpartPKFCON;
+    Float_t mpartE = MPart ->GetEnergy();
+    Int_t mpartP = MPart ->GetParent();
+    if (mpartP!=0){
+      TMCParticle* parent = (TMCParticle *) particles->At(mpartP-1);
+      mpartPKF = parent ->GetKF();
+      mpartPKFCON=GetKFConversion(mpartPKF,partname);
+      hPar->Fill(mpartKF,mpartPKF,1);
+    }
+    else
+      mpartPKF = 0;
+    cout<<mpartKF<<endl;
 	  //Int_t mpartPDG  = MPart->GetPdgCode();
 	  //cout<<"Part ID "<<mpart;
 	  //cout<<" MPart name "<<MPart->GetName();
 	  //if(MPart->GetPDG())cout<<" code "<<MPart->GetPDG()->PdgCode();
 	  //cout<<endl;
-    cout<<mpart<<" ID: "<<mpartKF<<endl;
+    //cout<<mpartKF<<"\t "<<mpartP<<"\t "<<mpartPKF<<"\t "<<mpartE<<endl;
     hSPALL->Fill(mpartKF);
-
+    /*
     if ((-100<mpartKF)&&(100>mpartKF)){
       hSP1->Fill(mpartKF);
     }
@@ -438,7 +514,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     if ((-1100>mpartKF)&&(mpartKF>(-5300))){
       hSP_3->Fill(mpartKF);
     }
-    /*if ((10100<mpartKF)&&(mpartKF<10600)){
+    if ((10100<mpartKF)&&(mpartKF<10600)){
       hSP4->Fill(mpartKF);
     }
     if ((-10100>mpartKF)&&(mpartKF>(-10600))){
@@ -457,7 +533,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	    k0TrigPt[2][nK0Trig] = eta;
 	    //cout<<"Kaon pt "<<pt<<" "<< k0TrigPt[0][nK0Trig] <<endl;
 	    nK0Trig++;
-	    hK0Triggers->Fill(pt);
+	    //hK0Triggers->Fill(pt);
 	    //printf("Particle %d\n", mpart);
 	  }
 	  if((mpart==lambda || mpart==antilambda) && nLamTrig<maxNtrig){//Lambda
@@ -466,7 +542,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	    lamTrigPt[1][nLamTrig] = phi;
 	    lamTrigPt[2][nLamTrig] = eta;
 	    nLamTrig++;
-	    hLambdaTriggers->Fill(pt);
+	    //hLambdaTriggers->Fill(pt);
 	  }
 	  if((mpart==piplus || mpart==piminus || mpart==kplus || mpart==kminus || mpart==pplus || mpart==pminus)  && nHTrig<maxNtrig){//pi+- or p/pbar or K+-
 	    hTrigPt[0][nHTrig] =pt;
@@ -475,14 +551,14 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	    hPartNumber[nHTrig] = part;
 	    nHTrig++;
 //	    cout<<"HADRON TRIG"<<endl;
-	    hUnidentifiedTriggers->Fill(pt);
+	    //hUnidentifiedTriggers->Fill(pt);
 	    if((mpart==piplus || mpart==piminus) && nPiTrig<maxNtrig){//pi
 	      piTrigPt[0][nPiTrig] =pt;
 	      piTrigPt[1][nPiTrig] = phi;
 	      piTrigPt[2][nPiTrig] = eta;
 	      hPiPartNumber[nPiTrig] = part;
 	      nPiTrig++;
-	      hPiTriggers->Fill(pt);
+	      //hPiTriggers->Fill(pt);
 	    }
 	    if((mpart==pplus || mpart==pminus) && nPTrig<maxNtrig){//p/pbar
 	      pTrigPt[0][nPTrig] =pt;
@@ -490,7 +566,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	      pTrigPt[2][nPTrig] = eta;
 	      hPPartNumber[nPTrig] = part;
 	      nPTrig++;
-	      hProtonTriggers->Fill(pt);
+	      //hProtonTriggers->Fill(pt);
 	    }
 	    if((mpart==kplus || mpart==kminus) && nKTrig<maxNtrig){//K+-
 	      kTrigPt[0][nKTrig] =pt;
@@ -498,7 +574,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	      kTrigPt[2][nKTrig] = eta;
 	      hKPartNumber[nKTrig] = part;
 	      nKTrig++;
-	      hKTriggers->Fill(pt);
+	      //hKTriggers->Fill(pt);
 	    }
 	  }
 	}
@@ -599,7 +675,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 		      fill[2]=piTrigPt[0][i];
 		      fill[3]=pt;
 		      fill[4]=PhiT;
-		      hhCorr->Fill(fill);
+		      //hhCorr->Fill(fill);
 		      //hPiCorrelations->Fill(pt,piTrigPt[0][i],dPhi(piTrigPt[1][i],phi));
 		  }
 		}
@@ -616,7 +692,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 		      fill[2]=pTrigPt[0][i];
 		      fill[3]=pt;
 		      fill[4]=PhiT;
-		      hhCorr->Fill(fill);
+		      //hhCorr->Fill(fill);
 		      //hProtonCorrelations->Fill(pt,pTrigPt[0][i],dPhi(pTrigPt[1][i],phi));
 		  }
 		}
@@ -633,7 +709,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 		      fill[2]=kTrigPt[0][i];
 		      fill[3]=pt;
 		      fill[4]=PhiT;
-		      hhCorr->Fill(fill);
+		      //hhCorr->Fill(fill);
 		  }
 		}
 	      }
@@ -647,19 +723,20 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   //NOTE:write histograms to file
     numTriggers->Write();
     //hhCorr->Write();
-    hUnidentifiedTriggers->Write();
-    hPiTriggers->Write();
-    hKTriggers->Write();
-    hK0Triggers->Write();
-    hLambdaTriggers->Write();
-    hProtonTriggers->Write();
+    //hUnidentifiedTriggers->Write();
+    //hPiTriggers->Write();
+    //hKTriggers->Write();
+    //hK0Triggers->Write();
+    //hLambdaTriggers->Write();
+    //hProtonTriggers->Write();
     hNEvents->Write();
     hSPALL->Write();
-    hSP1->Write();
-    hSP2->Write();
-    hSP_2->Write();
-    hSP3->Write();
-    hSP_3->Write();
+    //hSP1->Write();
+    //hSP2->Write();
+    //hSP_2->Write();
+    //hSP3->Write();
+    //hSP_3->Write();
+    hPar->Write();
     outfile->Close();
   return 0;
 }
