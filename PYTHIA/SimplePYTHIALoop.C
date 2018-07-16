@@ -133,11 +133,24 @@ TH1F *CreateSpeciesHistogram(char *name,int bin,int low,int hi){
   histo->GetXaxis()->SetTitle("KFID");
   return histo;
 }
-TH3F *CreateParentHistogram(char *name,Int_t num){
-  TH3F *histo = new TH3F(name,name,246,0,246,246,0,246,100,0,num);
-  histo->GetYaxis()->SetTitle("PKF");
-  histo->GetXaxis()->SetTitle("KF");
-  histo->GetZaxis()->SetTitle("num");
+TH3F *CreateParentHistogram(char *name){
+  TH3F *histo = new TH3F(name,name,246,0,246,246,0,246,400,0,400);
+  histo->GetYaxis()->SetTitle("cPKF");
+  histo->GetXaxis()->SetTitle("cKF");
+  histo->GetZaxis()->SetTitle("index");
+  return histo;
+}
+TH1F *CreateEnergyHistogram(char *name){
+  TH1F *histo = new TH1F(name,name,246,0,246);
+  histo->GetYaxis()->SetTitle("Energy");
+  histo->GetXaxis()->SetTitle("cKF");
+  return histo;
+}
+TH3F *CreateEventHistogram(char *name,Int_t nEvents){
+  TH3F *histo = new TH3F(name,name,246,0,246,nEvents,0,nEvents,250,0,250);
+  histo->GetYaxis()->SetTitle("event");
+  histo->GetXaxis()->SetTitle("cKF");
+  histo->GetZaxis()->SetTitle("index");
   return histo;
 }
 Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){
@@ -349,7 +362,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 //sigma- into pi- (not really neutron)
 //actually measured include lambdas from lambda
 
-  UInt_t seed = (jobID+1)*17;
+  //UInt_t seed = (jobID+1)*17;
+  UInt_t seed = rand()%900000000;
   cout<<seed<<endl; //gives seed
   if( (seed>=0) && (seed<=900000000) ) {
     pythia->SetMRPY(1, seed);                   // set seed
@@ -358,7 +372,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   } else {cout << "error: time " << seed << " is not valid" << endl; exit(2);}
 
   // ... and initialise it to run p+p at sqrt(200) GeV in CMS
-  pythia->Initialize("cms", "p", "p", 2760);
+  pythia->Initialize("cms", "p", "p", 500);
   //pythia->Dump();
   // Open an output file
 
@@ -407,7 +421,11 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     //TH1F *hSP8 =CreateSpeciesHistogram("hSP8",400200,3000000,3400200);
     //TH1F *hSP9 =CreateSpeciesHistogram("hSP9",20,4000000,4000020);
     //TH1F *hSPE =CreateSpeciesHistogram("hSPE",2220,9900000,9902220);
-    TH3F *hPar = CreateParentHistogram("hPar",200);
+    TH3F *hPar = CreateParentHistogram("hPar");
+    //TH2F *hDau1 = CreateParentHistogram("hDau1");
+    //TH2F *hDau2 = CreateParentHistogram("hDau2");
+    //TH1F *hEnergy = CreateEnergyHistogram("hEnergy");
+    TH3F *hEve = CreateEventHistogram("hEve",nEvents);
 
 //NOTE: VERY IMPORTANT
     TH1F *hNEvents = new TH1F("hNEvents","Number of events",1,0,1.0);
@@ -461,7 +479,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	}
       }
 
-      //pythia->Pylist(1);
+      //pythia->Pylist(1); //DEBUG helper
       Int_t npart = particles->GetEntries();
       //printf("Analyse %d Particles\n", npart);
       for (Int_t part=0; part<npart; part++) {
@@ -474,23 +492,49 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	Double_t eta = 0.5*TMath::Log((p+MPart->GetPz())/(p-MPart->GetPz()));
 	//cout<<"phi "<<phi<<" pt "<<pt<<" p "<<p<<" eta "<<eta<<endl;
 	//if(MPart && MPart->GetPDG()) cout<<MPart->GetPDG()->GetName()<<endl;
-	if(pt>2.0 && TMath::Abs(eta)<trigEtaMax){
+
+  Int_t Ckf = MPart->GetKF();//convereted kf code to index
+  Ckf=GetKFConversion(Ckf,partname);
+  Int_t ind = part+1; //index
+  hEve->Fill(Ckf,event,ind);
+
+
+  if(pt>2.0 /*&& TMath::Abs(eta)<trigEtaMax*/){
 	  TString mpart = MPart->GetName();
     Int_t mpartPKF=0;
+    Int_t mpartDKF=0;
+    Int_t mpartD2KF=0;
     Int_t mpartKF = MPart->GetKF();
     Int_t mpartKFCON=GetKFConversion(mpartKF,partname);
     Int_t mpartPKFCON;
     Float_t mpartE = MPart ->GetEnergy();
     Int_t mpartP = MPart ->GetParent();
+    Int_t mpartD = MPart->GetFirstChild();
     if (mpartP!=0){
       TMCParticle* parent = (TMCParticle *) particles->At(mpartP-1);
       mpartPKF = parent ->GetKF();
+      if(mpartPKF<=0){
+        mpartPKF=mpartPKF*(-1);
+      }
       mpartPKFCON=GetKFConversion(mpartPKF,partname);
-      hPar->Fill(mpartKF,mpartPKF,1);
+      hPar->Fill(mpartKFCON,mpartPKFCON,mpartP);
     }
-    else
-      mpartPKF = 0;
-    cout<<mpartKF<<endl;
+    /*
+    if (mpartD!=0){
+      TMCParticle* daughter = (TMCParticle *) particles->At(mpartD-1);
+      mpartDKF = daughter ->GetKF();
+      mpartPKFCON=GetKFConversion(mpartDKF,partname);
+      hDau1->Fill(mpartKF,mpartDKF);
+    }
+    Int_t mpartD2 = MPart->GetLastChild();
+    if (mpartD!=0){
+      TMCParticle* daughter2 = (TMCParticle *) particles->At(mpartD2-1);
+      mpartD2KF = daughter2 ->GetKF();
+      mpartPKFCON=GetKFConversion(mpartD2KF,partname);
+      hDau2->Fill(mpartKF,mpartD2KF);
+    }
+    */
+    //cout<<mpartKF<<endl;
 	  //Int_t mpartPDG  = MPart->GetPdgCode();
 	  //cout<<"Part ID "<<mpart;
 	  //cout<<" MPart name "<<MPart->GetName();
@@ -737,6 +781,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     //hSP3->Write();
     //hSP_3->Write();
     hPar->Write();
+    //hDau1->Write();
+    //hDau2->Write();
+    hEve->Write();
     outfile->Close();
   return 0;
 }
