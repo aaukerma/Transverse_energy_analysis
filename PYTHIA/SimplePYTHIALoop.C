@@ -141,9 +141,9 @@ TH3F *CreateParentHistogram(char *name){
   return histo;
 }
 TH1F *CreateEnergyHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,246,0,246);
-  histo->GetYaxis()->SetTitle("Energy");
-  histo->GetXaxis()->SetTitle("cKF");
+  TH1F *histo = new TH1F(name,name,3000,0,3000);
+  histo->GetYaxis()->SetTitle("number at energy");
+  histo->GetXaxis()->SetTitle("Energy_T");
   return histo;
 }
 TH3F *CreateEventHistogram(char *name,Int_t nEvents){
@@ -177,10 +177,11 @@ Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){
     }
   }
   //NOTE: to include if -KF matters
-//  if (n==-1){
+  if (n==-1){
 //    name=partname[k].name+" BAR";
-//  }
-//  else
+    k=k*(-1);
+  }
+  //else
 //    name=partname[k].name;
   return k;
 }
@@ -361,7 +362,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 //see reference 4,5,6 in wikipedia, sigma zero decays into a lambda with a gamma
 //sigma- into pi- (not really neutron)
 //actually measured include lambdas from lambda
-
   //UInt_t seed = (jobID+1)*17;
   UInt_t seed = rand()%900000000;
   cout<<seed<<endl; //gives seed
@@ -371,8 +371,15 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     cout<<"Random Seed : "<<seed<<endl;
   } else {cout << "error: time " << seed << " is not valid" << endl; exit(2);}
 
+/**************************************************************************
+choose energy
+{11,19,27,39,120,200,300,400,500,600,700,800,900,1000,1500,2000,2760,3000};
+**************************************************************************/
+  int SNN=11.9;
+
+
   // ... and initialise it to run p+p at sqrt(200) GeV in CMS
-  pythia->Initialize("cms", "p", "p", 500);
+  pythia->Initialize("cms", "p", "p", SNN); //NOTE:in GeV
   //pythia->Dump();
   // Open an output file
 
@@ -407,25 +414,40 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     //TH1F *hKTriggers = CreateTriggerHistogram("hKTriggers");
 
     TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
-    //TH1F *hSP1 =CreateSpeciesHistogram("hSP1",200,-100,100);
-    //TH1F *hSP2 =CreateSpeciesHistogram("hSP2",900,100,1000);
-    //TH1F *hSP_2 =CreateSpeciesHistogram("hSP_2",900,-1000,-100);
-    //TH1F *hSP3 =CreateSpeciesHistogram("hSP3",4200,1100,5300);
-    //TH1F *hSP_3 =CreateSpeciesHistogram("hSP_3",4200,-5300,-1100);
-    //TH1F *hSP4 =CreateSpeciesHistogram("hSP4",400,10200,10600);
-    //TH1F *hSP_4 =CreateSpeciesHistogram("hSP_4",400,-10600,-10200);
-    //TH1F *hSP5 =CreateSpeciesHistogram("hSP5",300,20200,20500);
-    //TH1F *hSP_5 =CreateSpeciesHistogram("hSP_5",300,-20500,-20200);
-    //TH1F *hSP6 =CreateSpeciesHistogram("hSP6",100,1000000,1000100);
-    //TH1F *hSP7 =CreateSpeciesHistogram("hSP7",100,2000000,2000100);
-    //TH1F *hSP8 =CreateSpeciesHistogram("hSP8",400200,3000000,3400200);
-    //TH1F *hSP9 =CreateSpeciesHistogram("hSP9",20,4000000,4000020);
-    //TH1F *hSPE =CreateSpeciesHistogram("hSPE",2220,9900000,9902220);
     TH3F *hPar = CreateParentHistogram("hPar");
-    //TH2F *hDau1 = CreateParentHistogram("hDau1");
-    //TH2F *hDau2 = CreateParentHistogram("hDau2");
-    //TH1F *hEnergy = CreateEnergyHistogram("hEnergy");
+    TH1F *hEnergy = CreateEnergyHistogram("hEnergy");
+    TH1F *hETAll = CreateEnergyHistogram("hETAll");
+    TH1F *hETpip = CreateEnergyHistogram("h ET_Pi+");
+    TH1F *hETpim = CreateEnergyHistogram("h ET_Pi-");
+    TH1F *hETpi0 = CreateEnergyHistogram("h ET_Pi0");
+    TH1F *hETKp = CreateEnergyHistogram("h ET_K+");
+    TH1F *hETK0 = CreateEnergyHistogram("h ET_K0");
+    TH1F *hETKL = CreateEnergyHistogram("h ET_KL");
+    TH1F *hETKS = CreateEnergyHistogram("h ET_KS");
+    TH1F *hETEta = CreateEnergyHistogram("h ET_Eta");
+    TH1F *hETOmega = CreateEnergyHistogram("h ET_Omega");
+    TH1F *hETOmegaM = CreateEnergyHistogram("h ET_Omega-");
+    TH1F *hETLambda0 = CreateEnergyHistogram("h ET_Lambda0");
+    TH1F *hETRhoP = CreateEnergyHistogram("h ET_Rho+");
+    TH1F *hETRho0 = CreateEnergyHistogram("h ET_Rho0");
+    TH1F *hETSigmaP = CreateEnergyHistogram("h ET_Sigma+");
+    TH1F *hETSigmaM = CreateEnergyHistogram("h ET_Simga-");
+    TH1F *hETSigma0 = CreateEnergyHistogram("h ET_Sigma0");
+    TH1F *hETDeltaPP = CreateEnergyHistogram("h ET_Delta++");
+    TH1F *hETDeltaP = CreateEnergyHistogram("h ET_Delta+");
+    TH1F *hETDeltaM = CreateEnergyHistogram("h ET_Delta-");
+    TH1F *hETDelta0 = CreateEnergyHistogram("h ET_Delta0");
+    TH1F *hETXiM = CreateEnergyHistogram("h ET_Xi-");
+    TH1F *hETXi0 = CreateEnergyHistogram("h ET_Xi0");
+    TH1F *hETgamma = CreateEnergyHistogram("h ET_gamma");
+    TH1F *hETp = CreateEnergyHistogram("h ET_p");
+    TH1F *hETn = CreateEnergyHistogram("h ET_n");
+    TH1F *hETmu = CreateEnergyHistogram("h ET_mu");
+    TH1F *hETmu_ = CreateEnergyHistogram("h ET_muBar");
+    TH1F *hETe = CreateEnergyHistogram("h ET_e");
+    TH1F *hETe_ = CreateEnergyHistogram("h ET_eBar");
     TH3F *hEve = CreateEventHistogram("hEve",nEvents);
+    THStack hs("hs","test");
 
 //NOTE: VERY IMPORTANT
     TH1F *hNEvents = new TH1F("hNEvents","Number of events",1,0,1.0);
@@ -454,7 +476,41 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   //tree->Branch(BRANCHNAME, &particles);
   cout<<"I made it here line 235"<<endl;
   // Now we make some events
+
+
+
+
   for (Int_t event = 0; event < nEvents; event++) {
+    Double_t ETAll=0;
+    Double_t ETpip=0;
+    Double_t ETpim=0;
+    Double_t ETpi0=0;
+    Double_t ETKp=0;
+    Double_t ETK0=0;
+    Double_t ETKL=0;
+    Double_t ETKS=0;
+    Double_t ETEta=0;
+    Double_t ETOmega=0;
+    Double_t ETOmegaM=0;
+    Double_t ETLambda0=0;
+    Double_t ETRhoP=0;
+    Double_t ETRho0=0;
+    Double_t ETSigmaP=0;
+    Double_t ETSigmaM=0;
+    Double_t ETSigma0=0;
+    Double_t ETDeltaPP=0;
+    Double_t ETDeltaP=0;
+    Double_t ETDeltaM=0;
+    Double_t ETDelta0=0;
+    Double_t ETXiM=0;
+    Double_t ETXi0=0;
+    Double_t ETgamma=0;
+    Double_t ETp=0;
+    Double_t ETn=0;
+    Double_t ETmu=0;
+    Double_t ETmu_=0;
+    Double_t ETe_=0;
+    Double_t ETe=0;
     // Show how far we got every 100'th event.
     if (event % 100 == 0)
       cout <<"Event # " << event <<endl;
@@ -496,9 +552,159 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
   Int_t Ckf = MPart->GetKF();//convereted kf code to index
   Ckf=GetKFConversion(Ckf,partname);
   Int_t ind = part+1; //index
-  hEve->Fill(Ckf,event,ind);
+  //hEve->Fill(Ckf,event,ind);
 
+  Float_t partE= MPart ->GetEnergy();
+  Int_t mpartD = MPart->GetFirstChild();
 
+  if (Ckf==58){
+    if (mpartD==0){
+      ETpip+=partE;
+      ETAll+=partE;
+    }
+  }
+  if (Ckf==-58){
+    if (mpartD==0){
+    ETpim+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==68){
+    if (mpartD==0){
+    ETpi0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==60){
+    if (mpartD==0){
+    ETKp+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==59){
+    if (mpartD==0){
+    ETK0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==73){
+    if (mpartD==0){
+    ETKL+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==74){
+    if (mpartD==0){
+    ETKS+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==69){
+    if (mpartD==0){
+    ETEta+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==86){
+    if (mpartD==0){
+    ETOmega+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==162){
+    if (mpartD==0){
+    ETOmegaM+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==135){
+    if (mpartD==0){
+    ETLambda0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==75){
+    if (mpartD==0){
+    ETRhoP+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==85){
+    if (mpartD==0){
+    ETRho0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==137){
+    if (mpartD==0){
+    ETSigmaP+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==134){
+    if (mpartD==0){
+    ETSigmaM+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==136){
+    if (mpartD==0){
+    ETSigma0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==156){
+    if (mpartD==0){
+    ETDeltaPP+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==155){
+    if (mpartD==0){
+    ETDeltaP+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==153){
+    if (mpartD==0){
+    ETDeltaM+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==154){
+    if (mpartD==0){
+    ETDelta0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==138){
+    if (mpartD==0){
+    ETXiM+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==139){
+    if (mpartD==0){
+    ETXi0+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==17){
+    if (mpartD==0){
+    ETgamma+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==133){
+    if (mpartD==0){
+    if ((part!=0)&&(part!=1)){
+      ETp+=partE;
+      ETAll+=partE;
+    }}
+  }
+  if (Ckf==132){
+    if (mpartD==0){
+    ETn+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==10){
+    if (mpartD==0){
+    ETmu+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==11){
+    if (mpartD==0){
+    ETmu_+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==9){
+    if (mpartD==0){
+    ETe_+=partE;
+    ETAll+=partE;
+  }}
+  if (Ckf==8){
+    if (mpartD==0){
+    ETe+=partE;
+    ETAll+=partE;
+  }}
   if(pt>2.0 /*&& TMath::Abs(eta)<trigEtaMax*/){
 	  TString mpart = MPart->GetName();
     Int_t mpartPKF=0;
@@ -509,7 +715,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     Int_t mpartPKFCON;
     Float_t mpartE = MPart ->GetEnergy();
     Int_t mpartP = MPart ->GetParent();
-    Int_t mpartD = MPart->GetFirstChild();
+    hEnergy->Fill(mpartE);
     if (mpartP!=0){
       TMCParticle* parent = (TMCParticle *) particles->At(mpartP-1);
       mpartPKF = parent ->GetKF();
@@ -519,21 +725,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
       mpartPKFCON=GetKFConversion(mpartPKF,partname);
       hPar->Fill(mpartKFCON,mpartPKFCON,mpartP);
     }
-    /*
-    if (mpartD!=0){
-      TMCParticle* daughter = (TMCParticle *) particles->At(mpartD-1);
-      mpartDKF = daughter ->GetKF();
-      mpartPKFCON=GetKFConversion(mpartDKF,partname);
-      hDau1->Fill(mpartKF,mpartDKF);
-    }
-    Int_t mpartD2 = MPart->GetLastChild();
-    if (mpartD!=0){
-      TMCParticle* daughter2 = (TMCParticle *) particles->At(mpartD2-1);
-      mpartD2KF = daughter2 ->GetKF();
-      mpartPKFCON=GetKFConversion(mpartD2KF,partname);
-      hDau2->Fill(mpartKF,mpartD2KF);
-    }
-    */
     //cout<<mpartKF<<endl;
 	  //Int_t mpartPDG  = MPart->GetPdgCode();
 	  //cout<<"Part ID "<<mpart;
@@ -542,34 +733,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	  //cout<<endl;
     //cout<<mpartKF<<"\t "<<mpartP<<"\t "<<mpartPKF<<"\t "<<mpartE<<endl;
     hSPALL->Fill(mpartKF);
-    /*
-    if ((-100<mpartKF)&&(100>mpartKF)){
-      hSP1->Fill(mpartKF);
-    }
-    if ((100<mpartKF)&&(mpartKF<1000)){
-      hSP2->Fill(mpartKF);
-    }
-    if ((-1000<mpartKF)&&(mpartKF<(-100))){
-      hSP_2->Fill(mpartKF);
-    }
-    if ((1100<mpartKF)&&(mpartKF<5300)){
-      hSP3->Fill(mpartKF);
-    }
-    if ((-1100>mpartKF)&&(mpartKF>(-5300))){
-      hSP_3->Fill(mpartKF);
-    }
-    if ((10100<mpartKF)&&(mpartKF<10600)){
-      hSP4->Fill(mpartKF);
-    }
-    if ((-10100>mpartKF)&&(mpartKF>(-10600))){
-      hSP_4->Fill(mpartKF);
-    }
-    if ((20200<mpartKF)&&(mpartKF<20500)){
-      hSP5->Fill(mpartKF);
-    }
-    if ((-20200<mpartKF)&&(mpartKF<(-20500))){
-      hSP_5->Fill(mpartKF);
-    }*/
 
 	  if(mpart==kshort && nK0Trig<maxNtrig){//K0S
 	    k0TrigPt[0][nK0Trig] = pt;
@@ -759,9 +922,81 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 	      }
 	    }
 	  }
+
 	}//end particle loop
       }
-
+      hETAll->Fill(ETAll);
+      //cout<<"TOTAL: "<<ETAll<<endl;
+      hETpip->Fill(ETpip);
+        hETpip->SetFillColor(0);
+        hs.Add(hETpip);
+        cout<<"pip "<<ETpip<<endl;
+      hETpim->Fill(ETpim);
+        hETpim->SetFillColor(1);
+        hs.Add(hETpim);
+        //cout<<"pim "<<ETpim<<endl;
+      hETpi0->Fill(ETpi0);
+        hETpi0->SetFillColor(2);
+        hs.Add(hETpi0);
+        //cout<<"pi0 "<<ETpi0<<endl;
+      hETKp->Fill(ETKp);
+        hETKp->SetFillColor(3);
+        hs.Add(hETKp);
+        //cout<<"Kp "<<ETKp<<endl;
+      hETK0->Fill(ETK0);
+        hETK0->SetFillColor(4);
+        hs.Add(hETK0);
+        //cout<<"K0 "<<ETK0<<endl;
+      hETKL->Fill(ETKL);
+        hETKL->SetFillColor(-10);
+        hs.Add(hETKL);
+        //cout<<"KL "<<ETKL<<endl;
+      hETKS->Fill(ETKS);
+        //cout<<"KS "<<ETKS<<endl;
+      hETEta->Fill(ETEta);
+        //cout<<"Eta "<<ETEta<<endl;
+      hETOmega->Fill(ETOmega);
+        //cout<<"Omega "<<ETOmega<<endl;
+      hETOmegaM->Fill(ETOmegaM);
+        //cout<<"OmegaM "<<ETOmegaM<<endl;
+      hETLambda0->Fill(ETLambda0);
+        //cout<<"Lambda0 "<<ETLambda0<<endl;
+      hETRhoP->Fill(ETRhoP);
+        //cout<<"Rho+ "<<ETRhoP<<endl;
+      hETRho0->Fill(ETRho0);
+        //cout<<"Rho0 "<<ETRho0<<endl;
+      hETSigmaP->Fill(ETSigmaP);
+        //cout<<"SigmaP "<<ETSigmaP<<endl;
+      hETSigmaM->Fill(ETSigmaM);
+        //cout<<"SigmaM "<<ETSigmaM<<endl;
+      hETSigma0->Fill(ETSigma0);
+        //cout<<"Sigma0 "<<ETSigma0<<endl;
+      hETDeltaPP->Fill(ETDeltaPP);
+        //cout<<"Delta++ "<<ETDeltaPP<<endl;
+      hETDeltaP->Fill(ETDeltaP);
+        //cout<<"Delta+ "<<ETDeltaP<<endl;
+      hETDeltaM->Fill(ETDeltaM);
+        //cout<<"Delta- "<<ETDeltaM<<endl;
+      hETDelta0->Fill(ETDelta0);
+        //cout<<"Delta0 "<<ETDelta0<<endl;
+      hETXiM->Fill(ETXiM);
+        //cout<<"Xi- "<<ETXiM<<endl;
+      hETXi0->Fill(ETXi0);
+        //cout<<"Xi0 "<<ETXiM<<endl;
+      hETgamma->Fill(ETgamma);
+        //cout<<"gamma "<<ETgamma<<endl;
+      hETp->Fill(ETp);
+        //cout<<"p "<<ETp<<endl;
+      hETn->Fill(ETn);
+        //cout<<"n "<<ETn<<endl;
+      hETmu->Fill(ETmu);
+        //cout<<"mu "<<ETmu<<endl;
+      hETmu_->Fill(ETmu_);
+        //cout<<"muBAR "<<ETmu_<<endl;
+      hETe->Fill(ETe);
+        //cout<<"e "<<ETe<<endl;
+      hETe_->Fill(ETe_);
+        //cout<<"eBAR "<<ETe_<<endl;
   }
 
   //NOTE:write histograms to file
@@ -775,16 +1010,41 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
     //hProtonTriggers->Write();
     hNEvents->Write();
     hSPALL->Write();
-    //hSP1->Write();
-    //hSP2->Write();
-    //hSP_2->Write();
-    //hSP3->Write();
-    //hSP_3->Write();
-    hPar->Write();
-    //hDau1->Write();
-    //hDau2->Write();
-    hEve->Write();
+    //hPar->Write();
+    hETAll->Write();
+    hETpip->Write();
+    hETpim->Write();
+    hETpi0->Write();
+    hETKp->Write();
+    hETK0->Write();
+    hETKL->Write();
+    hETKS->Write();
+    hETEta->Write();
+    hETOmega->Write();
+    hETOmegaM->Write();
+    hETLambda0->Write();
+    hETRhoP->Write();
+    hETRho0->Write();
+    hETSigmaP->Write();
+    hETSigmaM->Write();
+    hETSigma0->Write();
+    hETDeltaPP->Write();
+    hETDeltaP->Write();
+    hETDeltaM->Write();
+    hETDelta0->Write();
+    hETXiM->Write();
+    hETXi0->Write();
+    hETgamma->Write();
+    hETp->Write();
+    hETn->Write();
+    hETmu->Write();
+    hETmu_->Write();
+    hETe->Write();
+    hETe_->Write();
+    hs.Write();
+    //hEve->Write();
     outfile->Close();
+
   return 0;
 }
 
