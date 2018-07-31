@@ -1,10 +1,3 @@
-//TODO: lib, look at TPYTHIA/6 look at how things are accounted for, I WANT ONLY FINAL STATE PARTICLEs
-//need to find decays
-//look TMCPARTICLE!! find parent daughter!! need to know where they come from (in particular pions)
-//loop over final state hadron.
-//get everything into histogram, this will cut back on file size NO MORE DATS WHEN DONE
-//check google
-
 //____________________________________________________________________
 //
 // Using Pythia6 with ROOT
@@ -140,10 +133,10 @@ TH3F *CreateParentHistogram(char *name){
   histo->GetZaxis()->SetTitle("index");
   return histo;
 }
-TH1F *CreateEnergyHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,3000,0,3000);
-  histo->GetYaxis()->SetTitle("number at energy");
-  histo->GetXaxis()->SetTitle("Energy_T");
+TH2F *CreateEnergyHistogram(char *name,Int_t nEvents){
+  TH2F *histo = new TH2F(name,name,1000,0,2,nEvents,0,nEvents);
+  histo->GetYaxis()->SetTitle("number of entries");
+  histo->GetXaxis()->SetTitle("Energy_Tpart/ETAll");
   return histo;
 }
 TH3F *CreateEventHistogram(char *name,Int_t nEvents){
@@ -243,13 +236,31 @@ gSystem->Load("/data/rhip/alice/cnattras/pythia6/libPythia6");
 }
 
 // nEvents is how many events we want.
-int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax = 0.5, Float_t assocEtaMax = 0.9)
+int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t trigEtaMax = 0.5, Float_t assocEtaMax = 0.9)
 {
   Int_t l=0;
   vector <KF_Code> partname(0);
-
-  cout<<"I made it here, running "<<nEvents<<" events, job id "<<jobID<<", tune "<<tune<<endl;
-  char *filename = Form("hh_outfile%i.root",jobID);
+  /**************************************************************************
+  choose energy
+  {11,19,27,39,120,200,300,400,500,600,700,800,900,1000,1500,2000,2760,3000};
+  **************************************************************************/
+//    float SNN=7.7;
+  int modSNN;
+  if (SNN==7.7){
+    modSNN=7;
+  }
+  else if (SNN==11.5){
+    modSNN=11;
+  }
+  else if (SNN==19.6){
+    modSNN=19;
+  }
+  else {
+    modSNN=SNN;
+  }
+  cout<<modSNN<<endl;
+  cout<<"I made it here, running "<<nEvents<<" events, job id "<<jobID<<", tune "<<tune<<", at "<<SNN<<"GeV"<<endl;
+  char *filename = Form("hh%iGeV_outfile%i.root",modSNN,jobID);
   ifstream in;
   in.open("KF_Code.dat");
   while (in.good()){
@@ -350,32 +361,16 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t trigEtaMax =
 
 //BEN THIS LINE IS IMPORTANT
   pythia->SetMSTJ(22,2);//decays unstable particles
-//if you see pion, KOS->pi+pi-
-//lambda-> p pi-
-//antilambda-> pbar pi+
-//sigmas may be different if not included.
-//MUST ACCOUNT FOR, account for lambdas with lambdas (see where pion comes from)
-//if you throw in rarer particles, better accuracy
-//the pi0 decays so fast (10^-20cm) all as 2 photons need to look up parent.
-//not sure have pi0
-//SIGMA (about as many as lambda)
-//see reference 4,5,6 in wikipedia, sigma zero decays into a lambda with a gamma
-//sigma- into pi- (not really neutron)
-//actually measured include lambdas from lambda
-  //UInt_t seed = (jobID+1)*17;
-  UInt_t seed = rand()%900000000;
-  cout<<seed<<endl; //gives seed
+
+  UInt_t seed = (jobID+1)*17;
+  //UInt_t seed = rand()%900000000;
+  //cout<<seed<<endl; //gives seed
   if( (seed>=0) && (seed<=900000000) ) {
     pythia->SetMRPY(1, seed);                   // set seed
     pythia->SetMRPY(2, 0);                      // use new seed
+    pythia->SetPARP(2,7.0);                     // lowest collision energy
     cout<<"Random Seed : "<<seed<<endl;
   } else {cout << "error: time " << seed << " is not valid" << endl; exit(2);}
-
-/**************************************************************************
-choose energy
-{11,19,27,39,120,200,300,400,500,600,700,800,900,1000,1500,2000,2760,3000};
-**************************************************************************/
-  int SNN=11.9;
 
 
   // ... and initialise it to run p+p at sqrt(200) GeV in CMS
@@ -415,37 +410,44 @@ choose energy
 
     TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
     TH3F *hPar = CreateParentHistogram("hPar");
-    TH1F *hEnergy = CreateEnergyHistogram("hEnergy");
-    TH1F *hETAll = CreateEnergyHistogram("hETAll");
-    TH1F *hETpip = CreateEnergyHistogram("h ET_Pi+");
-    TH1F *hETpim = CreateEnergyHistogram("h ET_Pi-");
-    TH1F *hETpi0 = CreateEnergyHistogram("h ET_Pi0");
-    TH1F *hETKp = CreateEnergyHistogram("h ET_K+");
-    TH1F *hETK0 = CreateEnergyHistogram("h ET_K0");
-    TH1F *hETKL = CreateEnergyHistogram("h ET_KL");
-    TH1F *hETKS = CreateEnergyHistogram("h ET_KS");
-    TH1F *hETEta = CreateEnergyHistogram("h ET_Eta");
-    TH1F *hETOmega = CreateEnergyHistogram("h ET_Omega");
-    TH1F *hETOmegaM = CreateEnergyHistogram("h ET_Omega-");
-    TH1F *hETLambda0 = CreateEnergyHistogram("h ET_Lambda0");
-    TH1F *hETRhoP = CreateEnergyHistogram("h ET_Rho+");
-    TH1F *hETRho0 = CreateEnergyHistogram("h ET_Rho0");
-    TH1F *hETSigmaP = CreateEnergyHistogram("h ET_Sigma+");
-    TH1F *hETSigmaM = CreateEnergyHistogram("h ET_Simga-");
-    TH1F *hETSigma0 = CreateEnergyHistogram("h ET_Sigma0");
-    TH1F *hETDeltaPP = CreateEnergyHistogram("h ET_Delta++");
-    TH1F *hETDeltaP = CreateEnergyHistogram("h ET_Delta+");
-    TH1F *hETDeltaM = CreateEnergyHistogram("h ET_Delta-");
-    TH1F *hETDelta0 = CreateEnergyHistogram("h ET_Delta0");
-    TH1F *hETXiM = CreateEnergyHistogram("h ET_Xi-");
-    TH1F *hETXi0 = CreateEnergyHistogram("h ET_Xi0");
-    TH1F *hETgamma = CreateEnergyHistogram("h ET_gamma");
-    TH1F *hETp = CreateEnergyHistogram("h ET_p");
-    TH1F *hETn = CreateEnergyHistogram("h ET_n");
-    TH1F *hETmu = CreateEnergyHistogram("h ET_mu");
-    TH1F *hETmu_ = CreateEnergyHistogram("h ET_muBar");
-    TH1F *hETe = CreateEnergyHistogram("h ET_e");
-    TH1F *hETe_ = CreateEnergyHistogram("h ET_eBar");
+    TH2F *hEnergy = CreateEnergyHistogram("hEnergy",nEvents);
+    TH2F *hETAll = CreateEnergyHistogram("hETAll",nEvents);
+    TH2F *hETpip = CreateEnergyHistogram("h ET_Pi+",nEvents);
+    TH2F *hETpim = CreateEnergyHistogram("h ET_Pi-",nEvents);
+    TH2F *hETpi0 = CreateEnergyHistogram("h ET_Pi0",nEvents);
+    TH2F *hETKp = CreateEnergyHistogram("h ET_K+",nEvents);
+    TH2F *hETKm = CreateEnergyHistogram("h ET_K-",nEvents);
+    TH2F *hETK0 = CreateEnergyHistogram("h ET_K0",nEvents);
+    TH2F *hETKL = CreateEnergyHistogram("h ET_KL",nEvents);
+    TH2F *hETKS = CreateEnergyHistogram("h ET_KS",nEvents);
+    TH2F *hETEta = CreateEnergyHistogram("h ET_Eta",nEvents);
+    TH2F *hETOmega = CreateEnergyHistogram("h ET_omega",nEvents);
+    TH2F *hETOmegaP = CreateEnergyHistogram("h ET_Omega+",nEvents);
+    TH2F *hETOmegaM = CreateEnergyHistogram("h ET_Omega-",nEvents);
+    TH2F *hETLambda0 = CreateEnergyHistogram("h ET_Lambda0",nEvents);
+    TH2F *hETLambdaBar0 = CreateEnergyHistogram("h ET_LambdaBar0",nEvents);
+    TH2F *hETRhoP = CreateEnergyHistogram("h ET_Rho+",nEvents);
+    TH2F *hETRho0 = CreateEnergyHistogram("h ET_Rho0",nEvents);
+    TH2F *hETSigmaP = CreateEnergyHistogram("h ET_Sigma+",nEvents);
+    TH2F *hETSigmaM = CreateEnergyHistogram("h ET_Simga-",nEvents);
+    TH2F *hETSigma0 = CreateEnergyHistogram("h ET_Sigma0",nEvents);
+    TH2F *hETDeltaPP = CreateEnergyHistogram("h ET_Delta++",nEvents);
+    TH2F *hETDeltaP = CreateEnergyHistogram("h ET_Delta+",nEvents);
+    TH2F *hETDeltaM = CreateEnergyHistogram("h ET_Delta-",nEvents);
+    TH2F *hETDelta0 = CreateEnergyHistogram("h ET_Delta0",nEvents);
+    TH2F *hETXiP = CreateEnergyHistogram("h ET_Xi+",nEvents);
+    TH2F *hETXiM = CreateEnergyHistogram("h ET_Xi-",nEvents);
+    TH2F *hETXi0 = CreateEnergyHistogram("h ET_Xi0",nEvents);
+    TH2F *hETgamma = CreateEnergyHistogram("h ET_gamma",nEvents);
+    TH2F *hETp = CreateEnergyHistogram("h ET_p",nEvents);
+    TH2F *hETn = CreateEnergyHistogram("h ET_n",nEvents);
+    TH2F *hETp_ = CreateEnergyHistogram("h ET_pBar",nEvents);
+    TH2F *hETn_ = CreateEnergyHistogram("h ET_nBar",nEvents);
+    TH2F *hETmu = CreateEnergyHistogram("h ET_mu",nEvents);
+    TH2F *hETmu_ = CreateEnergyHistogram("h ET_muBar",nEvents);
+    TH2F *hETe = CreateEnergyHistogram("h ET_e",nEvents);
+    TH2F *hETe_ = CreateEnergyHistogram("h ET_eBar",nEvents);
+    TH2F *homegaVSpi0 = CreateEnergyHistogram("h ET_omega/pi0",nEvents);
     TH3F *hEve = CreateEventHistogram("hEve",nEvents);
     THStack hs("hs","test");
 
@@ -476,7 +478,41 @@ choose energy
   //tree->Branch(BRANCHNAME, &particles);
   cout<<"I made it here line 235"<<endl;
   // Now we make some events
-
+  //counters
+  Int_t cpip=0;
+  Int_t cpim=0;
+  Int_t cpi0=0;
+  Int_t cKp=0;
+  Int_t cKm=0;
+  Int_t cKL=0;
+  Int_t cKS=0;
+  Int_t cEta=0;
+  Int_t cOmega=0; //THIS IS omega not Omega
+  Int_t cOmegaP=0;
+  Int_t cOmegaM=0;
+  Int_t cLambda0=0;
+  Int_t cLambdaBar0=0;
+  Int_t cRhoP=0;
+  Int_t cRho0=0;
+  Int_t cSigmaP=0;
+  Int_t cSigmaM=0;
+  Int_t cSigma0=0;
+  Int_t cDeltaPP=0;
+  Int_t cDeltaP=0;
+  Int_t cDeltaM=0;
+  Int_t cDelta0=0;
+  Int_t cXiM=0;
+  Int_t cXiP=0;
+  Int_t cXi0=0;
+  Int_t cgamma=0;
+  Int_t cp=0;
+  Int_t cn=0;
+  Int_t cp_=0;
+  Int_t cn_=0;
+  Int_t cmu=0;
+  Int_t cmu_=0;
+  Int_t ce_=0;
+  Int_t ce=0;
 
 
 
@@ -486,13 +522,16 @@ choose energy
     Double_t ETpim=0;
     Double_t ETpi0=0;
     Double_t ETKp=0;
+    Double_t ETKm=0;
     Double_t ETK0=0;
     Double_t ETKL=0;
     Double_t ETKS=0;
     Double_t ETEta=0;
-    Double_t ETOmega=0;
+    Double_t ETOmega=0; //THIS IS omega not Omega
+    Double_t ETOmegaP=0;
     Double_t ETOmegaM=0;
     Double_t ETLambda0=0;
+    Double_t ETLambdaBar0=0;
     Double_t ETRhoP=0;
     Double_t ETRho0=0;
     Double_t ETSigmaP=0;
@@ -503,14 +542,54 @@ choose energy
     Double_t ETDeltaM=0;
     Double_t ETDelta0=0;
     Double_t ETXiM=0;
+    Double_t ETXiP=0;
     Double_t ETXi0=0;
     Double_t ETgamma=0;
     Double_t ETp=0;
     Double_t ETn=0;
+    Double_t ETp_=0;
+    Double_t ETn_=0;
     Double_t ETmu=0;
     Double_t ETmu_=0;
     Double_t ETe_=0;
     Double_t ETe=0;
+
+    //ETpart/ETALL
+    Double_t pETpip=0;
+    Double_t pETpim=0;
+    Double_t pETpi0=0;
+    Double_t pETKp=0;
+    Double_t pETKm=0;
+    Double_t pETKL=0;
+    Double_t pETKS=0;
+    Double_t pETEta=0;
+    Double_t pETOmega=0; //THIS IS omega not Omega
+    Double_t pETOmegaP=0;
+    Double_t pETOmegaM=0;
+    Double_t pETLambda0=0;
+    Double_t pETLambdaBar0=0;
+    Double_t pETRhoP=0;
+    Double_t pETRho0=0;
+    Double_t pETSigmaP=0;
+    Double_t pETSigmaM=0;
+    Double_t pETSigma0=0;
+    Double_t pETDeltaPP=0;
+    Double_t pETDeltaP=0;
+    Double_t pETDeltaM=0;
+    Double_t pETDelta0=0;
+    Double_t pETXiM=0;
+    Double_t pETXiP=0;
+    Double_t pETXi0=0;
+    Double_t pETgamma=0;
+    Double_t pETp=0;
+    Double_t pETn=0;
+    Double_t pETp_=0;
+    Double_t pETn_=0;
+    Double_t pETmu=0;
+    Double_t pETmu_=0;
+    Double_t pETe_=0;
+    Double_t pETe=0;
+
     // Show how far we got every 100'th event.
     if (event % 100 == 0)
       cout <<"Event # " << event <<endl;
@@ -553,158 +632,211 @@ choose energy
   Ckf=GetKFConversion(Ckf,partname);
   Int_t ind = part+1; //index
   //hEve->Fill(Ckf,event,ind);
+  char N ='n';
+  Float_t E= MPart ->GetEnergy();
+  Float_t partE;
+  Float_t px=MPart->GetPx();
+  Float_t py=MPart->GetPy();
+  Float_t pz=MPart->GetPz();
+  if (pz<0){
+    pz*=(-1);
+  }
+  Float_t pT= sqrt(pow(px,2)+pow(py,2));
+  Float_t Theta = atan(pT/pz);
+  Float_t p_tot=(pT)/sin(Theta);
+  Float_t m=MPart->GetMass();
+  Float_t Ei_TOT= sqrt(pow(p_tot,2)+pow(m,2));
+  Float_t pseudorapidity=-log(tan(Theta/2));
+  Float_t rapidity=(0.5)*log((E+pz)/(E-pz));
+  //cout<<pseudorapidity<<" "<<rapidity<<endl;
+  if (rapidity<0.1){
+  //check part type for ET
+  if ((Ckf==162)||(Ckf==135)||(Ckf==134)||(Ckf==136)||(Ckf==137)||(Ckf==138)||(Ckf==139)||(Ckf==133)||(Ckf==132)){
+    partE = (Ei_TOT-m) * sin(Theta);
+  }
+  else if ((Ckf==-162)||(Ckf==-135)||(Ckf==-138)){
+    partE = (Ei_TOT+m) * sin(Theta);
+  }
+  else {
+    partE = Ei_TOT * sin(Theta);
+  }
 
-  Float_t partE= MPart ->GetEnergy();
   Int_t mpartD = MPart->GetFirstChild();
+  Int_t mpP = MPart->GetParent();
+  Float_t mpL = MPart->GetLifetime();
 
-  if (Ckf==58){
-    if (mpartD==0){
+  if (Ckf==58){ //pi+
+    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)){ //counted if final particle AND not daughter of eta or omega NOTE: not subtracting pions from KS or KL
       ETpip+=partE;
       ETAll+=partE;
-    }
-  }
-  if (Ckf==-58){
-    if (mpartD==0){
+      cpip++;
+  }}
+  if (Ckf==-58){ //pi-
+    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)){//counted if final particle AND not daughter of eta or omega NOTE: not subtracting pions from KS or KL
     ETpim+=partE;
     ETAll+=partE;
+    cpim++;
   }}
-  if (Ckf==68){
-    if (mpartD==0){
+  if (Ckf==68){ //pi0
+    if ((mpP!=221)&&(mpP!=223)){//counted if not daughter of eta or omega NOTE: not subtracting pions from KS or KL (mpP!=73) (mpP!=74)
     ETpi0+=partE;
     ETAll+=partE;
+    cpi0++;
   }}
-  if (Ckf==60){
-    if (mpartD==0){
+  if (Ckf==60){ //K+
+    if (mpartD==0){//counted if final particle
     ETKp+=partE;
     ETAll+=partE;
+    cKp++;
   }}
-  if (Ckf==59){
-    if (mpartD==0){
-    ETK0+=partE;
+  if (Ckf==-60){ //K-
+    if (mpartD==0){//counted if final particle
+    ETKm+=partE;
     ETAll+=partE;
+    cKm++;
   }}
-  if (Ckf==73){
-    if (mpartD==0){
+  if (Ckf==73){// KL
+    if ((mpL>=100)||(mpartD==0)){//counted if final particle or lifetime > 1cm
     ETKL+=partE;
     ETAll+=partE;
+    cKL++;
   }}
-  if (Ckf==74){
-    if (mpartD==0){
+  if (Ckf==74){ //KS
+    if ((mpL>=100)||(mpartD==0)){//counted if final particle or lifetime > 1cm
     ETKS+=partE;
     ETAll+=partE;
+    cKS++;
   }}
-  if (Ckf==69){
-    if (mpartD==0){
+  if (Ckf==69){ //eta
     ETEta+=partE;
     ETAll+=partE;
-  }}
-  if (Ckf==86){
-    if (mpartD==0){
+    cEta++;
+  }
+  if (Ckf==86){ // omega
     ETOmega+=partE;
     ETAll+=partE;
+    cOmega++;
+  }
+  if (Ckf==-162){ // Omega+
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){ //included if: 1cm lifetime, final state particle, and does not produce a lambda0 or antilambda0
+    ETOmegaP+=partE;
+    ETAll+=partE;
+    cOmegaP++;
   }}
-  if (Ckf==162){
-    if (mpartD==0){
+  if (Ckf==162){ // Omega-
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETOmegaM+=partE;
     ETAll+=partE;
+    cOmegaM++;
   }}
-  if (Ckf==135){
-    if (mpartD==0){
+  if (Ckf==135){ //Lambda0
+    if ((mpL>=100)||(mpartD==0)){
     ETLambda0+=partE;
     ETAll+=partE;
+    cLambda0++;
   }}
-  if (Ckf==75){
-    if (mpartD==0){
-    ETRhoP+=partE;
+  if (Ckf==-135){ //LambdaBar0
+    if ((mpL>=100)||(mpartD==0)){
+    ETLambdaBar0+=partE;
     ETAll+=partE;
+    cLambdaBar0++;
   }}
-  if (Ckf==85){
-    if (mpartD==0){
-    ETRho0+=partE;
-    ETAll+=partE;
-  }}
-  if (Ckf==137){
-    if (mpartD==0){
+  if (Ckf==137){ //Sigma+
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETSigmaP+=partE;
     ETAll+=partE;
+    cSigmaP++;
   }}
-  if (Ckf==134){
-    if (mpartD==0){
+  if (Ckf==134){ //Sigma-
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETSigmaM+=partE;
     ETAll+=partE;
+    cSigmaM++;
   }}
-  if (Ckf==136){
-    if (mpartD==0){
+  if (Ckf==136){ //Sigma0
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETSigma0+=partE;
     ETAll+=partE;
+    cSigma0++;
   }}
-  if (Ckf==156){
-    if (mpartD==0){
-    ETDeltaPP+=partE;
-    ETAll+=partE;
-  }}
-  if (Ckf==155){
-    if (mpartD==0){
-    ETDeltaP+=partE;
-    ETAll+=partE;
-  }}
-  if (Ckf==153){
-    if (mpartD==0){
-    ETDeltaM+=partE;
-    ETAll+=partE;
-  }}
-  if (Ckf==154){
-    if (mpartD==0){
-    ETDelta0+=partE;
-    ETAll+=partE;
-  }}
-  if (Ckf==138){
-    if (mpartD==0){
+  if (Ckf==138){ //Xi-
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETXiM+=partE;
     ETAll+=partE;
+    cXiM++;
   }}
-  if (Ckf==139){
-    if (mpartD==0){
+  if (Ckf==-138){ //Xi+
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    ETXiP+=partE;
+    ETAll+=partE;
+    cXiP++;
+  }}
+  if (Ckf==139){ //Xi0
+    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
     ETXi0+=partE;
     ETAll+=partE;
+    cXi0++;
   }}
-  if (Ckf==17){
-    if (mpartD==0){
+  if (Ckf==17){ //gamma
+    if ((mpartD==0)&&(mpP!=68)&&(mpP!=86)){
     ETgamma+=partE;
     ETAll+=partE;
+    cgamma++;
   }}
-  if (Ckf==133){
+  if (Ckf==133){ //proton
     if (mpartD==0){
     if ((part!=0)&&(part!=1)){
       ETp+=partE;
       ETAll+=partE;
+      cp++;
     }}
   }
-  if (Ckf==132){
-    if (mpartD==0){
+  if (Ckf==132){ //neutron
+    if ((mpartD==0)&&(mpP!=2112)){
     ETn+=partE;
     ETAll+=partE;
+    cn++;
   }}
-  if (Ckf==10){
+  if (Ckf==-133){ //antiproton
+    if (mpartD==0){
+    if ((part!=0)&&(part!=1)){
+      ETp_+=partE;
+      ETAll+=partE;
+      cp_++;
+    }}
+  }
+  if (Ckf==-132){ //antineutron
+    if ((mpartD==0)&&(mpP!=2112)){
+    ETn_+=partE;
+    ETAll+=partE;
+    cn_++;
+  }}
+  if (Ckf==10){ //mu
     if (mpartD==0){
     ETmu+=partE;
     ETAll+=partE;
+    cmu++;
   }}
-  if (Ckf==11){
+  if (Ckf==11){ //muBar
     if (mpartD==0){
     ETmu_+=partE;
     ETAll+=partE;
+    cmu_++;
   }}
-  if (Ckf==9){
+  if (Ckf==9){ //positron
     if (mpartD==0){
     ETe_+=partE;
     ETAll+=partE;
+    ce_++;
   }}
-  if (Ckf==8){
+  if (Ckf==8){ //electron
     if (mpartD==0){
     ETe+=partE;
     ETAll+=partE;
+    ce++;
   }}
+
+} //end pseudorapidity cut
   if(pt>2.0 /*&& TMath::Abs(eta)<trigEtaMax*/){
 	  TString mpart = MPart->GetName();
     Int_t mpartPKF=0;
@@ -715,7 +847,7 @@ choose energy
     Int_t mpartPKFCON;
     Float_t mpartE = MPart ->GetEnergy();
     Int_t mpartP = MPart ->GetParent();
-    hEnergy->Fill(mpartE);
+    //hEnergy->Fill(mpartE);
     if (mpartP!=0){
       TMCParticle* parent = (TMCParticle *) particles->At(mpartP-1);
       mpartPKF = parent ->GetKF();
@@ -925,82 +1057,183 @@ choose energy
 
 	}//end particle loop
       }
-      hETAll->Fill(ETAll);
+      Double_t omegaET=0;
+      Double_t pi0ET=0;
+      hETAll->Fill(ETAll,cpip);
       //cout<<"TOTAL: "<<ETAll<<endl;
-      hETpip->Fill(ETpip);
-        hETpip->SetFillColor(0);
-        hs.Add(hETpip);
-        cout<<"pip "<<ETpip<<endl;
-      hETpim->Fill(ETpim);
-        hETpim->SetFillColor(1);
-        hs.Add(hETpim);
-        //cout<<"pim "<<ETpim<<endl;
-      hETpi0->Fill(ETpi0);
-        hETpi0->SetFillColor(2);
-        hs.Add(hETpi0);
-        //cout<<"pi0 "<<ETpi0<<endl;
-      hETKp->Fill(ETKp);
-        hETKp->SetFillColor(3);
-        hs.Add(hETKp);
-        //cout<<"Kp "<<ETKp<<endl;
-      hETK0->Fill(ETK0);
-        hETK0->SetFillColor(4);
-        hs.Add(hETK0);
-        //cout<<"K0 "<<ETK0<<endl;
-      hETKL->Fill(ETKL);
-        hETKL->SetFillColor(-10);
-        hs.Add(hETKL);
-        //cout<<"KL "<<ETKL<<endl;
-      hETKS->Fill(ETKS);
-        //cout<<"KS "<<ETKS<<endl;
-      hETEta->Fill(ETEta);
-        //cout<<"Eta "<<ETEta<<endl;
-      hETOmega->Fill(ETOmega);
-        //cout<<"Omega "<<ETOmega<<endl;
-      hETOmegaM->Fill(ETOmegaM);
-        //cout<<"OmegaM "<<ETOmegaM<<endl;
-      hETLambda0->Fill(ETLambda0);
-        //cout<<"Lambda0 "<<ETLambda0<<endl;
-      hETRhoP->Fill(ETRhoP);
-        //cout<<"Rho+ "<<ETRhoP<<endl;
-      hETRho0->Fill(ETRho0);
-        //cout<<"Rho0 "<<ETRho0<<endl;
-      hETSigmaP->Fill(ETSigmaP);
-        //cout<<"SigmaP "<<ETSigmaP<<endl;
-      hETSigmaM->Fill(ETSigmaM);
-        //cout<<"SigmaM "<<ETSigmaM<<endl;
-      hETSigma0->Fill(ETSigma0);
-        //cout<<"Sigma0 "<<ETSigma0<<endl;
-      hETDeltaPP->Fill(ETDeltaPP);
-        //cout<<"Delta++ "<<ETDeltaPP<<endl;
-      hETDeltaP->Fill(ETDeltaP);
-        //cout<<"Delta+ "<<ETDeltaP<<endl;
-      hETDeltaM->Fill(ETDeltaM);
-        //cout<<"Delta- "<<ETDeltaM<<endl;
-      hETDelta0->Fill(ETDelta0);
-        //cout<<"Delta0 "<<ETDelta0<<endl;
-      hETXiM->Fill(ETXiM);
-        //cout<<"Xi- "<<ETXiM<<endl;
-      hETXi0->Fill(ETXi0);
-        //cout<<"Xi0 "<<ETXiM<<endl;
-      hETgamma->Fill(ETgamma);
-        //cout<<"gamma "<<ETgamma<<endl;
-      hETp->Fill(ETp);
-        //cout<<"p "<<ETp<<endl;
-      hETn->Fill(ETn);
-        //cout<<"n "<<ETn<<endl;
-      hETmu->Fill(ETmu);
-        //cout<<"mu "<<ETmu<<endl;
-      hETmu_->Fill(ETmu_);
-        //cout<<"muBAR "<<ETmu_<<endl;
-      hETe->Fill(ETe);
-        //cout<<"e "<<ETe<<endl;
-      hETe_->Fill(ETe_);
-        //cout<<"eBAR "<<ETe_<<endl;
-  }
+      if (ETpip!=0){
+      pETpip=ETpip/ETAll;
+      hETpip->Fill(pETpip,cpip);
 
+        //cout<<"pip "<<ETpip<<endl;
+      }
+      if (ETpim!=0){
+      pETpim=ETpim/ETAll;
+      hETpim->Fill(pETpim,cpim);
+        //cout<<"pim "<<ETpim<<endl;
+      }
+      if (ETpi0!=0){
+      pETpi0=ETpi0/ETAll;
+      hETpi0->Fill(pETpi0,cpi0);
+        //cout<<"pi0 "<<ETpi0<<endl;
+      }
+      if (ETKp!=0){
+      pETKp=ETKp/ETAll;
+      hETKp->Fill(pETKp,cKp);
+        //cout<<"Kp "<<ETKp<<endl;
+      }
+      if (ETKm!=0){
+      pETKm=ETKm/ETAll;
+      hETKm->Fill(pETKm,cKm);
+        //cout<<"Kp "<<ETKp<<endl;
+      }
+      if (ETKL!=0){
+      pETKL=ETKL/ETAll;
+      hETKL->Fill(pETKL,cKL);
+        //cout<<"KL "<<ETKL<<endl;
+      }
+      if (ETKS!=0){
+      pETKS=ETKS/ETAll;
+      hETKS->Fill(pETKS,cKS);
+        //cout<<"KS "<<ETKS<<endl;
+      }
+      if (ETEta!=0){
+      pETEta=ETEta/ETAll;
+      hETEta->Fill(pETEta,cEta);
+        //cout<<"Eta "<<ETEta<<endl;
+      }
+      if (ETOmega!=0){
+      pETOmega=ETOmega/ETAll;
+      hETOmega->Fill(pETOmega,cOmega);
+        //cout<<"Omega "<<ETOmega<<endl;
+      }
+      if (ETOmegaP!=0){
+      pETOmegaP=ETOmegaP/ETAll;
+      hETOmegaP->Fill(pETOmegaP,cOmegaP);
+        //cout<<"OmegaM "<<ETOmegaM<<endl;
+      }
+      if (ETOmegaM!=0){
+      pETOmegaM=ETOmegaM/ETAll;
+      hETOmegaM->Fill(pETOmegaM,cOmegaM);
+        //cout<<"OmegaM "<<ETOmegaM<<endl;
+      }
+      if (ETLambda0!=0){
+      pETLambda0=ETLambda0/ETAll;
+      hETLambda0->Fill(pETLambda0,cLambda0);
+        //cout<<"Lambda0 "<<ETLambda0<<endl;
+      }
+      if (ETLambdaBar0!=0){
+      pETLambdaBar0=ETLambdaBar0/ETAll;
+      hETLambdaBar0->Fill(pETLambdaBar0,cLambdaBar0);
+        //cout<<"Lambda0 "<<ETLambda0<<endl;
+      }
+      if (ETSigmaP!=0){
+      pETSigmaP=ETSigmaP/ETAll;
+      hETSigmaP->Fill(pETSigmaP,cSigmaP);
+        //cout<<"SigmaP "<<ETSigmaP<<endl;
+      }
+      if (ETSigmaM!=0){
+      pETSigmaM=ETSigmaM/ETAll;
+      hETSigmaM->Fill(pETSigmaM,cSigmaM);
+        //cout<<"SigmaM "<<ETSigmaM<<endl;
+      }
+      if (ETSigma0!=0){
+      pETSigma0=ETSigma0/ETAll;
+      hETSigma0->Fill(pETSigma0,cSigma0);
+        //cout<<"Sigma0 "<<ETSigma0<<endl;
+      }
+      if (ETXiP!=0){
+      pETXiP=ETXiP/ETAll;
+      hETXiP->Fill(pETXiP,cXiP);
+        //cout<<"Xi- "<<ETXiM<<endl;
+      }
+      if (ETXiM!=0){
+      pETXiM=ETXiM/ETAll;
+      hETXiM->Fill(pETXiM,cXiM);
+        //cout<<"Xi- "<<ETXiM<<endl;
+      }
+      if (ETXi0!=0){
+      pETXi0=ETXi0/ETAll;
+      hETXi0->Fill(pETXi0,cXi0);
+        //cout<<"Xi0 "<<ETXiM<<endl;
+      }
+      if (ETgamma!=0){
+      pETgamma=ETgamma/ETAll;
+      hETgamma->Fill(pETgamma,cgamma);
+        //cout<<"gamma "<<ETgamma<<endl;
+      }
+      if (ETp!=0){
+      pETp=ETp/ETAll;
+      hETp->Fill(pETp,cp);
+        //cout<<"p "<<ETp<<endl;
+      }
+      if (ETn!=0){
+      pETn=ETn/ETAll;
+      hETn->Fill(pETn,cn);
+        //cout<<"n "<<ETn<<endl;
+      }
+      if (ETp_!=0){
+      pETp_=ETp_/ETAll;
+      hETp_->Fill(pETp_,cp_);
+        //cout<<"p "<<ETp<<endl;
+      }
+      if (ETn_!=0){
+      pETn_=ETn_/ETAll;
+      hETn_->Fill(pETn_,cn_);
+        //cout<<"n "<<ETn<<endl;
+      }
+      if (ETmu!=0){
+      pETmu=ETmu/ETAll;
+      hETmu->Fill(pETmu,cmu);
+        //cout<<"mu "<<ETmu<<endl;
+      }
+      if (ETmu_!=0){
+      pETmu_=ETmu_/ETAll;
+      hETmu_->Fill(pETmu_,cmu_);//set marker color/style
+        //cout<<"muBAR "<<ETmu_<<endl;
+      }
+      if (ETe!=0){
+      pETe=ETe/ETAll;
+      hETe->Fill(pETe,ce);
+        //cout<<"e "<<ETe<<endl;
+      }
+      if (ETe_!=0){
+      pETe_=ETe_/ETAll;
+      hETe_->Fill(pETe_,ce_);
+        //cout<<"eBAR "<<ETe_<<endl;
+      }
+
+  }/*
+  Double_t ETAll=0;
+  Double_t ETpip=0;
+  Double_t ETpim=0;*/
+  Double_t ETpi0=0;/*
+  Double_t ETKp=0;
+  Double_t ETKm=0;
+  Double_t ETK0=0;
+  Double_t ETKL=0;
+  Double_t ETKS=0;
+  Double_t ETEta=0;*/
+  Double_t ETOmega=0; //THIS IS omega not Omega
+  /*Double_t ETOmegaP=0;
+  Double_t ETOmegaM=0;
+  Double_t ETLambda0=0;
+  Double_t ETLambdaBar0=0;
+  Double_t ETSigmaP=0;
+  Double_t ETSigmaM=0;
+  Double_t ETSigma0=0;
+  Double_t ETXiM=0;
+  Double_t ETXiP=0;
+  Double_t ETXi0=0;
+  Double_t ETgamma=0;
+  Double_t ETp=0;
+  Double_t ETn=0;
+  Double_t ETmu=0;
+  Double_t ETmu_=0;
+  Double_t ETe_=0;
+  Double_t ETe=0;*/
   //NOTE:write histograms to file
-    numTriggers->Write();
+    //numTriggers->Write();
     //hhCorr->Write();
     //hUnidentifiedTriggers->Write();
     //hPiTriggers->Write();
@@ -1009,39 +1242,72 @@ choose energy
     //hLambdaTriggers->Write();
     //hProtonTriggers->Write();
     hNEvents->Write();
-    hSPALL->Write();
+    //hSPALL->Write();
     //hPar->Write();
+    /*
+    ETAll=hETAll->GetMean();
+    ETpip=hETpip->GetMean();
+    ETpim=hETpim->GetMean();*/
+    ETpi0=hETpi0->GetMean();
+    /*ETKp=hETKp->GetMean();
+    ETKm=hETKm->GetMean();
+    ETK0=hETK0->GetMean();
+    ETKL=hETKL->GetMean();
+    ETKS=hETKS->GetMean();
+    ETEta=hETEta->GetMean();*/
+    ETOmega=hETOmega->GetMean();
+    /*ETOmegaM=hETOmegaM->GetMean();
+    ETOmegaP=hETOmegaP->GetMean();
+    ETLambda0=hETLambda0->GetMean();
+    ETLambdaBar0=hETLambdaBar0->GetMean();
+    ETSigmaP=hETSigmaP->GetMean();
+    ETSigmaM=hETSigmaM->GetMean();
+    ETSigma0=hETSigma0->GetMean();
+    ETXiP=hETXiP->GetMean();
+    ETXiM=hETXiM->GetMean();
+    ETXi0=hETXi0->GetMean();
+    ETgamma=hETgamma->GetMean();
+    ETp=hETp->GetMean();
+    ETn=hETn->GetMean();
+    ETmu=hETmu->GetMean();
+    ETmu_=hETmu_->GetMean();
+    ETe=hETe->GetMean();
+    ETe_=hETe_->GetMean();
+    */
+    Float_t Ratio=(ETOmega*cOmega)/(ETpi0*cpi0);
+    // found average to be .889669
+    cout<<"ET omega to pion0 :"<<Ratio<<endl;
     hETAll->Write();
     hETpip->Write();
     hETpim->Write();
     hETpi0->Write();
     hETKp->Write();
-    hETK0->Write();
+    hETKm->Write();
     hETKL->Write();
     hETKS->Write();
     hETEta->Write();
     hETOmega->Write();
     hETOmegaM->Write();
+    hETOmegaP->Write();
     hETLambda0->Write();
-    hETRhoP->Write();
-    hETRho0->Write();
+    hETLambdaBar0->Write();
     hETSigmaP->Write();
     hETSigmaM->Write();
     hETSigma0->Write();
-    hETDeltaPP->Write();
-    hETDeltaP->Write();
-    hETDeltaM->Write();
-    hETDelta0->Write();
+    hETXiP->Write();
     hETXiM->Write();
     hETXi0->Write();
     hETgamma->Write();
     hETp->Write();
     hETn->Write();
+    hETp_->Write();
+    hETn_->Write();
     hETmu->Write();
     hETmu_->Write();
     hETe->Write();
     hETe_->Write();
-    hs.Write();
+
+    //hs.Write();
     //hEve->Write();
     outfile->Close();
 
@@ -1095,8 +1361,8 @@ int showEventSample()
   return 0;
 }
 
-void SimplePYTHIALoop(Int_t n=1000, Int_t jobID=0, Int_t tune = 350) {
-  makeEventSample(n,jobID,tune);
+void SimplePYTHIALoop(Int_t n=1000, Int_t jobID=0, Int_t tune = 350,Float_t SNN = 2760,Float_t trigEtaMax = 0.5, Float_t assocEtaMax = 0.9) {
+  makeEventSample(n,jobID,tune,SNN, trigEtaMax, assocEtaMax);
 }
 
 #ifndef __CINT__
@@ -1110,7 +1376,7 @@ int main(int argc, char** argv)
 
   int retVal = 0;
   if (n > 0)
-    retVal = makeEventSample(n,0,0);
+    retVal = makeEventSample(n,0,0,7.7,0.5,0.9);
   else {
     retVal = showEventSample();
     app.Run();
