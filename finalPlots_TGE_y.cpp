@@ -56,7 +56,7 @@ int finalPlots_TGE_y(){
 	Double_t dNchdyErr[CENTS][COLLENS][PARTS] = {0.};
 	Double_t centArr[CENTS]; // need to pass to formatGraph function
 	f = new TFile("crossCheckGraphs_y.root","RECREATE");
-	for(int j=0; j<=270+70; j++){// for 270 rows below header in the data file in1
+	for(int j=0; j<=359+70; j++){// for 270 rows below header in the data file in1
 								// and 70 rows below header in data file in2
 		if (j == 0)
 		{
@@ -75,7 +75,7 @@ int finalPlots_TGE_y(){
 			}
 			//goto label;
 		}
-		else if (j == 271)
+		else if (j == 360)
 		{
 			cout << "lambdas now*******************" << endl;
 			in1.close();
@@ -117,7 +117,7 @@ int finalPlots_TGE_y(){
 			Npart[centIndex(cent)][enIndex(collEn)] << "\t";
 		in1 >> Npart_err[centIndex(cent)][enIndex(collEn)];
 		cout << Npart_err[centIndex(cent)][enIndex(collEn)] << "\n";
-		if(j>=271) in1 >> 	skipContent;
+		if(j>=359) in1 >> 	skipContent;
 
 		if(partIndex(part) == 6 || partIndex(part) == 7)
 		{	// since lambdas aren't charged particles:
@@ -149,11 +149,11 @@ int finalPlots_TGE_y(){
 			// which is not true at low energies since the colliding nuclei have +ve nucleons
 		if(partIndex(part)==0 || partIndex(part)==1){
 			dETdySum[centIndex(cent)][enIndex(collEn)]
-			 += (3.0/2.0)*dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
-			// ^ since number of pi0 = num of pi+ or pi-
+			 += dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
+			// ^ since number of pi0 = num of pi+ or pi- NOTE: removed (3.0/2.0)*
 			dETdySum_errSq[centIndex(cent)][enIndex(collEn)]
-			 += ((3.0/2.0)*dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)])*
-			    ((3.0/2.0)*dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]);
+			 += (dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)])*
+			    (dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]); //NOTE: removed (3.0/2.0)* both parts
 			dETdySum_err[centIndex(cent)][enIndex(collEn)]
 			 =  TMath::Sqrt(dETdySum_errSq[centIndex(cent)][enIndex(collEn)]);
 
@@ -185,6 +185,17 @@ int finalPlots_TGE_y(){
 			 = TMath::Sqrt(dNchdySum_errSq[centIndex(cent)][enIndex(collEn)]);
 		}
 		else if(partIndex(part)==6 || partIndex(part)==7){
+			dETdySum[centIndex(cent)][enIndex(collEn)]
+			 += dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
+			dETdySum_errSq[centIndex(cent)][enIndex(collEn)]
+			 += (dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)])*
+				(dETdyErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]);
+			// ^ since num of k0_s ~ num of k0_l = num of k+ or k-
+				// also, num of p ~ num of pbar ~ num of n or nbar
+			dETdySum_err[centIndex(cent)][enIndex(collEn)]
+			 = TMath::Sqrt(dETdySum_errSq[centIndex(cent)][enIndex(collEn)]);
+		}
+		else if(partIndex(part)==8 || partIndex(part)==9){
 			dETdySum[centIndex(cent)][enIndex(collEn)]
 			 += dETdy[centIndex(cent)][enIndex(collEn)][partIndex(part)];
 			dETdySum_errSq[centIndex(cent)][enIndex(collEn)]

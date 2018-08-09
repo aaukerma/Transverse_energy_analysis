@@ -3,7 +3,7 @@
 /// also added column fitStatus to output table
 
 // WARNING: modifications may be needed in:
-// datFile 
+// datFile
 // myFile
 // imgPathAndName
 // beta lower limit (0.3 set for lambdas)
@@ -32,7 +32,7 @@ Int_t* getNpartAndErr(Double_t collisionEnergy, string centrality);
 // main function:
 int fitAllHistosInTFile(){
 	std::ofstream datFile ("fitResults_la.dat", std::ofstream::out);
-	datFile << "CollEn"<< "\t"	
+	datFile << "CollEn"<< "\t"
 			<< "particle" << "\t"
 			<< "centrality" << "\t"
 			<< "mass" << "\t"
@@ -99,13 +99,13 @@ int fitAllHistosInTFile(){
 			mikey->DeleteBuffer();
 			continue;
 		}
-			
+
 		c1 = new TCanvas(); // a la Rademakers
 		funcBGBW = new TF1("getdNdpt",getdNdpt,0.00000000000001,10.,6); // actually has 5 parameters
 												// 6th parameter, type, multiplied by 0 and added
-												// for consistency of cov. matrix needed later		
-		dETdEtaIntegrandFunc = new TF1("dETdEtaIntegrand", 
-									getdETdEtaIntegrand, 
+												// for consistency of cov. matrix needed later
+		dETdEtaIntegrandFunc = new TF1("dETdEtaIntegrand",
+									getdETdEtaIntegrand,
 									0, 10, 6 );// function goes from 0 to 10
 										// and has 6 parameters"
 										// mass, beta, temp, n, norm, type
@@ -137,11 +137,11 @@ int fitAllHistosInTFile(){
 		//get first three characters of particle name from histoName:
 		string particleID = histoName.substr(6,3);// starting position in array:6, 3 chars total
 		string centrality = histoName.substr(4,1);// starting position in array:4, 1 char total
-		
+
 		//------------ Assign mass & type to particle -----------------//
 		Double_t mass; // in GeV
-		
-		// type Double_t instead of Int_t 
+
+		// type Double_t instead of Int_t
 		 //to use as argument in TF1 method SetParameters()
 		Double_t type;// 0 for mesons, -1 for baryons, 1 for antibaryons
 		if		(particleID=="pi-"||particleID=="pi+")
@@ -152,19 +152,23 @@ int fitAllHistosInTFile(){
 				{mass = 0.93827; type = -1.;}
 		else if	(particleID=="pba")
 				{mass = 0.93827; type = 1.;}
+		else if (particleID=="pi0")
+				{mass = 0.13497; type = 0.;}
+		else if (particleID=="eta")
+				{mass = 0.54786; type = 0.;}
 		else if (particleID=="la_")
 				{mass = 1.11568; type = -1.;}
 		else if (particleID=="ala")
 				{mass = 1.11568; type = 1.;}
 		else {cout << "Check particle: "
 				<< particleID<<endl;return 1;}
-		
+
 		Double_t* integralDataPtr;
 		integralDataPtr = getIntegralsAndErrorsFromData(h,type,mass);
 					// ^ method verified!!!
-		
-		
-		//------------- Begin BGBW fit --------------------------//	
+
+
+		//------------- Begin BGBW fit --------------------------//
 		cout << "histoname is: " << histoName << endl;
 		funcBGBW->SetParameters(mass,0.95,0.05,0.1,1000000.,type);
 		funcBGBW->SetParNames("mass","beta (c)","temp","n","norm","type");
@@ -173,7 +177,7 @@ int fitAllHistosInTFile(){
 		funcBGBW->FixParameter(0,mass);// mass in GeV
 		funcBGBW->FixParameter(5,type);
 		ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(20000);
-		
+
 		TFitResultPtr r;
 		//TFitResultPtr* r = new TFitResultPtr();
 		int avoidInfLoop = 1;
@@ -192,7 +196,7 @@ int fitAllHistosInTFile(){
 			}
 			avoidInfLoop++;
 		}
-		
+
 		Double_t chi2Prob = r->Prob();
 		cout << "chi-sq prob: " << chi2Prob << endl;
 		h->SetMaximum(5*(h->GetMaximum()));
@@ -212,8 +216,8 @@ int fitAllHistosInTFile(){
 		Double_t nErr 			= funcBGBW->GetParError(3);
 		Double_t normErr 		= funcBGBW->GetParError(4);
 		//------------- end BGBW fit ----------------------------
-		
-		
+
+
 		//-------- Find integrals left and right of data points -------//
 		funcBGBW			 	-> SetParameters(mass,beta,temp,n,norm,type);
 		dETdEtaIntegrandFunc 	-> SetParameters(mass,beta,temp,n,norm,type);
@@ -229,13 +233,13 @@ int fitAllHistosInTFile(){
 		dNdyIntegrandFunc		-> FixParameter(0,mass);
 		dNdyIntegrandFunc		-> FixParameter(5,type);
 
-		Int_t totBins 	= h->GetNbinsX();		
+		Int_t totBins 	= h->GetNbinsX();
 		Int_t binx1 	= 0;
 		Int_t binx2 	= totBins+1;
-		
-		Double_t leftCut 	= h->GetXaxis()->GetBinLowEdge(binx1+2); 
-		Double_t rightCut 	= h->GetXaxis()->GetBinUpEdge(binx2-1); 
-		
+
+		Double_t leftCut 	= h->GetXaxis()->GetBinLowEdge(binx1+2);
+		Double_t rightCut 	= h->GetXaxis()->GetBinUpEdge(binx2-1);
+
 		Double_t dETdEtaLeft 	= dETdEtaIntegrandFunc -> Integral(0.,leftCut);
 		Double_t dETdEtaRight 	= dETdEtaIntegrandFunc -> Integral(rightCut,10.);
 		Double_t dETdyLeft 		= dETdyIntegrandFunc -> Integral(0.,leftCut);
@@ -245,70 +249,70 @@ int fitAllHistosInTFile(){
 		Double_t dNdyLeft 		= dNdyIntegrandFunc -> Integral(0.,leftCut);
 		Double_t dNdyRight 		= dNdyIntegrandFunc -> Integral(rightCut,10.);
 		// Errors:
-		Double_t dETdEtaLErr	= 
+		Double_t dETdEtaLErr	=
 		dETdEtaIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdEtaRErr	= 
+		Double_t dETdEtaRErr	=
 		dETdEtaIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdyLErr	= 
+		Double_t dETdyLErr	=
 		dETdyIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dETdyRErr	= 
+		Double_t dETdyRErr	=
 		dETdyIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdEtaLErr	= 
+		Double_t dNdEtaLErr	=
 		dNdEtaIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdEtaRErr	= 
+		Double_t dNdEtaRErr	=
 		dETdEtaIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdyLErr	= 
+		Double_t dNdyLErr	=
 		dNdyIntegrandFunc->IntegralError(0.,leftCut,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-		Double_t dNdyRErr	= 
+		Double_t dNdyRErr	=
 		dNdyIntegrandFunc->IntegralError(rightCut,10.,
 								r->GetParams(),
 								r->GetCovarianceMatrix().GetMatrixArray());
-								
+
 		Double_t dETdEta_d = *(integralDataPtr+0);
 		Double_t dETdEta_d_err = *(integralDataPtr+1);
 		Double_t dETdEtaTotal = dETdEtaLeft+dETdEta_d+dETdEtaRight;
 		Double_t dETdEtaTErr = dETdEtaLErr+dETdEta_d_err+dETdEtaRErr;
-		
+
 		Double_t dETdy_d = *(integralDataPtr+2);
 		Double_t dETdy_d_err = *(integralDataPtr+3);
 		Double_t dETdyTotal = dETdyLeft+dETdy_d+dETdyRight;
 		Double_t dETdyTErr = dETdyLErr+dETdy_d_err+dETdyRErr;
-		
+
 		Double_t dNdEta_d = *(integralDataPtr+4);
 		Double_t dNdEta_d_err = *(integralDataPtr+5);
 		Double_t dNdEtaTotal = dNdEtaLeft+dNdEta_d+dNdEtaRight;
 		Double_t dNdEtaTErr = dNdEtaLErr+dNdEta_d_err+dNdEtaRErr;
-		
+
 		Double_t dNdy_d = *(integralDataPtr+6);
 		Double_t dNdy_d_err = *(integralDataPtr+7);
 		Double_t dNdyTotal = dNdyLeft+dNdy_d+dNdyRight;
 		Double_t dNdyTErr = dNdyLErr+dNdy_d_err+dNdyRErr;
-		
+
 		cout <<"Integral from data for histo "<<breakOutForTesting+1<<": "<<*(integralDataPtr+0)
 				<<endl;// 357.633 for pi minus cent 0
-		cout<<"-----------------------------------"<<endl;				
+		cout<<"-----------------------------------"<<endl;
 		//------ end Find integrals left and right of data points ----//
 		//------ begin - assign Npart and errors from BES paper -----//
 		Int_t* NpartAndArrPtr;
 		Int_t Npart;
 		Int_t NpartErr;
-		
+
 		// for lambdas, last four centrality classes are binned into two:
-		if ((particleID=="la_" || particleID=="ala") && 
+		if ((particleID=="la_" || particleID=="ala") &&
 			(centrality == "5" || centrality == "6"))
 		{
 			 if(centrality == "5") // which should be 40-60% for lambdas
@@ -316,8 +320,8 @@ int fitAllHistosInTFile(){
 			 	NpartAndArrPtr = getNpartAndErr(collEn,centrality); // 40-50%
 			 	Npart = *(NpartAndArrPtr+0);
 			 	NpartAndArrPtr = getNpartAndErr(collEn,"6"); // 50-60%
-			 	
-			 } 
+
+			 }
 			 else if(centrality == "6") // which should be 60-80% for lambdas
 			 {
 			 	NpartAndArrPtr = getNpartAndErr(collEn,"7"); // 60-70%
@@ -336,9 +340,9 @@ int fitAllHistosInTFile(){
 		Npart = *(NpartAndArrPtr+0);
 		NpartErr = *(NpartAndArrPtr+1);
 		}
-		//------ end - assign Npart and errors from BES paper -------// 
+		//------ end - assign Npart and errors from BES paper -------//
 		//-- Output results to file-----------------------------
-		datFile << collEn << "\t"	
+		datFile << collEn << "\t"
 				<< particleID << "\t"
 				<< centrality << "\t"
 				<< mass << "\t"
@@ -385,7 +389,7 @@ int fitAllHistosInTFile(){
 				<< Npart << "\t"
 				<< NpartErr << "\t"
 				<< r->IsValid() << "\n";// fitStatus
-		
+
 		//-- end- output results to file------------------------
 		c1->Update();
 		Double_t chi2BGBW = funcBGBW->GetChisquare();
@@ -394,10 +398,10 @@ int fitAllHistosInTFile(){
 		Double_t e2 = funcBGBW->GetParError(2);
 
 
-	
-		//cout << "chi2: " << chi2BGBW << "\nndf: " 
+
+		//cout << "chi2: " << chi2BGBW << "\nndf: "
 			//<< nDFBGBW<< "\nchi2/ndf: " << chi2BGBW/nDFBGBW <<endl;
-	
+
 		/* FIXME */
 		string imgPathAndName = "./fittedPlots_la/"+histoName+".png";
 				//c1 -> SaveAs("./fittedPlots/trial1.png");
@@ -409,13 +413,13 @@ int fitAllHistosInTFile(){
 		//cout << "Draw class here: \n";
 		//h-> DrawClass();
 		///////h->Delete();// works
-		///////////FIXME c1->Clear();// 
+		///////////FIXME c1->Clear();//
 		/// sometimes when you delete objects, they stay in the program stack
 		//FIXME delete png;
 		mikey->DeleteBuffer();// works!
 		breakOutForTesting++;
 		if(breakOutForTesting>=stop) break;
-		
+
 		gSystem->ProcessEvents();
 		delete h;
 		delete funcBGBW;
@@ -438,8 +442,3 @@ int fitAllHistosInTFile(){
 	datFile.close();
 return 0;
 }
-
-
-
-
-

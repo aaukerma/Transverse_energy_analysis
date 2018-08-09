@@ -35,7 +35,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		else
 		{
 			graphName = "dETdyOverdNchdySumCent" + std::to_string(centInd);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.05);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.30);
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = centIndToPercent(centInd);
@@ -84,12 +84,12 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		if (graphInd == 2)
 		{
 			graphName = "dETdyOverNpartBy2SumEn" + doubToString(collEnArr[enInd]);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.0, 2.50);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.0, 2.80);
 		}
 		else
 		{
 			graphName = "dETdyOverdNchdySumEn" + doubToString(collEnArr[enInd]);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 1.10);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 1.3);
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = doubToString(collEnArr[enInd]) + " GeV";

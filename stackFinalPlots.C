@@ -44,7 +44,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		else
 		{
 			graphName = "dETdEtaOverdNchdEtaSumCent" + std::to_string(centInd);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.00);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.50);
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = centIndToPercent(centInd);
@@ -90,7 +90,7 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 	} // end of for loop with index centInd
 
 	// PHENIX plot for comparison:
-	/*
+/*
 	if (graphInd == 0)
 	{
 		TFile* file2 = TFile::Open("./plt4aAdare.root");
@@ -127,7 +127,7 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		else
 		{
 			graphName = "dETdEtaOverdNchdEtaSumEn" + doubToString(collEnArr[enInd]);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.4, 1.00);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.4, 1.50); //NOTE: from (0.4,1.00)
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = doubToString(collEnArr[enInd]) + " GeV";
