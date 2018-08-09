@@ -155,11 +155,11 @@ int finalPlots_TGE(){
 			// which is not true at low energies since the colliding nuclei have +ve nucleons
 		if(partIndex(part)==0 || partIndex(part)==1){
 			dETdEtaSum[centIndex(cent)][enIndex(collEn)]
-			 += dETdEta[centIndex(cent)][enIndex(collEn)][partIndex(part)];
+			 += dETdEta[centIndex(cent)][enIndex(collEn)][partIndex(part)]; //originally *(3.0/2.0)
 			// ^ since number of pi0 = num of pi+ or pi-
 			dETdEtaSum_errSq[centIndex(cent)][enIndex(collEn)]
 			 += (dETdEtaErr[centIndex(cent)][enIndex(collEn)][partIndex(part)])*
-			    (dETdEtaErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]);
+			    (dETdEtaErr[centIndex(cent)][enIndex(collEn)][partIndex(part)]); //originally both *(3.0/2.0)
 			dETdEtaSum_err[centIndex(cent)][enIndex(collEn)]
 			 =  TMath::Sqrt(dETdEtaSum_errSq[centIndex(cent)][enIndex(collEn)]);
 
@@ -201,6 +201,12 @@ int finalPlots_TGE(){
 			dETdEtaSum_err[centIndex(cent)][enIndex(collEn)]
 			 = TMath::Sqrt(dETdEtaSum_errSq[centIndex(cent)][enIndex(collEn)]);
 		}
+/******************************************************************************
+NOTE: christine, this is where the pi0 and eta are added. above (line 156)
+orginally had lines multiplied by 3/2. Now index 8 includes pi0 without double
+counting as i have removed the 3/2 (double checked and the plots looked mostly
+the same).
+*******************************************************************************/
 		else if(partIndex(part)==8 || partIndex(part)==9){
 			dETdEtaSum[centIndex(cent)][enIndex(collEn)]
 			 += dETdEta[centIndex(cent)][enIndex(collEn)][partIndex(part)];
