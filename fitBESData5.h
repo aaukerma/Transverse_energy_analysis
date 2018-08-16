@@ -1,5 +1,5 @@
 /*
-In this version: applied transformation to 
+In this version: applied transformation to
 account for the fact that BES data contains d^2N/(2pi*pt*dpt*dy)[(GeV/c)^-2]
 instead of d^2N/(dpt*dy)[(GeV/c)^-2]
 */
@@ -45,9 +45,9 @@ Double_t* getIntegralsAndErrorsFromData(TH1D* hist, Double_t type, Double_t mass
 			// calculate E_T needed for dE_T/dy:
 			Double_t et = TMath::Sqrt(pt*pt+mass*mass)+type*mass;
 			// ^ sin(theta)=1 at midrapidity
-			
+
 			// calculate J*E_T needed for dE_T/dEta:
-			Double_t JTimeset = pt/(TMath::Sqrt(pt*pt+mass*mass))*et; 
+			Double_t JTimeset = pt/(TMath::Sqrt(pt*pt+mass*mass))*et;
 			Double_t J = pt/(TMath::Sqrt(pt*pt+mass*mass));
 			Double_t dx = hist->GetXaxis()->GetBinWidth(binx);
 			//cout << "bin width from bin " << binx << ": " << dx << endl;
@@ -61,7 +61,7 @@ Double_t* getIntegralsAndErrorsFromData(TH1D* hist, Double_t type, Double_t mass
 			dNdy 	+= hist->GetBinContent(binx)*tr*dx;
 			//dE_tdyIntegralData += h->GetBinContent(binx)*et*dx;
 			// checking with et0:
-			//if (width) integralData += h->GetBinContent(binx)*et0*dx; 
+			//if (width) integralData += h->GetBinContent(binx)*et0*dx;
 			dEtdEtaError 	+= hist->GetBinError(binx)*tr*J*et*dx;
 			dEtdyError 		+= hist->GetBinError(binx)*tr*et*dx;
 			dNdEtaError		+= hist->GetBinError(binx)*tr*J*dx;
@@ -69,6 +69,30 @@ Double_t* getIntegralsAndErrorsFromData(TH1D* hist, Double_t type, Double_t mass
 			//igerr2 += h->GetBinError(binx)*dx*et; //// !!look up details later
 			// ^ if the errors are completely correlated
 			// if uncorrelated: take the square root of igerr2
+			/***************************************************
+			JTEST (tests jacobian for different eta assumption)
+			****************************************************/
+/*
+			Double_t Alert= 50;
+			Double_t eta = .2; //This is not a fixed value!! .2 for BES is more likely
+			Double_t Ja = (pt*cosh(eta))/(sqrt(pt*pt*cosh(eta)*cosh(eta)+mass*mass)); //with eta=1
+	    Double_t comp = (Ja-J)/Ja;
+	    if (comp < 0){
+	      comp=comp*(-1.0);
+	    }
+	    comp=comp*100;
+	    if (comp>Alert){
+	      cout<<"JTEST FAIL"<<endl;
+	      cout<<"Biswas code="<<J<<"|| With eta="<<Ja<<endl;
+	    }
+	    cout<<"%DIFF="<<comp<<endl;
+
+			//j=j0+1/2(j0-j0^3)n^2+(1/24)(j0-10j0^3+9j0^5)n^4
+*/
+		//FIND ALICE NOTES!!!!!!!!!IN PYTHIA
+			/***************************************************
+			^^Delete above!!
+			****************************************************/
 			}
 			integralArr[0] = dEtdEta;
 			integralArr[1] = dEtdEtaError;
@@ -78,14 +102,14 @@ Double_t* getIntegralsAndErrorsFromData(TH1D* hist, Double_t type, Double_t mass
 			integralArr[5] = dNdEtaError;
 			integralArr[6] = dNdy;
 			integralArr[7] = dNdyError;
-		/* check: 
+		/* check:
 			for(int i=0; i<8; i++){
-			
+
 			cout<<"Int result "<<i+1<<": "<<integralArr[i]<<endl;
 		}
 		*/
-			
-		
+
+
 	return integralArr;
 }
 
@@ -116,16 +140,16 @@ Double_t getdNdptOverptIntegrand(Double_t* rad, Double_t* par){
 	return integrand;
 }// end of method getdNdptOverptIntegrand
 
-// Function to return dN/dpt 
+// Function to return dN/dpt
 	//(normalized using free parameter 'norm'
 	// and transformed by multiplying with 2pi*pT;
-	// result of this function is used 
+	// result of this function is used
 	// in the function getdETdyIntegrand):
 Double_t getdNdpt(Double_t* pT, Double_t* params){
-	TF1* dNdptOverptIntegrandFunc = new TF1("integrandFunc", 
-									getdNdptOverptIntegrand, 
+	TF1* dNdptOverptIntegrandFunc = new TF1("integrandFunc",
+									getdNdptOverptIntegrand,
 									0, 1, 6 );
-	
+
 	Double_t pt		= pT[0];
 	Double_t mass 	= params[0];// not mT
 	Double_t beta 	= params[1];
@@ -145,7 +169,7 @@ Double_t getdNdpt(Double_t* pT, Double_t* params){
 
 // Function to return the integrand to be used
 	// to calculate dET/dy using Boltzmann-Gibbs Blast wave
-	// fit to available d^2N/(dpt*dy) vs pt histogram: 
+	// fit to available d^2N/(dpt*dy) vs pt histogram:
 Double_t getdETdyIntegrand(Double_t* myPt, Double_t* par){
 	Double_t pt   = myPt[0]; // x-axis of integration
 	Double_t mass  = par[0];
@@ -158,13 +182,13 @@ Double_t getdETdyIntegrand(Double_t* myPt, Double_t* par){
 	Double_t funcVal = getdNdpt(myPt,par);
 	//////cout<< "funcVal: " << funcVal<< "pt: "<< pt<< endl;
 	Double_t integrand = funcVal*(TMath::Sqrt(pt*pt+mass*mass)+type*mass);
-	
+
 	return integrand;
 }
 
 // Function to return the integrand to be used
 	// to calculate dET/dEta using Boltzmann-Gibbs Blast wave
-	// fit to available d^2N/(dpt*dy) vs pt histogram: 
+	// fit to available d^2N/(dpt*dy) vs pt histogram:
 Double_t getdETdEtaIntegrand(Double_t* myPt, Double_t* par){
 	Double_t pt   = myPt[0]; // x-axis of integration
 	Double_t mass = par[0];
@@ -177,13 +201,13 @@ Double_t getdETdEtaIntegrand(Double_t* myPt, Double_t* par){
 	Double_t funcVal = getdNdpt(myPt,par);
 	//////////cout<< "funcVal: " << funcVal<< " pt: "<< pt<< endl;
 	Double_t integrand = funcVal*(pt/TMath::Sqrt(pt*pt+mass*mass))*(TMath::Sqrt(pt*pt+mass*mass)+type*mass);
-	
+
 	return integrand;
 }
 
 // Function to return the integrand to be used
 	// to calculate dET/dy using Boltzmann-Gibbs Blast wave
-	// fit to available d^2N/(dpt*dy) vs pt histogram: 
+	// fit to available d^2N/(dpt*dy) vs pt histogram:
 Double_t getdNdEtaIntegrand(Double_t* myPt, Double_t* par){
 	Double_t pt   = myPt[0]; // x-axis of integration
 	Double_t mass = par[0];
@@ -196,7 +220,7 @@ Double_t getdNdEtaIntegrand(Double_t* myPt, Double_t* par){
 	Double_t funcVal = getdNdpt(myPt,par);
 	//////////cout<< "funcVal: " << funcVal<< " pt: "<< pt<< endl;
 	Double_t integrand = funcVal*(pt/TMath::Sqrt(pt*pt+mass*mass));
-	
+
 	return integrand;
 }
 
@@ -215,7 +239,7 @@ Double_t getdNdyIntegrand(Double_t* myPt, Double_t* par){
 	Double_t funcVal = getdNdpt(myPt,par);
 	//////////cout<< "funcVal: " << funcVal<< " pt: "<< pt<< endl;
 	Double_t integrand = funcVal;
-	
+
 	return integrand;
 }
 
@@ -230,7 +254,7 @@ string concatenateHistoname(string centStr,string pName,string colSp,string colE
 	return addedString; //type: const char*: to be done later
 }
 
-// results: par1,par2,par3,par4,transEn, 
+// results: par1,par2,par3,par4,transEn,
 	//transEnErr, collEn
 // args 2, 3: centrality, partName
 
@@ -247,9 +271,9 @@ void outputDatFile(Double_t* results, int centra, string partName){
 				<< results[i]<<"\t"<< results[i]<<"\t"
 				<< results[i]<<"\t"<< results[i]<<"\t"
 				<< results[i]<<"\t"<< results[i]<<"\n";
-	
-	}			
-	datFile.close();	
+
+	}
+	datFile.close();
 }
 
 // get npart and its error for the STAR BES data as per the published table
@@ -449,7 +473,7 @@ Int_t* getNpartAndErr(Double_t en, string cent){// args energy and centrality
 	static Int_t npartAndErrArr[2];// first element is Npar, second Npar_err
 	npartAndErrArr[0] = Npart;
 	npartAndErrArr[1] = NpartErr;
-	
+
 	return npartAndErrArr;
 }
 
@@ -651,7 +675,7 @@ Int_t* getNpartAndErr(Double_t en, int cent){// args energy and centrality
 	static Int_t npartAndErrArr[2];// first element is Npart, second Npart_err
 	npartAndErrArr[0] = Npart;
 	npartAndErrArr[1] = NpartErr;
-	
+
 	return npartAndErrArr;
 }
 
@@ -667,7 +691,7 @@ std::string centIndToPercent(int centInd){
 	else if (centInd == 7) centRange = "60-70 %";
 	else if (centInd == 8) centRange = "70-80 %";
 	else centRange = "Error: check centrality!";
-	return centRange;	
+	return centRange;
 }
 
 std::string doubToString(Double_t d)
@@ -679,7 +703,7 @@ std::string doubToString(Double_t d)
 
 void classifyParticleKmeans(){
 
-	
+
 }
 
 #endif
