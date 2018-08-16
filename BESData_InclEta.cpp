@@ -164,7 +164,7 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   int size;
   double pT;
   double c;
-  double S=0.482; //scale Factor TODO: find scale factor
+  double S=0.11; //scale Factor TODO: find scale factor
   double Se=0.030;
     /*
     S=0.482 based on "Applicability of transverse mass scaling in harmonic collisions at LHC" (page6)
@@ -181,6 +181,10 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
 
     omega pythia based (see alice (bracket to pi0 or eta)) based on ET %
     */
+
+    //use the low pt point (.1)
+    //plot as mt vs pt
+    //mt spectra divided by eachother
   Bin pi0;
   Bin n;
   for (int i=0; i<9; i++){
