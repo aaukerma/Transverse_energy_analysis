@@ -1,65 +1,6 @@
-//____________________________________________________________________
-//
-// Using Pythia6 with ROOT
-// To make an event sample (of size 100) do
-//
-//    shell> root
-//    root [0] .L pythiaExample.C
-//    root [1] makeEventSample(1000)
-//
-// To start the tree view on the generated tree, do
-//
-//    shell> root
-//    root [0] .L pythiaExample.C
-//    root [1] showEventSample()
-//
-//
-// The following session:
-//    shell> root
-//    root [0] .x pythiaExample.C(500)
-// will execute makeEventSample(500) and showEventSample()
-//
-// Alternatively, you can compile this to a program
-// and then generate 1000 events with
-//
-//    ./pythiaExample 1000
-//
-// To use the program to start the viewer, do
-//
-//    ./pythiaExample -1
-//
-// NOTE 1: To run this example, you must have a version of ROOT
-// compiled with the Pythia6 version enabled and have Pythia6 installed.
-// The statement gSystem->Load("$HOME/pythia6/libPythia6");  (see below)
-// assumes that the directory containing the Pythia6 library
-// is in the pythia6 subdirectory of your $HOME.  Locations
-// that can specify this, are:
-//
-//  Root.DynamicPath resource in your ROOT configuration file
-//    (/etc/root/system.rootrc or ~/.rootrc).
-//  Runtime load paths set on the executable (Using GNU ld,
-//    specified with flag `-rpath').
-//  Dynamic loader search path as specified in the loaders
-//    configuration file (On GNU/Linux this file is
-//    etc/ld.so.conf).
-//  For Un*x: Any directory mentioned in LD_LIBRARY_PATH
-//  For Windows: Any directory mentioned in PATH
-//
-// NOTE 2: The example can also be run with ACLIC:
-//  root > gSystem->Load("libEG");
-//  root > gSystem->Load("$ROOTSYS/../pythia6/libPythia6"); //change to your setup
-//  root > gSystem->Load("libEGPythia6");
-//  root > .x pythiaExample.C+
-//
-//
-//____________________________________________________________________
-//
-// Author: Christian Holm Christensen <cholm@hilux15.nbi.dk>
-// Update: 2002-08-16 16:40:27+0200
-// Copyright: 2002 (C) Christian Holm Christensen
-// Copyright (C) 2006, Rene Brun and Fons Rademakers.
-// For the licensing terms see $ROOTSYS/LICENSE.
-//
+//Based on SimplePythiaLoop.C
+
+//See PythiaStartUp.C for more info
 #ifndef __CINT__
 #include "TApplication.h"
 #include "TPythia6.h"
@@ -113,13 +54,6 @@ TH3F *CreateHistogram(char *name){
   histo->GetZaxis()->SetTitle("#Delta#phi");
   return histo;
 }
-TH1F *CreateTriggerHistogram(char *name){
-  //assoc pt, trig pt, dphi
-  TH1F *histo = new TH1F(name,name,20,2.0,7.0);
-  histo->GetYaxis()->SetTitle("N_{trig}");
-  histo->GetXaxis()->SetTitle("p_{T}^{trig}");
-  return histo;
-}
 TH1F *CreateSpeciesHistogram(char *name,int bin,int low,int hi){
   TH1F *histo = new TH1F(name,name,bin,low,hi);
   histo->GetYaxis()->SetTitle("N_{trig}");
@@ -147,12 +81,12 @@ TH3F *CreateEventHistogram(char *name,Int_t nEvents){
   return histo;
 }
 TH1F *CreatePTHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,1000,0,1.1);
+  TH1F *histo = new TH1F(name,name,100,0,10);
   histo->GetYaxis()->SetTitle("number of entries");
   histo->GetXaxis()->SetTitle("Energy_Tpart/ETAll");
   return histo;
 }
-Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){
+Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){  //This is a convenient conversion from KF code to an index without spaces
   Int_t i=0;
   Int_t j=0;
   Int_t k=0;
@@ -175,13 +109,9 @@ Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){
       break;
     }
   }
-  //NOTE: to include if -KF matters
   if (n==-1){
-//    name=partname[k].name+" BAR";
     k=k*(-1);
   }
-  //else
-//    name=partname[k].name;
   return k;
 }
 
@@ -222,16 +152,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 
 
   cout<<"I made it here line 144"<<endl;
-  TString piplus = "pi+";
-  TString piminus = "pi-";
-  TString kplus = "K+";
-  TString kminus = "K-";
-  TString pplus = "p+";
-  TString pminus = "pbar-";
-  TString kshort = "K_S0";
-  TString lambda = "Lambda0";
-  TString antilambda = "Lambdabar0";
-
   // Create an instance of the Pythia event generator ...
   TPythia6* pythia = new TPythia6();
   cout<<"I made it here line 157"<<endl;
@@ -271,8 +191,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 
 //NOTE: set seed as jobID
   UInt_t seed = jobID;
-  //UInt_t seed = rand()%900000000;
-  //cout<<seed<<endl; //gives seed
+  cout<<seed<<endl; //gives seed
   if( (seed>=0) && (seed<=900000000) ) {
     pythia->SetMRPY(1, seed);                   // set seed
     pythia->SetMRPY(2, 0);                      // use new seed
@@ -301,58 +220,54 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     TH3F *hPar = CreateParentHistogram("hPar");
     TH1F *hEnergy = CreateEnergyHistogram("hEnergy");
     TH1F *hETAll = CreateEnergyHistogram("hETAll");
-    TH1F *hETpip = CreateEnergyHistogram("h ET_Pi+");
-    TH1F *hETpim = CreateEnergyHistogram("h ET_Pi-");
-    TH1F *hETpi0 = CreateEnergyHistogram("h ET_Pi0");
-    TH1F *hETKp = CreateEnergyHistogram("h ET_K+");
-    TH1F *hETKm = CreateEnergyHistogram("h ET_K-");
-    TH1F *hETK0 = CreateEnergyHistogram("h ET_K0");
-    TH1F *hETKL = CreateEnergyHistogram("h ET_KL");
-    TH1F *hETKS = CreateEnergyHistogram("h ET_KS");
-    TH1F *hETEta = CreateEnergyHistogram("h ET_Eta");
-    TH1F *hETOmega = CreateEnergyHistogram("h ET_omega");
-    TH1F *hETOmegaP = CreateEnergyHistogram("h ET_Omega+");
-    TH1F *hETOmegaM = CreateEnergyHistogram("h ET_Omega-");
-    TH1F *hETLambda0 = CreateEnergyHistogram("h ET_Lambda0");
-    TH1F *hETLambdaBar0 = CreateEnergyHistogram("h ET_LambdaBar0");
-    TH1F *hETSigmaP = CreateEnergyHistogram("h ET_Sigma+");
-    TH1F *hETSigmaM = CreateEnergyHistogram("h ET_Simga-");
-    TH1F *hETSigma0 = CreateEnergyHistogram("h ET_Sigma0");
-    TH1F *hETXiP = CreateEnergyHistogram("h ET_Xi+");
-    TH1F *hETXiM = CreateEnergyHistogram("h ET_Xi-");
-    TH1F *hETXi0 = CreateEnergyHistogram("h ET_Xi0");
-    TH1F *hETgamma = CreateEnergyHistogram("h ET_gamma");
-    TH1F *hETp = CreateEnergyHistogram("h ET_p");
-    TH1F *hETn = CreateEnergyHistogram("h ET_n");
-    TH1F *hETp_ = CreateEnergyHistogram("h ET_pBar");
-    TH1F *hETn_ = CreateEnergyHistogram("h ET_nBar");
-    TH1F *hETmu = CreateEnergyHistogram("h ET_mu");
-    TH1F *hETmu_ = CreateEnergyHistogram("h ET_muBar");
-    TH1F *hETe = CreateEnergyHistogram("h ET_e");
-    TH1F *hETe_ = CreateEnergyHistogram("h ET_eBar");
-    TH1F *homegaVSpi0 = CreateEnergyHistogram("h ET_omega/pi0");
+    TH1F *hETpip = CreateEnergyHistogram("hETPiPlus");
+    TH1F *hETpim = CreateEnergyHistogram("hETPiMinus");
+    TH1F *hETpi0 = CreateEnergyHistogram("hETPi0");
+    TH1F *hETKp = CreateEnergyHistogram("hETKPlus");
+    TH1F *hETKm = CreateEnergyHistogram("hETKMinus");
+    TH1F *hETKL = CreateEnergyHistogram("hETKL");
+    TH1F *hETKS = CreateEnergyHistogram("hETKS");
+    TH1F *hETEta = CreateEnergyHistogram("hETEta");
+    TH1F *hETOmega = CreateEnergyHistogram("hETomega");
+    TH1F *hETOmegaM = CreateEnergyHistogram("hETOmegaMinus");
+    TH1F *hETLambda0 = CreateEnergyHistogram("hETLambda0");
+    TH1F *hETLambdaBar0 = CreateEnergyHistogram("hETLambdaBar0");
+    TH1F *hETSigmaP = CreateEnergyHistogram("hETSigmaPlus");
+    TH1F *hETSigmaM = CreateEnergyHistogram("hETSimgaMinus");
+    TH1F *hETSigma0 = CreateEnergyHistogram("hETSigma0");
+    TH1F *hETXiM = CreateEnergyHistogram("hETXiMinus");
+    TH1F *hETXi0 = CreateEnergyHistogram("hETXi0");
+    TH1F *hETgamma = CreateEnergyHistogram("hETgamma");
+    TH1F *hETp = CreateEnergyHistogram("hETp");
+    TH1F *hETn = CreateEnergyHistogram("hETn");
+    TH1F *hETp_ = CreateEnergyHistogram("hETpBar");
+    TH1F *hETn_ = CreateEnergyHistogram("hETnBar");
+    TH1F *hETmu = CreateEnergyHistogram("hETmu");
+    TH1F *hETmu_ = CreateEnergyHistogram("hETmuBar");
+    TH1F *hETe = CreateEnergyHistogram("hETe");
+    TH1F *hETe_ = CreateEnergyHistogram("hETeBar");
+    TH1F *homegaVSpi0 = CreateEnergyHistogram("hETomegaOverpi0");
+    TH1F *hEtaVSpi0 = CreateEnergyHistogram("hETEtaOverpi0");
 
 
     TH1F *hPTAll = CreatePTHistogram("hETAll");
-    TH1F *hPTpip = CreatePTHistogram("hptPi+");
-    TH1F *hPTpim = CreatePTHistogram("hptPi-");
+    TH1F *hPTpip = CreatePTHistogram("hptPiPlus");
+    TH1F *hPTpim = CreatePTHistogram("hptPiMinus");
     TH1F *hPTpi0 = CreatePTHistogram("hptPi0");
-    TH1F *hPTKp = CreatePTHistogram("hptK+");
-    TH1F *hPTKm = CreatePTHistogram("hptK-");
+    TH1F *hPTKp = CreatePTHistogram("hptKPlus");
+    TH1F *hPTKm = CreatePTHistogram("hptKMinus");
     TH1F *hPTK0 = CreatePTHistogram("hptK0");
     TH1F *hPTKL = CreatePTHistogram("hptKL");
     TH1F *hPTKS = CreatePTHistogram("hptKS");
     TH1F *hPTEta = CreatePTHistogram("hptEta");
     TH1F *hPTOmega = CreatePTHistogram("hptomega");
-    TH1F *hPTOmegaP =CreatePTHistogram("hptOmega+");
-    TH1F *hPTOmegaM = CreatePTHistogram("hptOmega-");
+    TH1F *hPTOmegaM = CreatePTHistogram("hptOmegaMinus");
     TH1F *hPTLambda0 = CreatePTHistogram("hptLambda0");
     TH1F *hPTLambdaBar0 = CreatePTHistogram("hptLambdaBar0");
-    TH1F *hPTSigmaP = CreatePTHistogram("hptSigma+");
-    TH1F *hPTSigmaM = CreatePTHistogram("hptSimga-");
+    TH1F *hPTSigmaP = CreatePTHistogram("hptSigmaPlus");
+    TH1F *hPTSigmaM = CreatePTHistogram("hptSimgaMinus");
     TH1F *hPTSigma0 = CreatePTHistogram("hptSigma0");
-    TH1F *hPTXiP = CreatePTHistogram("hptXi+");
-    TH1F *hPTXiM = CreatePTHistogram("hptXi-");
+    TH1F *hPTXiM = CreatePTHistogram("hptXiMinus");
     TH1F *hPTXi0 = CreatePTHistogram("hptXi0");
     TH1F *hPTgamma = CreatePTHistogram("hptgamma");
     TH1F *hPTp = CreatePTHistogram("hptp");
@@ -386,7 +301,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Int_t cKS=0;
   Int_t cEta=0;
   Int_t cOmega=0; //THIS IS omega not Omega
-  Int_t cOmegaP=0;
   Int_t cOmegaM=0;
   Int_t cLambda0=0;
   Int_t cLambdaBar0=0;
@@ -400,7 +314,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Int_t cDeltaM=0;
   Int_t cDelta0=0;
   Int_t cXiM=0;
-  Int_t cXiP=0;
   Int_t cXi0=0;
   Int_t cgamma=0;
   Int_t cp=0;
@@ -426,7 +339,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t ETKS=0;
     Double_t ETEta=0;
     Double_t ETOmega=0; //THIS IS omega not Omega
-    Double_t ETOmegaP=0;
     Double_t ETOmegaM=0;
     Double_t ETLambda0=0;
     Double_t ETLambdaBar0=0;
@@ -440,7 +352,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t ETDeltaM=0;
     Double_t ETDelta0=0;
     Double_t ETXiM=0;
-    Double_t ETXiP=0;
     Double_t ETXi0=0;
     Double_t ETgamma=0;
     Double_t ETp=0;
@@ -462,7 +373,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t pETKS=0;
     Double_t pETEta=0;
     Double_t pETOmega=0; //THIS IS omega not Omega
-    Double_t pETOmegaP=0;
     Double_t pETOmegaM=0;
     Double_t pETLambda0=0;
     Double_t pETLambdaBar0=0;
@@ -476,7 +386,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t pETDeltaM=0;
     Double_t pETDelta0=0;
     Double_t pETXiM=0;
-    Double_t pETXiP=0;
     Double_t pETXi0=0;
     Double_t pETgamma=0;
     Double_t pETp=0;
@@ -500,7 +409,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       Double_t PTKS=0;
       Double_t PTEta=0;
       Double_t PTOmega=0; //THIS IS omega not Omega
-      Double_t PTOmegaP=0;
       Double_t PTOmegaM=0;
       Double_t PTLambda0=0;
       Double_t PTLambdaBar0=0;
@@ -514,7 +422,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       Double_t PTDeltaM=0;
       Double_t PTDelta0=0;
       Double_t PTXiM=0;
-      Double_t PTXiP=0;
       Double_t PTXi0=0;
       Double_t PTgamma=0;
       Double_t PTp=0;
@@ -536,7 +443,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       Double_t pPTKS=0;
       Double_t pPTEta=0;
       Double_t pPTOmega=0; //THIS IS omega not Omega
-      Double_t pPTOmegaP=0;
       Double_t pPTOmegaM=0;
       Double_t pPTLambda0=0;
       Double_t pPTLambdaBar0=0;
@@ -550,7 +456,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       Double_t pPTDeltaM=0;
       Double_t pPTDelta0=0;
       Double_t pPTXiM=0;
-      Double_t pPTXiP=0;
       Double_t pPTXi0=0;
       Double_t pPTgamma=0;
       Double_t pPTp=0;
@@ -568,7 +473,11 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     // Make one event.
     pythia->GenerateEvent();
       hNEvents->Fill(0.5);
-
+/*****************************************************************************
+pythia->Pylist(1); when run with a single event will display the main structure
+of data from the pythia event. For help with understanding the structure of this
+code, uncomment the below line
+*****************************************************************************/
       //pythia->Pylist(1); //DEBUG helper
       Int_t npart = particles->GetEntries();
       //printf("Analyse %d Particles\n", npart);
@@ -595,18 +504,22 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Float_t py=MPart->GetPy();
   Float_t pz=MPart->GetPz();
   if (pz<0){
-    pz*=(-1);
+    pz*=(-1); //useful to keep numbers positive while calculating
+    N='y'; //not used but can be used to make pz negative again later
   }
   Float_t pT= sqrt(pow(px,2)+pow(py,2));
   Float_t Theta = atan(pT/pz);
   Float_t p_tot=(pT)/sin(Theta);
   Float_t m=MPart->GetMass();
-  Float_t Ei_TOT= sqrt(pow(p_tot,2)+pow(m,2)); //particle dependance is defined 660-668
+  Float_t Ei_TOT= sqrt(pow(p_tot,2)+pow(m,2));
   Float_t pseudorapidity=-log(tan(Theta/2));
   Float_t rapidity=(0.5)*log((E+pz)/(E-pz));
   //cout<<pseudorapidity<<" "<<rapidity<<endl;
   if (rapidity<0.1){
-  //check part type for ET ie if baryon, antibaryon, meson, etc
+/******************************************************************************
+To account for  pT properly, E_T is dependant on type of particle.
+For baryons and antibaryons, note that rest mass is included (see below)
+******************************************************************************/
   if ((Ckf==162)||(Ckf==135)||(Ckf==134)||(Ckf==136)||(Ckf==137)||(Ckf==138)||(Ckf==139)||(Ckf==133)||(Ckf==132)){
     partE = (Ei_TOT-m) * sin(Theta);
   }
@@ -620,9 +533,34 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Int_t mpartD = MPart->GetFirstChild();
   Int_t mpP = MPart->GetParent();
   Float_t mpL = MPart->GetLifetime();
-//NOTE MAKE SURE THERE IS NO DOUBLE COUNTING!!!!!
+
+/****************************************************
+The following section counts particles based on the below conditions to ensure no double counting
+
+Particle:        inclusion requirements:
+pion+-           final state AND not daughter of decay from eta, omega, k_0L, k_0S, lambda0,lambdaBar0, Omega-,Sigma_+-0, Xi_0-
+pion0            not daughter of decay from eta, omega, k_0L, k_0S, lambda0,lambdaBar0, Omega-,Sigma_+-0, Xi_0-
+kaon+            ALL INCLUDED
+kaon-            not daughter of Omega-
+kaon0_L          lifespan>=1cm
+kaon0_S          lifespan>=1cm
+eta              ALL INCLUDED
+omega            ALL INCLUDED
+Omega-           lifespan>=1cm
+Lambda0          lifespan>1cm AND not daughter of Sigma+-0, Omega-, or Xi0-
+LambdaBar0       lifespan>1cm AND not daughter of Sigma+-0, Omega-, or Xi0-
+Sigma+-0         lifespan>=1cm
+Xi0-             lifespan>=1cm
+gamma            final state AND not daughter of pion0, eta, omega
+proton           NOT COLLIDING PARTICLES AND not daughter of Sigma+-0
+neutron          not daughter of Sigma+-0
+muon/bar         ALL INCLUDED
+electron/bar     ALL INCLUDED
+
+For reference, mpP is in KF format, Ckf is converted to index (from KF_Code.dat)
+****************************************************/
   if (Ckf==58){ //pi+
-    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)){ //counted if final particle AND not daughter of eta or omega NOTE: not subtracting pions from KS or KL
+    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)&&(mpP!=130)&&(mpP!=310)&&(mpP!=3334)&&(mpP!=3122)&&(mpP!=3122)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)&&(mpP!=3312)&&(mpP!=3322)){
       ETpip+=partE;
       ETAll+=partE;
       PTpip+=pT;
@@ -630,7 +568,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       cpip++;
   }}
   if (Ckf==-58){ //pi-
-    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)){//counted if final particle AND not daughter of eta or omega NOTE: not subtracting pions from KS or KL
+    if ((mpartD==0)&&(mpP!=221)&&(mpP!=223)&&(mpP!=130)&&(mpP!=310)&&(mpP!=3334)&&(mpP!=3122)&&(mpP!=3122)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)&&(mpP!=3312)&&(mpP!=3322)){
     ETpim+=partE;
     ETAll+=partE;
     PTpim+=pT;
@@ -638,7 +576,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cpim++;
   }}
   if (Ckf==68){ //pi0
-    if ((mpP!=221)&&(mpP!=223)){//counted if not daughter of eta or omega NOTE: not subtracting pions from KS or KL (mpP!=73) (mpP!=74)
+    if ((mpP!=221)&&(mpP!=223)&&(mpP!=130)&&(mpP!=310)&&(mpP!=3334)&&(mpP!=3122)&&(mpP!=3122)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)&&(mpP!=3312)&&(mpP!=3322)){
     ETpi0+=partE;
     ETAll+=partE;
     PTpi0+=pT;
@@ -654,7 +592,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cKp++;
   }}
   if (Ckf==-60){ //K-
-    if (mpartD==0){//counted if final particle
+    if ((mpartD==0)&&(mpP!=3334)){//counted if final particle/ not daughter of Omega-
     ETKm+=partE;
     ETAll+=partE;
     PTKm+=pT;
@@ -677,30 +615,22 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     PTAll+=pT;
     cKS++;
   }}
-  if (Ckf==69){ //eta
+  if (Ckf==69){ //eta // include ALLLLLL of them!!!
     ETEta+=partE;
     ETAll+=partE;
     PTEta+=pT;
     PTAll+=pT;
     cEta++;
   }
-  if (Ckf==86){ // omega
+  if (Ckf==86){ // omega include all of them.
     ETOmega+=partE;
     ETAll+=partE;
     PTOmega+=pT;
     PTAll+=pT;
     cOmega++;
   }
-  if (Ckf==-162){ // Omega+
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){ //included if: 1cm lifetime, final state particle, and does not produce a lambda0 or antilambda0
-    ETOmegaP+=partE;
-    ETAll+=partE;
-    PTOmegaP+=pT;
-    PTAll+=pT;
-    cOmegaP++;
-  }}
   if (Ckf==162){ // Omega-
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETOmegaM+=partE;
     ETAll+=partE;
     PTOmegaM+=pT;
@@ -708,7 +638,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cOmegaM++;
   }}
   if (Ckf==135){ //Lambda0
-    if ((mpL>=100)||(mpartD==0)){
+    if (((mpL>=100)||(mpartD==0))&&(mpP!=3334)&&(mpP!=3122)&&(mpP!=3122)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)&&(mpP!=3312)&&(mpP!=3322)){
     ETLambda0+=partE;
     ETAll+=partE;
     PTLambda0+=pT;
@@ -716,7 +646,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cLambda0++;
   }}
   if (Ckf==-135){ //LambdaBar0
-    if ((mpL>=100)||(mpartD==0)){
+    if ((mpL>=100)||(mpartD==0)&&(mpP!=3334)&&(mpP!=3122)&&(mpP!=3122)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)&&(mpP!=3312)&&(mpP!=3322)){
     ETLambdaBar0+=partE;
     ETAll+=partE;
     PTLambdaBar0+=pT;
@@ -724,7 +654,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cLambdaBar0++;
   }}
   if (Ckf==137){ //Sigma+
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETSigmaP+=partE;
     ETAll+=partE;
     PTSigmaP+=pT;
@@ -732,7 +662,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cSigmaP++;
   }}
   if (Ckf==134){ //Sigma-
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETSigmaM+=partE;
     ETAll+=partE;
     PTSigmaM+=pT;
@@ -740,7 +670,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cSigmaM++;
   }}
   if (Ckf==136){ //Sigma0
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETSigma0+=partE;
     ETAll+=partE;
     PTSigma0+=pT;
@@ -748,23 +678,15 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     cSigma0++;
   }}
   if (Ckf==138){ //Xi-
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETXiM+=partE;
     ETAll+=partE;
     PTXiM+=pT;
     PTAll+=pT;
     cXiM++;
   }}
-  if (Ckf==-138){ //Xi+
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
-    ETXiP+=partE;
-    ETAll+=partE;
-    PTXiP+=pT;
-    PTAll+=pT;
-    cXiP++;
-  }}
   if (Ckf==139){ //Xi0
-    if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){
+    if (((mpL>=100)||(mpartD==0))){
     ETXi0+=partE;
     ETAll+=partE;
     PTXi0+=pT;
@@ -781,7 +703,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   }}
   if (Ckf==133){ //proton
     if (mpartD==0){
-    if ((part!=0)&&(part!=1)){
+    if ((part!=0)&&(part!=1)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)){
       ETp+=partE;
       ETAll+=partE;
       PTp+=pT;
@@ -790,7 +712,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     }}
   }
   if (Ckf==132){ //neutron
-    if ((mpartD==0)&&(mpP!=2112)){
+    if ((mpartD==0)&&(mpP!=2112)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)){
     ETn+=partE;
     ETAll+=partE;
     PTn+=pT;
@@ -799,7 +721,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   }}
   if (Ckf==-133){ //antiproton
     if (mpartD==0){
-    if ((part!=0)&&(part!=1)){
+    if ((part!=0)&&(part!=1)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)){
       ETp_+=partE;
       ETAll+=partE;
       PTp_+=pT;
@@ -808,7 +730,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     }}
   }
   if (Ckf==-132){ //antineutron
-    if ((mpartD==0)&&(mpP!=2112)){
+    if ((mpartD==0)&&(mpP!=2112)&&(mpP!=3222)&&(mpP!=-3222)&&(mpP!=3212)){
     ETn_+=partE;
     ETAll+=partE;
     PTn_+=pT;
@@ -851,7 +773,11 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 } //end pseudorapidity cut
 
       }//end particle loop
-
+/******************************************************************************
+Histogarms are filled here, the histograms are of the format:
+hET<particleName> xaxis is ET particle/ Total ET
+                  yaxis is number of events at that fraction
+*******************************************************************************/
       Double_t omegaET=0;
       Double_t pi0ET=0;
       hETAll->Fill(ETAll);
@@ -911,12 +837,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       hPTOmega->Fill(PTOmega);
         //cout<<"Omega "<<ETOmega<<endl;
       }
-      if (ETOmegaP!=0){
-      pETOmegaP=ETOmegaP/ETAll;
-      hETOmegaP->Fill(pETOmegaP);
-      hPTOmegaP->Fill(PTOmegaP);
-        //cout<<"OmegaM "<<ETOmegaM<<endl;
-      }
       if (ETOmegaM!=0){
       pETOmegaM=ETOmegaM/ETAll;
       hETOmegaM->Fill(pETOmegaM);
@@ -952,12 +872,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       hETSigma0->Fill(pETSigma0);
       hPTSigma0->Fill(PTSigma0);
         //cout<<"Sigma0 "<<ETSigma0<<endl;
-      }
-      if (ETXiP!=0){
-      pETXiP=ETXiP/ETAll;
-      hETXiP->Fill(pETXiP);
-      hPTXiP->Fill(PTXiP);
-        //cout<<"Xi- "<<ETXiM<<endl;
       }
       if (ETXiM!=0){
       pETXiM=ETXiM/ETAll;
@@ -1025,6 +939,11 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       hPTe_->Fill(PTe_);
         //cout<<"eBAR "<<ETe_<<endl;
       }
+      Float_t Rat1=ETOmega/ETpi0;
+      Float_t Rat2=ETEta/ETpi0;
+      if (Rat1!=0){
+
+      }
 
   }/*
   Double_t ETAll=0;
@@ -1038,7 +957,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Double_t ETKS=0;*/
   Double_t ETEta=0;
   Double_t ETOmega=0; //THIS IS omega not Omega
-  /*Double_t ETOmegaP=0;
+  /*
   Double_t ETOmegaM=0;
   Double_t ETLambda0=0;
   Double_t ETLambdaBar0=0;
@@ -1046,7 +965,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Double_t ETSigmaM=0;
   Double_t ETSigma0=0;
   Double_t ETXiM=0;
-  Double_t ETXiP=0;
   Double_t ETXi0=0;
   Double_t ETgamma=0;
   Double_t ETp=0;
@@ -1065,7 +983,6 @@ hPTKL=hPTKL*((1.)/(2*TMath::pi()));
 hPTKS=hPTKS*((1.)/(2*TMath::pi()));
 hPTEta=hPTEta*((1.)/(2*TMath::pi()));
 hPTOmega=hPTOmega*((1.)/(2*TMath::pi()));
-hPTOmegaP=hPTOmegaP*((1.)/(2*TMath::pi()));
 hPTOmegaM=hPTOmegaM*((1.)/(2*TMath::pi()));
 hPTLambda0=hPTLambda0*((1.)/(2*TMath::pi()));
 hPTLambdaBar0=hPTLambdaBar0*((1.)/(2*TMath::pi()));
@@ -1073,7 +990,6 @@ hPTSigma0=hPTSigma0*((1.)/(2*TMath::pi()));
 hPTSigmaP=hPTSigmaP*((1.)/(2*TMath::pi()));
 hPTSigmaM=hPTSigmaM*((1.)/(2*TMath::pi()));
 hPTXiM=hPTXiM*((1.)/(2*TMath::pi()));
-hPTXiP=hPTXiP*((1.)/(2*TMath::pi()));
 hPTXi0=hPTXi0*((1.)/(2*TMath::pi()));
 hPTgamma=hPTgamma*((1.)/(2*TMath::pi()));
 hPTp=hPTp*((1.)/(2*TMath::pi()));
@@ -1084,17 +1000,9 @@ hPTmu=hPTmu*((1.)/(2*TMath::pi()));
 hPTmu_=hPTmu_*((1.)/(2*TMath::pi()));
 hPTe=hPTe*((1.)/(2*TMath::pi()));
 hPTe_=hPTe_*((1.)/(2*TMath::pi()));
-
+//just use raw number over other, dont need pt spectra
 
   //NOTE:write histograms to file
-    //numTriggers->Write();
-    //hhCorr->Write();
-    //hUnidentifiedTriggers->Write();
-    //hPiTriggers->Write();
-    //hKTriggers->Write();
-    //hK0Triggers->Write();
-    //hLambdaTriggers->Write();
-    //hProtonTriggers->Write();
     hNEvents->Write();
     //hSPALL->Write();
     //hPar->Write();
@@ -1111,13 +1019,11 @@ hPTe_=hPTe_*((1.)/(2*TMath::pi()));
     ETEta=hETEta->GetMean();
     ETOmega=hETOmega->GetMean();
     /*ETOmegaM=hETOmegaM->GetMean();
-    ETOmegaP=hETOmegaP->GetMean();
     ETLambda0=hETLambda0->GetMean();
     ETLambdaBar0=hETLambdaBar0->GetMean();
     ETSigmaP=hETSigmaP->GetMean();
     ETSigmaM=hETSigmaM->GetMean();
     ETSigma0=hETSigma0->GetMean();
-    ETXiP=hETXiP->GetMean();
     ETXiM=hETXiM->GetMean();
     ETXi0=hETXi0->GetMean();
     ETgamma=hETgamma->GetMean();
@@ -1130,7 +1036,6 @@ hPTe_=hPTe_*((1.)/(2*TMath::pi()));
     */
     Float_t Ratio=(ETOmega*cOmega)/(ETpi0*cpi0);
     Float_t Ratio2=(ETEta*cEta)/(ETpi0*cpi0);
-    // found average to be .889669
     cout<<"ET omega to pion0 :"<<Ratio<<endl;
     cout<<"ET Eta to pion0 :"<<Ratio2<<endl;
     hETAll->Write();
@@ -1144,13 +1049,11 @@ hPTe_=hPTe_*((1.)/(2*TMath::pi()));
     hETEta->Write();
     hETOmega->Write();
     hETOmegaM->Write();
-    hETOmegaP->Write();
     hETLambda0->Write();
     hETLambdaBar0->Write();
     hETSigmaP->Write();
     hETSigmaM->Write();
     hETSigma0->Write();
-    hETXiP->Write();
     hETXiM->Write();
     hETXi0->Write();
     hETgamma->Write();
@@ -1175,13 +1078,11 @@ hPTe_=hPTe_*((1.)/(2*TMath::pi()));
     hPTEta->Write();
     hPTOmega->Write();
     hPTOmegaM->Write();
-    hPTOmegaP->Write();
     hPTLambda0->Write();
     hPTLambdaBar0->Write();
     hPTSigmaP->Write();
     hPTSigmaM->Write();
     hPTSigma0->Write();
-    hPTXiP->Write();
     hPTXiM->Write();
     hPTXi0->Write();
     hPTgamma->Write();
