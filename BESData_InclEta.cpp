@@ -62,7 +62,11 @@ int BESData_InclEta(){
   out.open("./BESData_sorted_PlusEta.txt"); //created file for inclusion of pi0, formatted!
 
   while(in>>CollType){
-    while(CollType!="Au+Au") {in>>CollType;}
+    cout<<"start round"<<endl;
+    while(CollType!="Au+Au") {
+      in>>CollType;
+      //cout<<CollType;
+    }
     if (z!=0){
       out<<title0<<endl;
       out<<title6<<endl;
@@ -70,7 +74,9 @@ int BESData_InclEta(){
     in>>CollEner;
     out<<CollType<<" ";
     out<<CollEner<<" GeV"<<endl;
-    for(int i = 0; i<8; i++) {in >> GARBAGE;} //skips up to species
+    for(int i = 0; i<8; i++) {
+      in >> GARBAGE;
+    } //skips up to species
     out <<title0<<endl<<title1<<" "<<title2<<" "<<title3<<" "<<title4<<" "<<title5<<endl;
 
     for(j = 0; j<9; j++) {
@@ -79,6 +85,7 @@ int BESData_InclEta(){
       }
       in>>GARBAGE;
       in>>PartType;
+      cout<<PartType<<endl;
       out<<PartType<<"  ";
       in>>CentBin;
       out<<CentBin<<endl;
@@ -118,9 +125,9 @@ int BESData_InclEta(){
       }
       in.clear();
     } //end forloop ()
-    in>>GARBAGE;
     z++;
     if (l==6){ //determines order in other particles
+      cout<<"ETA BUILDER BEGINS"<<endl;
       EtaBuilder(PiZero, Eta); //runs once for each energy group after pi+ is fed
       out<<title0<<endl<<title6<<endl;
       out<<CollType<<" ";
@@ -164,44 +171,54 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   int size;
   double pT;
   double c;
-  double S=0.11; //scale Factor BUG: this is just wrong
   double Se=0.030;
-    /*
-    DEBUG: THIS IS FOR PT WE ARE SCALING PT SPECTRA IN THIS PROGRAM (MAKE BIN IFELSE for fig4 MSpaper3)
-    NOTE: going to make S a bin dependant constant based on graph (may use log may use exponential asymtote)
-    TODO: use PYTHIA v6 to find eta/pi0 vs pT ratio curve (based on "Common Suppression Patterns of [eta] and [pion0] Mesons at High Transverse Momentum in Au+Au collisions at sqrt(s_NN)=200GeV")
-      this ratio can be used to calculate S per centrality bin
-    come up with solution (defend) [keep it simple]
-    another possible assume its same as kaon (incr uncertainty)
-
-    omega pythia based (see alice (bracket to pi0 or eta)) based on ET %
-    */
-
-    //use the low pt point (.1)
-    //plot as mt vs pt
-    //mt spectra divided by eachother
+  double h;
   Bin pi0;
   Bin n;
+
+  /*****************************************************************************
+  Currently, the pt spectra of eta is simply the pt spectra of pi0 shifted.
+  pt spectra of pi0 for pt bin .90-1.00 is inserted into the eta bin for .50-.55
+
+  this is assuming that the eta pt is .4 ish of pi0 pt
+  *****************************************************************************/
   for (int i=0; i<9; i++){
     size=vect1[i].size();
+    if (size>23){size=30;}
+    cout<<"SIZE="<<size<<endl;
     for (int j=0; j<size;j++){
-      pi0.Dat.pTSpec=vect1[i][j].Dat.pTSpec;
-      pi0.Dat.ErrStat=vect1[i][j].Dat.ErrStat;
-      pi0.Dat.ErrSys=vect1[i][j].Dat.ErrSys;
+      h=j+12;
+      if (h>size){
+        cout<<" END CENT"<<endl;
+        break;
+      }
+      pi0.Dat.pTSpec=vect1[i][h].Dat.pTSpec;
+      pi0.Dat.ErrStat=vect1[i][h].Dat.ErrStat;
+      pi0.Dat.ErrSys=vect1[i][h].Dat.ErrSys;
       n.BinIndex=j;
-      n.Dat.pTl=vect1[i][j].Dat.pTl;
-      n.Dat.pTh=vect1[i][j].Dat.pTh;
-      n.Dat.pTSpec= S*(pi0.Dat.pTSpec);
-      pT=pow((pi0.Dat.ErrStat*S),2);
+      n.Dat.pTl=vect1[i][j].Dat.pTl+.25;
+      n.Dat.pTh=vect1[i][j].Dat.pTh+.25;
+      n.Dat.pTSpec= (pi0.Dat.pTSpec);
+      if (n.Dat.pTl==1.05){
+        n.Dat.pTSpec=0;
+      }
+      pT=pow((pi0.Dat.ErrStat),2);
       c=pow(Se,2);
       //pTe=pow(pi0.Dat.ErrStat,2);
       //ce=pow(Se,2);
-      n.Dat.ErrStat=sqrt(pT+c); //TODO: FIND ERROR STAT rel to pi0 //straight from pion0
-      n.Dat.ErrSys=pi0.Dat.ErrSys*S; //TODO: Find ERROR STAT rel to pi0 //straight from pion0
-      if (n.Dat.pTSpec !=0){ //solved problem with extra zero entries
+      n.Dat.ErrStat=n.Dat.pTSpec; //TODO: FIND ERROR STAT rel to pi0 //straight from pion0
+      n.Dat.ErrSys=pi0.Dat.ErrSys; //TODO: Find ERROR STAT rel to pi0 //straight from pion0
+      if (n.Dat.ErrStat<0.00001) {
+        n.Dat.ErrStat=0.00001;
+      }
+      if (n.Dat.ErrSys>n.Dat.pTSpec) {
+        n.Dat.ErrSys=0.00001;
+      }
+      if (n.Dat.pTl <=1.90){ //solved problem with extra zero entries
         Eta[i].push_back(Bin());
         Eta[i][j]=n; //installs value of eta to vector
       }
     }
+    cout<<"round: "<<i<<endl<<"--------------------------------------------------"<<endl;
   }
 }

@@ -65,10 +65,10 @@ int BESData_InclPi0(){
 
   while(in>>CollType){
     while(CollType!="Au+Au") {in>>CollType;}
-    if (z!=0){
+    /*if (z!=0){
       out<<title0<<endl;
       out<<title6<<endl;
-    }
+    }*/
     in>>CollEner;
     out<<CollType<<" ";
     out<<CollEner<<" GeV"<<endl;
