@@ -127,13 +127,24 @@ void EtaVsPi0(){
   Double_t xi4[14], yi4[14];
   Double_t x5[13], y5[13], ex5[13], ey5[13], iy5[13];
   Double_t xi5[13], yi5[13];
-  Double_t x6[2], y6[2];
+  Double_t x6[2], y6[2],x7[2],y7[2];
   Int_t n1=10,n2=10,n3=6,n4=13,n5=12,n6=2;
 
   TLegend* legend=new TLegend(.13,.7,.35,.9);
     legend->SetTextFont(72);
     legend->SetTextSize(.03);
     legend->SetFillColor(0);
+
+  x7[0]=0;
+  x7[1]=11.5;
+  y7[0]=0;
+  y7[1]=1.2;
+  TGraph* gr7=new TGraph(n6,x7,y7);
+    gr7->SetTitle("Eta/Pi0 Ratio at snn=200; pT; Eta/Pi0");
+    gr7->SetMarkerStyle(27);
+    gr7->SetMarkerSize(0);
+    gr7->SetMarkerColor(kBlack);
+    gr7->Draw("Ap");
 
   cout<<"Input PP: "<<endl;
   for (Int_t l=0;l<n5;l++){;
@@ -143,12 +154,11 @@ void EtaVsPi0(){
     ey5[l]=pp[l].errR;
   }
   TGraphErrors* gr5= new TGraphErrors(n5,x5,y5,ex5,ey5);
-    gr5->SetTitle("Eta/Pi0 Ratio at snn=200; pT; Eta/Pi0");
     gr5->SetMarkerStyle(28);
     gr5->SetMarkerSize(2);
     gr5->SetMarkerColor(kBlack);
     //gr5->SetLineColor(kGray);
-    gr5->Draw("AP");
+    gr5->Draw("P");
 
   cout<<"Input AUAUCENT: "<<endl;
   for (Int_t l=0;l<n1;l++){;
