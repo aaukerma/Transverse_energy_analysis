@@ -164,16 +164,11 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   int size;
   double pT;
   double c;
-  double S=0.11; //scale Factor TODO: find scale factor
+  double S=0.11; //scale Factor BUG: this is just wrong
   double Se=0.030;
     /*
-    S=0.482 based on "Applicability of transverse mass scaling in harmonic collisions at LHC" (page6)
-      this has a +- of 0.030 and is based on not pi0 but the average of pi+ and pi- (as was used as estimated pi0 for this program)
-      NOTE: this paper was used for the following reasons
-                  1: the momentums calculated for were nearest those used in the data sets include (between .025 and 2 GeV/c)
-                  2: the data was for higher momentums (where lower momentum data is preferred) in the paper "common suppression pattern of eta and pionzero mesons at high transverse momentum in au+au collisions at snn=200GeV"
-                  3: there was no clear correlation presented in "measurement of neutral mesons in p+p collisions as snn=200GeV and scaling properties of hadron production",
-                    also I feel it is preferred to use data based in au+au collision data as that is what we are using
+    DEBUG: THIS IS FOR PT WE ARE SCALING PT SPECTRA IN THIS PROGRAM (MAKE BIN IFELSE for fig4 MSpaper3)
+    NOTE: going to make S a bin dependant constant based on graph (may use log may use exponential asymtote)
     TODO: use PYTHIA v6 to find eta/pi0 vs pT ratio curve (based on "Common Suppression Patterns of [eta] and [pion0] Mesons at High Transverse Momentum in Au+Au collisions at sqrt(s_NN)=200GeV")
       this ratio can be used to calculate S per centrality bin
     come up with solution (defend) [keep it simple]
