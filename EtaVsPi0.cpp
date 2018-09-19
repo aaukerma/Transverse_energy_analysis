@@ -249,7 +249,7 @@ void EtaVsPi0(){
   gr2->Fit("expo2");
   gr3->Fit("expo2");
   gr4->Fit("expo2");
-  c1->SaveAs("EtaPi0_vs_pt.png");
   legend->Draw();
+  c1->SaveAs("EtaPi0_vs_pt.png");
   return;
 }
