@@ -96,7 +96,7 @@ void EtaVsPi0(){
       cout<<"Part4 input complete"<<endl;
     }
     if (p==4){
-      for (int j=0;j<13;j++){
+      for (int j=0;j<12;j++){
         pp.push_back(Data());
         in>>pp[j].evp;
         in>>pp[j].pt;
@@ -128,7 +128,7 @@ void EtaVsPi0(){
   Double_t x5[13], y5[13], ex5[13], ey5[13], iy5[13];
   Double_t xi5[13], yi5[13];
   Double_t x6[2], y6[2];
-  Int_t n1=10,n2=10,n3=6,n4=13,n5=13,n6=2;
+  Int_t n1=10,n2=10,n3=6,n4=13,n5=12,n6=2;
 
   TLegend* legend=new TLegend(.13,.7,.35,.9);
     legend->SetTextFont(72);
