@@ -114,7 +114,7 @@ void EtaVsPi0(){
   }
 
 
-  cout<<endl<<"Inputs complete: Creating Graph environment"<<endl;
+  cout<<endl<<"Inputs complete: Creating Graphs"<<endl<<endl<<endl;
 
   TCanvas *c1 = new TCanvas("c1","Au+Au Central", 200,10,700,500);
   Double_t x1[11], y1[11], ex1[11], ey1[11], iy1[11];
@@ -146,7 +146,6 @@ void EtaVsPi0(){
     gr7->SetMarkerColor(kBlack);
     gr7->Draw("Ap");
 
-  cout<<"Input PP: "<<endl;
   for (Int_t l=0;l<n5;l++){;
     x5[l]=pp[l].pt;
     y5[l]=pp[l].evp;
@@ -160,7 +159,6 @@ void EtaVsPi0(){
     //gr5->SetLineColor(kGray);
     gr5->Draw("P");
 
-  cout<<"Input AUAUCENT: "<<endl;
   for (Int_t l=0;l<n1;l++){;
     x1[l]=auaucent[l].pt;
     y1[l]=auaucent[l].evp;
@@ -176,7 +174,6 @@ void EtaVsPi0(){
     gr1->Draw("P");
 
 
-  cout<<"Input AUAUSCENT: "<<endl;
   for (Int_t l=0;l<n2;l++){;
     x2[l]=auauScent[l].pt;
     y2[l]=auauScent[l].evp;
@@ -191,7 +188,6 @@ void EtaVsPi0(){
     legend->AddEntry(gr2,"Au+Au Semi-Cent","p");
     gr2->Draw("P");
 
-  cout<<"Input AUAUPERIPH: "<<endl;
   for (Int_t l=0;l<n3;l++){;
     x3[l]=auauPeri[l].pt;
     y3[l]=auauPeri[l].evp;
@@ -206,7 +202,6 @@ void EtaVsPi0(){
     legend->AddEntry(gr3,"Au+Au Periph","p");
     gr3->Draw("P");
 
-  cout<<"Input DAU: "<<endl;
   for (Int_t l=0;l<n4;l++){;
     x4[l]=dau[l].pt;
     y4[l]=dau[l].evp;
@@ -216,12 +211,11 @@ void EtaVsPi0(){
   TGraphErrors* gr4= new TGraphErrors(n4,x4,y4,ex4,ey4);
     gr4->SetMarkerStyle(27);
     gr4->SetMarkerSize(2);
-    gr4->SetMarkerColor(kBlack);
+    gr4->SetMarkerColor(kViolet);
     //gr4->SetLineColor(kBlack);
     legend->AddEntry(gr4,"d+Au MinBias","p");
     legend->AddEntry(gr5,"p+p","p");
     gr4->Draw("P");
-
 
   x6[0]=0;
   x6[1]=13;
@@ -232,6 +226,7 @@ void EtaVsPi0(){
     gr6->SetMarkerSize(2);
     gr6->SetMarkerColor(kBlack);
     gr6->Draw("L");
+    legend->Draw();
 
     TF1* expo2 = new TF1("expo2","exp([0]-[1]/x)",-100000000000,100000000000);
     expo2->SetParName(0,"p0");
@@ -244,12 +239,35 @@ void EtaVsPi0(){
   gr5->GetXaxis()->SetRangeUser(.001,12);
   gr5->GetYaxis()->SetRangeUser(.001,1.2);
   gStyle->SetOptFit(0);
-  gr5->Fit("expo2");
+  cout<<endl<<"interpolating..."<<endl;
+
+
+  cout<<"Au+Au Central fit is: "<<endl;
   gr1->Fit("expo2");
+  gr1->GetFunction("expo2")->SetLineColor(kRed);
+  gr1->GetFunction("expo2")->SetLineWidth(1);
+  cout<<"==================================================================="<<endl;
+  cout<<"Au+Au Semi-Central fit is: "<<endl;
   gr2->Fit("expo2");
+  gr2->GetFunction("expo2")->SetLineColor(kOrange);
+  gr2->GetFunction("expo2")->SetLineWidth(1);
+  cout<<"==================================================================="<<endl;
+  cout<<"Au+Au Peripheral fit is: "<<endl;
   gr3->Fit("expo2");
+  gr3->GetFunction("expo2")->SetLineColor(kBlue);
+  gr3->GetFunction("expo2")->SetLineWidth(1);
+  cout<<"==================================================================="<<endl;
+  cout<<"d+Au Min Bias fit is: "<<endl;
   gr4->Fit("expo2");
-  legend->Draw();
+  gr4->GetFunction("expo2")->SetLineColor(kViolet);
+  gr4->GetFunction("expo2")->SetLineWidth(1);
+  cout<<"==================================================================="<<endl;
+  cout<<"p+p fit is: "<<endl;
+  gr5->Fit("expo2");
+  gr5->GetFunction("expo2")->SetLineColor(kBlack);
+  gr5->GetFunction("expo2")->SetLineWidth(1);
+  cout<<"==================================================================="<<endl;
   c1->SaveAs("EtaPi0_vs_pt.png");
+  cout<<"complete";
   return;
 }
