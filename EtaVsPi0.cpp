@@ -43,8 +43,6 @@ void EtaVsPi0(){
   ifstream in;
   in.open("./EtaVsPi0.dat");
 
-  TFile* f = new TFile("EtaVsPi0.root","RECREATE");
-
   while(in>>type){
     cout<<endl<<"==================================================="<<endl;
     cout<<"processing: "<<type<<endl;
