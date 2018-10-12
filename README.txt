@@ -292,6 +292,12 @@ directory: publication
 62. IncludeParticles.bash
 	- runs BESData_InclPi0.cpp and BESData_InclEta.cpp consecutively
 
+63. EtaVsPi0.cpp
+	- uses BESData_sorted_PlusEta.txt and EtaVsPi0.dat
+	- creates fit for PHENIX data and BES Data
+	- outputs EtaPi0_vs_pt.png
+	- Must run Includeparticles.bash before running
+
 *******************************************************************************
 *******************************************************************************
 ToDos:
