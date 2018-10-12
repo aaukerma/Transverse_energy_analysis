@@ -39,12 +39,12 @@ for(int graphInd = 0; graphInd < 2; graphInd++) // two different snn graphs
 		if (graphInd == 0)
 		{
 			graphName = "dETdEtaOverNpartBy2SumCent" + std::to_string(centInd);
-			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 2.00);
+			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 1.00);
 		}
 		else
 		{
 			graphName = "dETdEtaOverdNchdEtaSumCent" + std::to_string(centInd);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.50);
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.6, 1.00);
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = centIndToPercent(centInd);
@@ -122,12 +122,12 @@ for(int graphInd = 2; graphInd < 4; graphInd++) // two different npart graphs
 		if (graphInd == 2)
 		{
 			graphName = "dETdEtaOverNpartBy2SumEn" + doubToString(collEnArr[enInd]);
-			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 2.00);
+			//g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.5, 1.0);
 		}
 		else
 		{
 			graphName = "dETdEtaOverdNchdEtaSumEn" + doubToString(collEnArr[enInd]);
-			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.4, 1.50); //NOTE: from (0.4,1.00)
+			g1->GetHistogram()->GetYaxis()-> SetRangeUser(0.4, 1.00); //NOTE: from (0.4,1.00)
 		}
 		const char* graphNameConstCharPtr = graphName.c_str();
 		graphText = doubToString(collEnArr[enInd]) + " GeV";

@@ -173,25 +173,56 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   double c;
   double Se=0.030;
   double h;
+  double a = -.455275;
+  double b = 1.27055;
+  double scale;
+  double parameter;
   Bin pi0;
   Bin n;
 
-  /*****************************************************************************
-  Currently, the pt spectra of eta is simply the pt spectra of pi0 shifted.
-  pt spectra of pi0 for pt bin .90-1.00 is inserted into the eta bin for .50-.55
 
-  this is assuming that the eta pt is .4 ish of pi0 pt
+  /*****************************************************************************
+  Following the interpolation of p+p from fig4 of 'Common Suppression Pattern of
+  [eta] and [pi0] Mesons at High Transverse Momentum in Au+Au Collisions at
+  [sqrt(sNN)]=200Gev', it was found the closest fit for the ratio of eta/pi0 was
+  given by exp(a-(b/pT)) where a=-.455275 +- .11305, and b=1.27055 +- .472484.
+
+  This is based on 200GeV collisions
+
   *****************************************************************************/
   for (int i=0; i<9; i++){
     size=vect1[i].size();
     if (size>23){size=30;}
     cout<<"SIZE="<<size<<endl;
     for (int j=0; j<size;j++){
-      h=j+12;
-      if (h>size){
-        cout<<" END CENT"<<endl;
-        break;
-      }
+      //h=j+12;
+      //if (h>size){
+    //    cout<<" END CENT"<<endl;
+      //  break;
+      //}
+      pT=vect1[i][j].Dat.pTl;
+      parameter= a-(b/pT);
+      scale=exp(parameter);
+      cout<<"Scale factor: "<<scale<<endl;
+      n.Dat.pTl=vect1[i][j].Dat.pTl;
+      n.Dat.pTh=vect1[i][j].Dat.pTh;
+      n.Dat.pTSpec=vect1[i][j].Dat.pTSpec*scale;
+      n.Dat.ErrStat=n.Dat.pTSpec; //TODO find correct error analysis
+      n.Dat.ErrSys=n.Dat.pTSpec; //TODO find correct error analysis
+      Eta[i].push_back(Bin());
+      Eta[i][j]=n;
+
+
+
+
+      //old way
+      /*****************************************************************************
+      Currently, the pt spectra of eta is simply the pt spectra of pi0 shifted.
+      pt spectra of pi0 for pt bin .90-1.00 is inserted into the eta bin for .50-.55
+
+      this is assuming that the eta pt is .4 ish of pi0 pt
+      *****************************************************************************/
+      /*
       pi0.Dat.pTSpec=vect1[i][h].Dat.pTSpec;
       pi0.Dat.ErrStat=vect1[i][h].Dat.ErrStat;
       pi0.Dat.ErrSys=vect1[i][h].Dat.ErrSys;
@@ -218,6 +249,7 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
         Eta[i].push_back(Bin());
         Eta[i][j]=n; //installs value of eta to vector
       }
+      *******/
     }
     cout<<"round: "<<i<<endl<<"--------------------------------------------------"<<endl;
   }
