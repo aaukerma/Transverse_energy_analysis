@@ -207,10 +207,12 @@ void EtaVsPi0(){
       BESDataInclEta[r].errR=0;//TODO
       BESDataInclEta[r].errPt=0;//TODO
       BESDataInclEta[r].SNN=Eta[r].SNN;
+/*
       cout<<BESDataInclEta[r].evp<<" ";
       cout<<BESDataInclEta[r].pt<<" ";
       cout<<BESDataInclEta[r].errR<<" ";
       cout<<BESDataInclEta[r].errPt<<" "<<Eta[r].SNN<<endl;
+*/
   }
   for (r=0;r<rsize;r++){
     if (BESDataInclEta[r].SNN<=7.7){
@@ -282,7 +284,7 @@ void EtaVsPi0(){
   y7[0]=0;
   y7[1]=1.2;
   TGraph* gr7=new TGraph(n6,x7,y7);
-    gr7->SetTitle("Eta/Pi0 Ratio at snn=200; pT; Eta/Pi0");
+    gr7->SetTitle("Eta/Pi0 Ratio at   snn=200; pT; Eta/Pi0");
     gr7->SetMarkerStyle(27);
     gr7->SetMarkerSize(0);
     gr7->SetMarkerColor(kBlack);
@@ -296,7 +298,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr5= new TGraphErrors(n5,x5,y5,ex5,ey5);
     gr5->SetMarkerStyle(28);
-    gr5->SetMarkerSize(2);
+    gr5->SetMarkerSize(1.5);
     gr5->SetMarkerColor(kBlack);
     //gr5->SetLineColor(kGray);
     gr5->Draw("P");
@@ -309,7 +311,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr1= new TGraphErrors(n1,x1,y1,ex1,ey1);
     gr1->SetMarkerStyle(20);
-    gr1->SetMarkerSize(2);
+    gr1->SetMarkerSize(1.5);
     gr1->SetMarkerColor(kRed);
     //gr1->SetLineColor(kRed);
     legend->AddEntry(gr1,"Au+Au Cent","p");
@@ -324,7 +326,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr2= new TGraphErrors(n2,x2,y2,ex2,ey2);
     gr2->SetMarkerStyle(21);
-    gr2->SetMarkerSize(2);
+    gr2->SetMarkerSize(1.5);
     gr2->SetMarkerColor(kOrange);
     //gr2->SetLineColor(kOrange);
     legend->AddEntry(gr2,"Au+Au Semi-Cent","p");
@@ -338,7 +340,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr3= new TGraphErrors(n3,x3,y3,ex3,ey3);
     gr3->SetMarkerStyle(22);
-    gr3->SetMarkerSize(2);
+    gr3->SetMarkerSize(1.5);
     gr3->SetMarkerColor(kBlue);
     //gr3->SetLineColor(kBlue);
     legend->AddEntry(gr3,"Au+Au Periph","p");
@@ -352,7 +354,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr4= new TGraphErrors(n4,x4,y4,ex4,ey4);
     gr4->SetMarkerStyle(27);
-    gr4->SetMarkerSize(2);
+    gr4->SetMarkerSize(1.5);
     gr4->SetMarkerColor(kViolet);
     //gr4->SetLineColor(kBlack);
     legend->AddEntry(gr4,"d+Au MinBias","p");
@@ -365,7 +367,7 @@ void EtaVsPi0(){
   y6[1]=1;
   TGraph* gr6=new TGraph(n6,x6,y6);
     gr6->SetMarkerStyle(27);
-    gr6->SetMarkerSize(2);
+    gr6->SetMarkerSize(1.5);
     gr6->SetMarkerColor(kBlack);
     gr6->Draw("L");
     legend->Draw();
@@ -378,7 +380,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr8= new TGraphErrors(n8,x8,y8,ex8,ey8);
     gr8->SetMarkerStyle(20);
-    gr8->SetMarkerSize(.5);
+    gr8->SetMarkerSize(1);
     //gr8->SetLineColor(kRed);
     gr8->SetMarkerColor(kBlack);
     legend->AddEntry(gr8,"Au+Au BES 7.7","p");
@@ -392,7 +394,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr9= new TGraphErrors(n9,x9,y9,ex9,ey9);
     gr9->SetMarkerStyle(20);
-    gr9->SetMarkerSize(.5);
+    gr9->SetMarkerSize(1);
     //gr8->SetLineColor(kRed);
     gr9->SetMarkerColor(kRed);
     legend->AddEntry(gr9,"Au+Au BES 11.5","p");
@@ -406,7 +408,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr10= new TGraphErrors(n10,x10,y10,ex10,ey10);
     gr10->SetMarkerStyle(20);
-    gr10->SetMarkerSize(.5);
+    gr10->SetMarkerSize(1);
     //gr8->SetLineColor(kRed);
     gr10->SetMarkerColor(kBlue);
     legend->AddEntry(gr10,"Au+Au BES 19.6","p");
@@ -420,7 +422,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr11= new TGraphErrors(n11,x11,y11,ex11,ey11);
     gr11->SetMarkerStyle(20);
-    gr11->SetMarkerSize(.5);
+    gr11->SetMarkerSize(1);
     //gr8->SetLineColor(kRed);
     gr11->SetMarkerColor(kGray);
     legend->AddEntry(gr11,"Au+Au BES 27","p");
@@ -434,7 +436,7 @@ void EtaVsPi0(){
   }
   TGraphErrors* gr12= new TGraphErrors(n12,x12,y12,ex12,ey12);
     gr12->SetMarkerStyle(20);
-    gr12->SetMarkerSize(.5);
+    gr12->SetMarkerSize(1);
     //gr8->SetLineColor(kRed);
     gr12->SetMarkerColor(kViolet);
     legend->AddEntry(gr12,"Au+Au BES 39","p");
