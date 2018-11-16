@@ -398,6 +398,10 @@ void EtaVsPi0(){
   for (Int_t l=0;l<n9;l++){;
     x9[l]=BESDataInclEta11[l].pt;
     y9[l]=BESDataInclEta11[l].evp;
+    temp2=x9[l];
+    temp3=y9[l];
+    temp1=ErrorBuilder(temp2,temp3);
+    BESDataInclEta11[l].errR=temp1;
     ex9[l]=BESDataInclEta11[l].errPt;
     ey9[l]=BESDataInclEta11[l].errR;
   }
@@ -412,6 +416,10 @@ void EtaVsPi0(){
   for (Int_t l=0;l<n10;l++){;
     x10[l]=BESDataInclEta19[l].pt;
     y10[l]=BESDataInclEta19[l].evp;
+    temp2=x10[l];
+    temp3=y10[l];
+    temp1=ErrorBuilder(temp2,temp3);
+    BESDataInclEta19[l].errR=temp1;
     ex10[l]=BESDataInclEta19[l].errPt;
     ey10[l]=BESDataInclEta19[l].errR;
   }
@@ -426,6 +434,10 @@ void EtaVsPi0(){
   for (Int_t l=0;l<n11;l++){;
     x11[l]=BESDataInclEta27[l].pt;
     y11[l]=BESDataInclEta27[l].evp;
+    temp2=x11[l];
+    temp3=y11[l];
+    temp1=ErrorBuilder(temp2,temp3);
+    BESDataInclEta27[l].errR=temp1;
     ex11[l]=BESDataInclEta27[l].errPt;
     ey11[l]=BESDataInclEta27[l].errR;
   }
@@ -440,6 +452,10 @@ void EtaVsPi0(){
   for (Int_t l=0;l<n12;l++){;
     x12[l]=BESDataInclEta39[l].pt;
     y12[l]=BESDataInclEta39[l].evp;
+    temp2=x12[l];
+    temp3=y12[l];
+    temp1=ErrorBuilder(temp2,temp3);
+    BESDataInclEta39[l].errR=temp1;
     ex12[l]=BESDataInclEta39[l].errPt;
     ey12[l]=BESDataInclEta39[l].errR;
   }
@@ -523,19 +539,24 @@ void EtaVsPi0(){
 double ErrorBuilder(double ptA, double ratio){
   vector<double> p0{-8.5783e-01,-7.56435e-01,-3.31386e-01,-6.02905e-01,-4.55275e-01};
   vector<double> p1{3.70055e-01, 8.25780e-01, 1.83113e+00, 5.98540e-01, 1.27055e+00};
+  vector<double> e0{3.32735e-01, 2.43910e-01, 4.09601e-01, 8.31063e-02, 1.11305e-01};
+  vector<double> e1{1.39061e+00, 9.54498e-01, 1.26788e+00, 3.30472e-01, 4.72484e-01};
   double test=0;
+  double x0;
+  double x1;
   double comp=0;
   double error=0;
+  int index=0;
 
-  cout<<"1"<<endl;
   for (int i=0;i<5;i++){
-    cout<<"2."<<i<<endl;
-    test=exp((p0[i])-(p1[i])/ptA);
+    x0=abs(p0[i])+e0[i];
+    x1=abs(p1[i])+e1[i];
+    test=exp((-x0)-x1/ptA);
     comp=abs(test-ratio);
-    cout<<"3."<<i<<endl;
     if (comp>=error){
-      error=test;
+      error=comp;
     }
   }
+
   return error;
 }
