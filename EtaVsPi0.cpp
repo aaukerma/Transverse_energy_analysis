@@ -47,6 +47,8 @@ struct DataBES{
   float SNN;
 };
 
+double ErrorBuilder(double, double);
+
 void EtaVsPi0(){
   int p=0; //counter for iteration number
   int k=0; //errorcounter
@@ -55,6 +57,9 @@ void EtaVsPi0(){
   int rsize;
   float SNN;
   double data;
+  double temp1;
+  double temp2;
+  double temp3;
   string type;
   string garbage;
   Data D;
@@ -375,6 +380,10 @@ void EtaVsPi0(){
   for (Int_t l=0;l<n8;l++){;
     x8[l]=BESDataInclEta7[l].pt;
     y8[l]=BESDataInclEta7[l].evp;
+    temp2=x8[l];
+    temp3=y8[l];
+    temp1=ErrorBuilder(temp2,temp3);
+    BESDataInclEta7[l].errR=temp1;
     ex8[l]=BESDataInclEta7[l].errPt;
     ey8[l]=BESDataInclEta7[l].errR;
   }
@@ -509,4 +518,24 @@ void EtaVsPi0(){
   c1->SaveAs("EtaPi0_vs_pt.png");
   cout<<"complete";
   return;
+}
+
+double ErrorBuilder(double ptA, double ratio){
+  vector<double> p0{-8.5783e-01,-7.56435e-01,-3.31386e-01,-6.02905e-01,-4.55275e-01};
+  vector<double> p1{3.70055e-01, 8.25780e-01, 1.83113e+00, 5.98540e-01, 1.27055e+00};
+  double test=0;
+  double comp=0;
+  double error=0;
+
+  cout<<"1"<<endl;
+  for (int i=0;i<5;i++){
+    cout<<"2."<<i<<endl;
+    test=exp((p0[i])-(p1[i])/ptA);
+    comp=abs(test-ratio);
+    cout<<"3."<<i<<endl;
+    if (comp>=error){
+      error=test;
+    }
+  }
+  return error;
 }
