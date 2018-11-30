@@ -207,7 +207,7 @@ void EtaVsPi0(){
   rsize=r;
   for(r=0;r<rsize;r++){
       BESDataInclEta.push_back(DataBES());
-      BESDataInclEta[r].evp=Eta[r].pTSpec/pi0[r].pTSpec;//BUG not matched to pt bins!!
+      BESDataInclEta[r].evp=Eta[r].pTSpec/pi0[r].pTSpec;
       BESDataInclEta[r].pt=.5*(Eta[r].pTl+Eta[r].pTh);
       BESDataInclEta[r].errR=0;//TODO
       BESDataInclEta[r].errPt=0;//TODO
@@ -287,7 +287,7 @@ void EtaVsPi0(){
   x7[0]=0;
   x7[1]=11.5;
   y7[0]=0;
-  y7[1]=1.2;
+  y7[1]=1;
   TGraph* gr7=new TGraph(n6,x7,y7);
     gr7->SetTitle("Eta/Pi0 Ratio at   snn=200; pT; Eta/Pi0");
     gr7->SetMarkerStyle(27);
@@ -532,6 +532,53 @@ void EtaVsPi0(){
   gr12->GetFunction("expo2")->SetLineWidth(1);
   cout<<"==================================================================="<<endl;
   c1->SaveAs("EtaPi0_vs_pt.png");
+  TCanvas *c2 = new TCanvas("c2","results",200,10,700,500);
+
+  TLegend* legend2=new TLegend(.13,.6,.35,.9);
+    legend2->SetTextFont(72);
+    legend2->SetTextSize(.03);
+    legend2->SetFillColor(0);
+
+  x7[0]=0;
+  x7[1]=2.1;
+  y7[0]=0;
+  y7[1]=0.59;
+  TGraph* gr13=new TGraph(n6,x7,y7);
+    gr13->SetTitle("Eta/Pi0 Ratio at   snn=200; pT; Eta/Pi0");
+    gr13->SetMarkerStyle(27);
+    gr13->SetMarkerSize(0);
+    gr13->SetMarkerColor(kBlack);
+    gr13->Draw("Ap");
+
+  gr8->SetMarkerStyle(22);
+  gr8->SetMarkerSize(1);
+  gr8->SetMarkerColor(kRed);
+  gr9->SetMarkerStyle(27);
+  gr9->SetMarkerSize(1);
+  gr9->SetMarkerColor(kOrange);
+  gr10->SetMarkerStyle(28);
+  gr10->SetMarkerSize(1);
+  gr10->SetMarkerColor(kBlue);
+  gr11->SetMarkerStyle(20);
+  gr11->SetMarkerSize(1);
+  gr11->SetMarkerColor(kViolet);
+  gr12->SetMarkerStyle(21);
+  gr12->SetMarkerSize(1);
+  gr12->SetMarkerColor(kBlack);
+
+  gr8->Draw("P");
+  gr9->Draw("P");
+  gr10->Draw("P");
+  gr11->Draw("P");
+  gr12->Draw("P");
+  legend2->AddEntry(gr8,"Au+Au BES 7.7","p");
+  legend2->AddEntry(gr9,"Au+Au BES 11.5","p");
+  legend2->AddEntry(gr10,"Au+Au BES 19.6","p");
+  legend2->AddEntry(gr11,"Au+Au BES 27","p");
+  legend2->AddEntry(gr12,"Au+Au BES 39","p");
+  legend2->Draw();
+  c2->Update();
+  c2->SaveAs("EtaPi0_vs_pt_r.png");
   cout<<"complete";
   return;
 }

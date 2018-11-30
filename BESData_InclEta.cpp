@@ -175,6 +175,9 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
   double h;
   double a = -.455275;
   double b = 1.27055;
+  vector<double> p0{-.85783,-.756435,-.331386,-.602905,-.455275};
+  vector<double> p1{.370055, .825780, 1.83113, .598540, 1.27055};
+  vector<double> s0{0,0,0,0,0};
   double scale;
   double parameter;
   Bin pi0;
@@ -201,8 +204,11 @@ void EtaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& Eta){
       //  break;
       //}
       pT=vect1[i][j].Dat.pTl;
-      parameter= a-(b/pT);
-      scale=exp(parameter);
+      for (int k=0;k<5;k++){
+        parameter= p0[k]-(p1[k]/pT);
+        s0[k]=exp(parameter);
+      }
+      scale=(s0[0]+s0[1]+s0[2]+s0[3]+s0[4])/5;
       cout<<"Scale factor: "<<scale<<endl;
       n.Dat.pTl=vect1[i][j].Dat.pTl;
       n.Dat.pTh=vect1[i][j].Dat.pTh;
