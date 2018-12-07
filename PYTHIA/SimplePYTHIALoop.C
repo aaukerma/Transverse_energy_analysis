@@ -136,7 +136,13 @@ TH3F *CreateParentHistogram(char *name){
 TH2F *CreateEnergyHistogram(char *name,Int_t nEvents){
   TH2F *histo = new TH2F(name,name,1000,0,2,nEvents,0,nEvents);
   histo->GetYaxis()->SetTitle("number of entries");
-  histo->GetXaxis()->SetTitle("Energy_Tpart/ETAll");
+  histo->GetXaxis()->SetTitle("Energy_Tpart");
+  return histo;
+}
+TH1F *CreateEnergy1Histogram(char *name,Int_t nEvents){
+  TH1F *histo = new TH1F(name,name,10000,0,15);
+  histo->GetYaxis()->SetTitle("number of entries");
+  histo->GetXaxis()->SetTitle("Energy_Tpart");
   return histo;
 }
 TH3F *CreateEventHistogram(char *name,Int_t nEvents){
@@ -408,20 +414,25 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     //TH3F *hKAssocCorrelations = CreateHistogram("hKAssocCorrelations");
     //TH1F *hKTriggers = CreateTriggerHistogram("hKTriggers");
 
-    TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
+    //TH1F *hSPALL =CreateSpeciesHistogram("hSPALL",19804440,-9902220,9902220);
+/*
     TH3F *hPar = CreateParentHistogram("hPar");
     TH2F *hEnergy = CreateEnergyHistogram("hEnergy",nEvents);
     TH2F *hETAll = CreateEnergyHistogram("hETAll",nEvents);
     TH2F *hETpip = CreateEnergyHistogram("h ET_Pi+",nEvents);
     TH2F *hETpim = CreateEnergyHistogram("h ET_Pi-",nEvents);
+    */
     TH2F *hETpi0 = CreateEnergyHistogram("h ET_Pi0",nEvents);
+    /*
     TH2F *hETKp = CreateEnergyHistogram("h ET_K+",nEvents);
     TH2F *hETKm = CreateEnergyHistogram("h ET_K-",nEvents);
     TH2F *hETK0 = CreateEnergyHistogram("h ET_K0",nEvents);
     TH2F *hETKL = CreateEnergyHistogram("h ET_KL",nEvents);
     TH2F *hETKS = CreateEnergyHistogram("h ET_KS",nEvents);
     TH2F *hETEta = CreateEnergyHistogram("h ET_Eta",nEvents);
+    */
     TH2F *hETOmega = CreateEnergyHistogram("h ET_omega",nEvents);
+    /*
     TH2F *hETOmegaP = CreateEnergyHistogram("h ET_Omega+",nEvents);
     TH2F *hETOmegaM = CreateEnergyHistogram("h ET_Omega-",nEvents);
     TH2F *hETLambda0 = CreateEnergyHistogram("h ET_Lambda0",nEvents);
@@ -447,8 +458,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     TH2F *hETmu_ = CreateEnergyHistogram("h ET_muBar",nEvents);
     TH2F *hETe = CreateEnergyHistogram("h ET_e",nEvents);
     TH2F *hETe_ = CreateEnergyHistogram("h ET_eBar",nEvents);
-    TH2F *homegaVSpi0 = CreateEnergyHistogram("h ET_omega/pi0",nEvents);
-    TH3F *hEve = CreateEventHistogram("hEve",nEvents);
+    */
+    TH1F *homegaVSpi0 = CreateEnergy1Histogram("h ET_omega/pi0",nEvents);
+    //TH3F *hEve = CreateEventHistogram("hEve",nEvents);
     THStack hs("hs","test");
 
 //NOTE: VERY IMPORTANT
@@ -521,6 +533,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t ETpip=0;
     Double_t ETpim=0;
     Double_t ETpi0=0;
+    Double_t ptpi0=0;
     Double_t ETKp=0;
     Double_t ETKm=0;
     Double_t ETK0=0;
@@ -528,6 +541,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     Double_t ETKS=0;
     Double_t ETEta=0;
     Double_t ETOmega=0; //THIS IS omega not Omega
+    Double_t ptome=0;
     Double_t ETOmegaP=0;
     Double_t ETOmegaM=0;
     Double_t ETLambda0=0;
@@ -682,6 +696,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     ETpi0+=partE;
     ETAll+=partE;
     cpi0++;
+    ptpi0+=p_tot;
   }}
   if (Ckf==60){ //K+
     if (mpartD==0){//counted if final particle
@@ -716,6 +731,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     ETOmega+=partE;
     ETAll+=partE;
     cOmega++;
+    ptome+=p_tot;
   }
   if (Ckf==-162){ // Omega+
     if (((mpL>=100)||(mpartD==0))&&(mpartD!=3122)&&(mpartD!=-3122)){ //included if: 1cm lifetime, final state particle, and does not produce a lambda0 or antilambda0
@@ -855,7 +871,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
         mpartPKF=mpartPKF*(-1);
       }
       mpartPKFCON=GetKFConversion(mpartPKF,partname);
-      hPar->Fill(mpartKFCON,mpartPKFCON,mpartP);
+    //  hPar->Fill(mpartKFCON,mpartPKFCON,mpartP);
     }
     //cout<<mpartKF<<endl;
 	  //Int_t mpartPDG  = MPart->GetPdgCode();
@@ -864,7 +880,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 	  //if(MPart->GetPDG())cout<<" code "<<MPart->GetPDG()->PdgCode();
 	  //cout<<endl;
     //cout<<mpartKF<<"\t "<<mpartP<<"\t "<<mpartPKF<<"\t "<<mpartE<<endl;
-    hSPALL->Fill(mpartKF);
+    //hSPALL->Fill(mpartKF);
 
 	  if(mpart==kshort && nK0Trig<maxNtrig){//K0S
 	    k0TrigPt[0][nK0Trig] = pt;
@@ -1059,6 +1075,18 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       }
       Double_t omegaET=0;
       Double_t pi0ET=0;
+      Double_t pi0pt=0;
+      Double_t omept=0;
+      Double_t ptomevptpi0=0;
+      if ((ETpi0!=0)&&(ETOmega!=0)){
+        hETpi0->Fill(ETpi0,cpi0);
+        hETOmega->Fill(ETOmega,cOmega);
+        pi0pt=ptpi0/cpi0;
+        omept=ptome/cOmega;
+        ptomevptpi0=(omept)/(pi0pt);
+        homegaVSpi0->Fill(ptomevptpi0);
+      }
+      /*
       hETAll->Fill(ETAll,cpip);
       //cout<<"TOTAL: "<<ETAll<<endl;
       if (ETpip!=0){
@@ -1201,7 +1229,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
       pETe_=ETe_/ETAll;
       hETe_->Fill(pETe_,ce_);
         //cout<<"eBAR "<<ETe_<<endl;
-      }
+      }*/
 
   }/*
   Double_t ETAll=0;
@@ -1212,9 +1240,10 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   Double_t ETKm=0;
   Double_t ETK0=0;
   Double_t ETKL=0;
-  Double_t ETKS=0;
-  Double_t ETEta=0;*/
-  Double_t ETOmega=0; //THIS IS omega not Omega
+  Double_t ETKS=0;*/
+  Double_t ETEta=0;
+  Double_t ETOmega=0;
+  Double_t ptmean=0; //THIS IS omega not Omega
   /*Double_t ETOmegaP=0;
   Double_t ETOmegaM=0;
   Double_t ETLambda0=0;
@@ -1253,8 +1282,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     ETKm=hETKm->GetMean();
     ETK0=hETK0->GetMean();
     ETKL=hETKL->GetMean();
-    ETKS=hETKS->GetMean();
-    ETEta=hETEta->GetMean();*/
+    ETKS=hETKS->GetMean();*/
+    //ETEta=hETEta->GetMean();
     ETOmega=hETOmega->GetMean();
     /*ETOmegaM=hETOmegaM->GetMean();
     ETOmegaP=hETOmegaP->GetMean();
@@ -1274,38 +1303,42 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
     ETe=hETe->GetMean();
     ETe_=hETe_->GetMean();
     */
-    Float_t Ratio=(ETOmega*cOmega)/(ETpi0*cpi0);
+    ptmean=homegaVSpi0->GetMean();
+    //Float_t Ratio=(ETOmega)/(ETpi0);
+    //Float_t Ratio2=(ETEta*cEta)/(ETpi0*cpi0);
     // found average to be .889669
-    cout<<"ET omega to pion0 :"<<Ratio<<endl;
-    hETAll->Write();
-    hETpip->Write();
-    hETpim->Write();
+    //cout<<"ET Eta to Pi0 :"<<Ratio2<<endl;
+    cout<<"PT Omega to Pi0 :"<<ptmean<<endl;
+    //hETAll->Write();
+    //hETpip->Write();
+    //hETpim->Write();
     hETpi0->Write();
-    hETKp->Write();
-    hETKm->Write();
-    hETKL->Write();
-    hETKS->Write();
-    hETEta->Write();
+    //hETKp->Write();
+    //hETKm->Write();
+    //hETKL->Write();
+    //hETKS->Write();
+    //hETEta->Write();
     hETOmega->Write();
-    hETOmegaM->Write();
-    hETOmegaP->Write();
-    hETLambda0->Write();
-    hETLambdaBar0->Write();
-    hETSigmaP->Write();
-    hETSigmaM->Write();
-    hETSigma0->Write();
-    hETXiP->Write();
-    hETXiM->Write();
-    hETXi0->Write();
-    hETgamma->Write();
-    hETp->Write();
-    hETn->Write();
-    hETp_->Write();
-    hETn_->Write();
-    hETmu->Write();
-    hETmu_->Write();
-    hETe->Write();
-    hETe_->Write();
+    homegaVSpi0->Write();
+    //hETOmegaM->Write();
+    //hETOmegaP->Write();
+    //hETLambda0->Write();
+    //hETLambdaBar0->Write();
+    //hETSigmaP->Write();
+    //hETSigmaM->Write();
+    //hETSigma0->Write();
+    //hETXiP->Write();
+    //hETXiM->Write();
+    //hETXi0->Write();
+    //hETgamma->Write();
+    //hETp->Write();
+    //hETn->Write();
+    //hETp_->Write();
+    ///hETn_->Write();
+    //hETmu->Write();
+    //hETmu_->Write();
+    //hETe->Write();
+    //hETe_->Write();
 
     //hs.Write();
     //hEve->Write();
