@@ -73,9 +73,9 @@ TH3F *CreateParentHistogram(char *name){
   return histo;
 }
 TH1F *CreateEnergyHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,1000,0,1.1);
-  histo->GetYaxis()->SetTitle("number of entries");
-  histo->GetXaxis()->SetTitle("Energy_Tpart/ETAll");
+  TH1F *histo = new TH1F(name,name,1000,0,40);
+  histo->GetYaxis()->SetTitle("Ratio");
+  histo->GetXaxis()->SetTitle("Et");
   return histo;
 }
 TH2F *CreateEnergyHistogram2(char *name){
@@ -183,6 +183,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
   else if (SNN==19.6){
     modSNN=19;
   }
+  else if (SNN==62.4){
+    modSNN=62;
+  }
   else {
     modSNN=SNN;
   }
@@ -288,6 +291,13 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 
     TH1F *homegaVSpi0 = CreateEnergyHistogram("hETomegaOverpi0");
     TH1F *hEtaVSpi0 = CreateEnergyHistogram("hETEtaOverpi0");
+    TH1F *hETPi0Check1 = CreateEnergyHistogram("hETPi0Check1");
+    TH1F *hETPi0Check2 = CreateEnergyHistogram("hETPi0Check2");
+    TH1F *hETK0LCheck = CreateEnergyHistogram("hETK0LCheck");
+    TH1F *hETK0SCheck = CreateEnergyHistogram("hETK0SCheck");
+    TH1F *hETKMCheck = CreateEnergyHistogram("hETKMCheck");
+    TH1F *hETpCheck = CreateEnergyHistogram("hETpCheck");
+    TH1F *hETpbarCheck = CreateEnergyHistogram("hETpbarCheck");
 
 
     TH1F *hPTAll = CreatePTHistogram("hPTAll");
@@ -686,7 +696,7 @@ hET<particleName> xaxis is ET particle/ Total ET
       //cout<<"TOTAL: "<<ETAll<<endl;
       if (ETpip!=0){
       pETpip=ETpip/ETAll;
-      hETpip->Fill(pETpip);
+      hETpip->Fill(ETpip);
       hPTpip->Fill(PTpip);
       hpipetpt->Fill(PTpip,ETpip); //for test purposes
 
@@ -694,90 +704,90 @@ hET<particleName> xaxis is ET particle/ Total ET
       }
       if (ETpim!=0){
       pETpim=ETpim/ETAll;
-      hETpim->Fill(pETpim);
+      hETpim->Fill(ETpim);
       hPTpim->Fill(PTpim);
       hpimetpt->Fill(PTpim,ETpim); //for test purposes
         //cout<<"pim "<<ETpim<<endl;
       }
       if (ETpi0!=0){
       pETpi0=ETpi0/ETAll;
-      hETpi0->Fill(pETpi0);
+      hETpi0->Fill(ETpi0);
       hPTpi0->Fill(PTpi0);
       hpi0etpt->Fill(PTpi0,ETpi0); //for test purposes
         //cout<<"pi0 "<<ETpi0<<endl;
       }
       if (ETKp!=0){
       pETKp=ETKp/ETAll;
-      hETKp->Fill(pETKp);
+      hETKp->Fill(ETKp);
       hPTKp->Fill(PTKp);
         //cout<<"Kp "<<ETKp<<endl;
       }
       if (ETKm!=0){
       pETKm=ETKm/ETAll;
-      hETKm->Fill(pETKm);
+      hETKm->Fill(ETKm);
       hPTKm->Fill(PTKm);
         //cout<<"Kp "<<ETKp<<endl;
       }
       if (ETKL!=0){
       pETKL=ETKL/ETAll;
-      hETKL->Fill(pETKL);
+      hETKL->Fill(ETKL);
       hPTKL->Fill(PTKL);
         //cout<<"KL "<<ETKL<<endl;
       }
       if (ETKS!=0){
       pETKS=ETKS/ETAll;
-      hETKS->Fill(pETKS);
+      hETKS->Fill(ETKS);
       hPTKS->Fill(PTKS);
         //cout<<"KS "<<ETKS<<endl;
       }
       if (ETEta!=0){
       pETEta=ETEta/ETAll;
-      hETEta->Fill(pETEta);
+      hETEta->Fill(ETEta);
       hPTEta->Fill(PTEta);
         //cout<<"Eta "<<ETEta<<endl;
       }
       if (ETOmega!=0){
       pETOmega=ETOmega/ETAll;
-      hETOmega->Fill(pETOmega);
+      hETOmega->Fill(ETOmega);
       hPTOmega->Fill(PTOmega);
         //cout<<"Omega "<<ETOmega<<endl;
       }
       if (ETLambda0!=0){
       pETLambda0=ETLambda0/ETAll;
-      hETLambda0->Fill(pETLambda0);
+      hETLambda0->Fill(ETLambda0);
       hPTLambda0->Fill(PTLambda0);
         //cout<<"Lambda0 "<<ETLambda0<<endl;
       }
       if (ETLambdaBar0!=0){
       pETLambdaBar0=ETLambdaBar0/ETAll;
-      hETLambdaBar0->Fill(pETLambdaBar0);
+      hETLambdaBar0->Fill(ETLambdaBar0);
       hPTLambdaBar0->Fill(PTLambdaBar0);
         //cout<<"Lambda0 "<<ETLambda0<<endl;
       }
       if (ETp!=0){
       pETp=ETp/ETAll;
-      hETp->Fill(pETp);
+      hETp->Fill(ETp);
       hPTp->Fill(PTp);
       hpetpt->Fill(PTp,ETp);
         //cout<<"p "<<ETp<<endl;
       }
       if (ETn!=0){
       pETn=ETn/ETAll;
-      hETn->Fill(pETn);
+      hETn->Fill(ETn);
       hPTn->Fill(PTn);
       hnetpt->Fill(PTn,ETn);
         //cout<<"n "<<ETn<<endl;
       }
       if (ETp_!=0){
       pETp_=ETp_/ETAll;
-      hETp_->Fill(pETp_);
+      hETp_->Fill(ETp_);
       hPTp_->Fill(PTp_);
       hpBARetpt->Fill(PTp_,ETp_);
         //cout<<"p "<<ETp<<endl;
       }
       if (ETn_!=0){
       pETn_=ETn_/ETAll;
-      hETn_->Fill(pETn_);
+      hETn_->Fill(ETn_);
       hPTn_->Fill(PTn_);
       hnBARetpt->Fill(PTn_,ETn_);
         //cout<<"n "<<ETn<<endl;
@@ -853,6 +863,7 @@ K+=K-=KL=KS
 p=n
 pbar=nbar
 ************************************************************/
+/*
     hpipetpt->Add(hpipetpt,hpimetpt,.5,.5);
     hpi0check->Divide(hpi0etpt,hpipetpt);
     hpi0check->Write();
@@ -862,8 +873,25 @@ pbar=nbar
 
     hpbarnbarcheck->Divide(hpBARetpt,hnBARetpt);
     hpbarnbarcheck->Write();
+*/
+    hETPi0Check2->Add(hETpip,hETpim,.5,.5);
+    hETPi0Check1->Divide(hETPi0Check2,hETpi0);
+    hETPi0Check1->Write();
 
+    hETK0LCheck->Divide(hETKp,hETKL);
+    hETK0LCheck->Write();
 
+    hETK0SCheck->Divide(hETKp,hETKS);
+    hETK0SCheck->Write();
+
+    hETKMCheck->Divide(hETKp,hETKm);
+    hETKMCheck->Write();
+
+    hETpCheck->Divide(hETp,hETn);
+    hETpCheck->Write();
+
+    hETpbarCheck->Divide(hETp_,hETn_);
+    hETpbarCheck->Write();
 
     hETAll->Write();
     hETChOverAll->Write();
