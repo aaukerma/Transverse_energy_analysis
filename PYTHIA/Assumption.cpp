@@ -88,7 +88,7 @@ int Assumption(){
 
       //Double_t TEMP = hNEvents->GetBinContent(hNEvents->FindBin(0));
       cout<<"line 91."<<x<<endl;
-      printf("hNEvents %h",hNEvents);
+      cout<<hNEvents<<endl;
       //DUMP<<"Bin Contents: "<<TEMP<<endl;
       cout<<endl;
     //}
