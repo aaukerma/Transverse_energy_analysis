@@ -1,8 +1,8 @@
 /******************************************************************************
-This program takes specified output runs and makes graphs to show the validity
-of the assumptions made. These assumptions include the pion0 assumption, the
-kaon0 (long and short) assumptions, the neutron and antineutron assumptions,
-as well as the eta and omega assumptions.
+This program takes specified output runs and creates corresponding raw
+data file "PythiaData.txt". This file contains the histogram data from
+Pythia runs from 7.7GeV to 14TeV in array from. Errors not included at
+this time. TODO: include error.
 
 File outputs: ETBinContent, ETBinLowEdge, PTBinContent, PTBinLowEdge
 ******************************************************************************/
@@ -35,13 +35,11 @@ int Assumption(){
   Int_t IDNUM=1;
   string a = "=======================================";
   string b = "---------------------------------------";
-  char* filename = Form("hhAnalysisOfRun%i",IDNUM);
   vector<Int_t> SNN {7,11,19,27,39,62,130,200,900,2760,5020,7000,8000,13000,14000};
   vector<double> SNNACTUAL {7.7,11.6,19.6,27,39,62.4,130,200,900,2760,5020,7000,8000,13000,14000};
   BIN datum;
   Data set;
 
-  TFile* file = TFile::Open(filename, "RECREATE");
   ofstream DUMP;
   DUMP.open("./PythiaData.txt");
   DUMP<<"Pythia Data"<<endl<<"run number: "<<IDNUM<<endl;
