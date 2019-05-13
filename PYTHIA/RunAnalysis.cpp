@@ -508,9 +508,9 @@ cout<<"input complete"<<endl<<endl;
 Start graphing portion
 *******************************************************************************/
 cout<<"preparing all charts"<<endl<<endl;
-TCanvas *c0 =new TCanvas("c0","Total",200,10,700,500);
+//TCanvas *c0 =new TCanvas("c0","Total",200,10,700,500);
 
-Int_t n=15;
+Int_t n=8;
 Double_t x[n],y[n],ex[n],ey[n];
 Double_t THINGY;
 
@@ -519,22 +519,26 @@ TLegend* legend=new TLegend(.127507,.8,.256447,.896842);
     legend->SetTextSize(.03);
     legend->SetFillColor(0);
 
-TLegend* legend2=new TLegend(.126074,.8,.338109,.896842);
+TLegend* legend2=new TLegend(.719092,.115278,.895931,.256944);
     legend2->SetTextFont(72);
     legend2->SetTextSize(.03);
     legend2->SetFillColor(0);
 
-TLegend* legend3=new TLegend(.787966,.709474,.895415,.892632);
+TLegend* legend3=new TLegend(.712833,.709722,.895149,.893056);
     legend3->SetTextFont(72);
     legend3->SetTextSize(.03);
     legend3->SetFillColor(0);
 
-TLegend* legend4=new TLegend(.777937,.741053,.896848,.898947);
+TLegend* legend4=new TLegend(.743349,.781944,.897496,.895833);
     legend4->SetTextFont(72);
     legend4->SetTextSize(.03);
     legend4->SetFillColor(0);
 
-
+TLegend* legend5=new TLegend(.103286,.784722,.322379,.893056);
+    legend5->SetTextFont(72);
+    legend5->SetTextSize(.03);
+    legend5->SetFillColor(0);
+/*
 //Total
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
@@ -1064,12 +1068,27 @@ c15->SetLogx();
 c15->Update();
 char* file15= Form("neutronBar_Run%i.png",IDNUM);
 c15->SaveAs(file15);
-
+*/
 cout<<"plotting comparisions"<<endl;
 Double_t blarg;
 
 //pi0 test
-TCanvas *c16 =new TCanvas("c16","pi0 check",200,10,700,500);
+/******************************************************************************
+The following are the checks required our assumptions.
+The following applies to all charts that follow:
+
+colors:
+Black = pions
+Blue = kaons
+Red = p/n
+
+markers:
+Circle = neutral over charged
+
+Observe the different versions of markers and their purpose
+******************************************************************************/
+//pi
+TCanvas *c16 =new TCanvas("c16","pi0 check",0,645,1280,745);
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
   blarg=((Stuff[i][0][1].average+Stuff[i][0][2].average)/2)/(Stuff[i][0][3].average);
@@ -1080,21 +1099,82 @@ for (Int_t i=0;i<n;i++){
   ey[i]=blarg/sqrt(THINGY);
 }
 TGraphErrors* gc1=new TGraphErrors(n,x,y,ex,ey);
-  gc1->SetTitle("Pi0 check (ET); SNN(GeV); (GeV)");
+  gc1->SetTitle("Pi0 check (ET); SNN(GeV); Ratio");
   gc1->SetMarkerStyle(20);
-  gc1->SetMarkerSize(1);
-  gc1->SetMarkerColor(kRed);
-  gc1->SetLineColor(kRed);
+  gc1->SetMarkerSize(1.5);
+  gc1->SetMarkerColor(kBlack);
+  gc1->SetLineColor(kBlack);
   legend2->AddEntry(gc1,"Mean(Pi+,Pi-)/Pi0","p");
-  gc1->Draw("APL");
+  gc1->Draw("AP");
+  gc1->GetXaxis()->SetLimits(6,300);
+  gc1->GetYaxis()->SetRangeUser(.5,2.5);
+  gc1->Draw("AP");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.033;
+  blarg=(Stuff[i][0][1].average)/(Stuff[i][0][3].average);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=(Stuff[i][0][1].stddev)/(Stuff[i][0][3].stddev);
+  THINGY=Stuff[i][0][1].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc10=new TGraphErrors(n,x,y,ex,ey);
+  gc10->SetMarkerStyle(41);
+  gc10->SetMarkerSize(1.5);
+  gc10->SetMarkerColor(kBlack);
+  gc10->SetLineColor(kBlack);
+  legend2->AddEntry(gc10,"Pi+/Pi0","p");
+  gc10->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  blarg=(Stuff[i][0][2].average)/(Stuff[i][0][3].average);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=(Stuff[i][0][2].stddev)/(Stuff[i][0][3].stddev);
+  THINGY=Stuff[i][0][2].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc15=new TGraphErrors(n,x,y,ex,ey);
+  gc15->SetMarkerStyle(22);
+  gc15->SetMarkerSize(1.5);
+  gc15->SetMarkerColor(kBlack);
+  gc15->SetLineColor(kBlack);
+  legend2->AddEntry(gc15,"Pi-/Pi0","p");
+  gc15->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.1;
+  blarg=(Stuff[i][0][1].average+Stuff[i][0][2].average)/(Stuff[i][0][3].average);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=(Stuff[i][0][1].stddev+Stuff[i][0][2].stddev)/(Stuff[i][0][3].stddev);
+  THINGY=Stuff[i][0][1].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc16=new TGraphErrors(n,x,y,ex,ey);
+  gc16->SetMarkerStyle(21);
+  gc16->SetMarkerSize(1.5);
+  gc16->SetMarkerColor(kBlack);
+  gc16->SetLineColor(kBlack);
+  legend2->AddEntry(gc16,"Pi+,pi-/Pi0","p");
+  gc16->Draw("P");
   legend2->Draw();
+
+Int_t n1=3;
+Int_t x1[3]={0,100,15000};
+Int_t y1[3]={1,1,1};
+TGraph* gl=new TGraph(n1,x1,y1);
+  gl->SetLineColor(kBlack);
+  gl->Draw("L");
 c16->SetLogx();
 c16->Update();
 char* file16= Form("Pi0Check_Run%i.png",IDNUM);
 c16->SaveAs(file16);
 
 //kaon check
-TCanvas *c17 =new TCanvas("c17","kaon checks",200,10,700,500);
+TCanvas *c17 =new TCanvas("c17","kaon checks",0,645,1280,745);
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
   y[i]=(Stuff[i][0][4].average)/(Stuff[i][0][5].average);
@@ -1103,96 +1183,85 @@ for (Int_t i=0;i<n;i++){
   ey[i]=((Stuff[i][0][4].stddev)/(Stuff[i][0][5].stddev))/sqrt(THINGY);
 }
 TGraphErrors* gc2=new TGraphErrors(n,x,y,ex,ey);
-  gc2->SetTitle("Kaon Checks avg; SNN(GeV); (GeV)");
-  gc2->SetMarkerStyle(20);
-  gc2->SetMarkerSize(1);
-  gc2->SetMarkerColor(kRed);
-  gc2->SetLineColor(kRed);
+  gc2->SetTitle("Kaon Checks avg; SNN(GeV); Ratio");
+  gc2->SetMarkerStyle(22);
+  gc2->SetMarkerSize(1.5);
+  gc2->SetMarkerColor(kBlue);
+  gc2->SetLineColor(kBlack);
   legend3->AddEntry(gc2,"K+/K-","p");
-  gc2->Draw("APL");
+  gc2->Draw("AP");
+  gc2->GetXaxis()->SetLimits(6,300);
+  gc2->GetYaxis()->SetRangeUser(.5,1.5);
+  gc2->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
+  x[i]=SNNACTUAL[i]*1.033;
   y[i]=(Stuff[i][0][4].average)/(Stuff[i][0][6].average);
   ex[i]=0;
   THINGY=Stuff[i][0][4].entries;
   ey[i]=((Stuff[i][0][4].stddev)/(Stuff[i][0][6].stddev))/sqrt(THINGY);
 }
 TGraphErrors* gc3=new TGraphErrors(n,x,y,ex,ey);
-  gc3->SetMarkerStyle(20);
-  gc3->SetMarkerSize(1);
-  gc3->SetMarkerColor(kGreen);
-  gc3->SetLineColor(kGreen);
+  gc3->SetMarkerStyle(21);
+  gc3->SetMarkerSize(1.5);
+  gc3->SetMarkerColor(kBlue);
+  gc3->SetLineColor(kBlack);
   legend3->AddEntry(gc3,"K+/K0L","p");
-  gc3->Draw("LP");
+  gc3->Draw("P");
 
 for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
+  x[i]=SNNACTUAL[i]*1.066;
   y[i]=(Stuff[i][0][4].average)/(Stuff[i][0][7].average);
   ex[i]=0;
   THINGY=Stuff[i][0][4].entries;
   ey[i]=((Stuff[i][0][4].stddev)/(Stuff[i][0][7].stddev))/sqrt(THINGY);
 }
 TGraphErrors* gc4=new TGraphErrors(n,x,y,ex,ey);
-  gc4->SetMarkerStyle(20);
-  gc4->SetMarkerSize(1);
-  gc4->SetMarkerColor(kViolet);
-  gc4->SetLineColor(kViolet);
+  gc4->SetMarkerStyle(33);
+  gc4->SetMarkerSize(2);
+  gc4->SetMarkerColor(kBlue);
+  gc4->SetLineColor(kBlack);
   legend3->AddEntry(gc4,"K+/K0S","p");
-  gc4->Draw("LP");
+  gc4->Draw("P");
 
 for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
-  y[i]=(Stuff[i][0][5].average)/(Stuff[i][0][6].average);
+  x[i]=SNNACTUAL[i]*1.1;
+  y[i]=(Stuff[i][0][4].average+Stuff[i][0][5].average)/(Stuff[i][0][6].average+Stuff[i][0][7].average);
   ex[i]=0;
   THINGY=Stuff[i][0][5].entries;
-  ey[i]=((Stuff[i][0][5].stddev)/(Stuff[i][0][6].stddev))/sqrt(THINGY);
+  ey[i]=((Stuff[i][0][4].stddev+Stuff[i][0][5].stddev)/(Stuff[i][0][6].stddev+Stuff[i][0][7].stddev))/sqrt(THINGY);
 }
 TGraphErrors* gc5=new TGraphErrors(n,x,y,ex,ey);
   gc5->SetMarkerStyle(20);
-  gc5->SetMarkerSize(1);
-  gc5->SetMarkerColor(kBlack);
+  gc5->SetMarkerSize(1.5);
+  gc5->SetMarkerColor(kBlue);
   gc5->SetLineColor(kBlack);
-  legend3->AddEntry(gc5,"K-/K0L","p");
-  gc5->Draw("LP");
+  legend3->AddEntry(gc5,"Kp+Km/K0L+K0S","p");
+  gc5->Draw("P");
 
 for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
-  y[i]=(Stuff[i][0][5].average)/(Stuff[i][0][7].average);
-  ex[i]=0;
-  THINGY=Stuff[i][0][5].entries;
-  ey[i]=((Stuff[i][0][5].stddev)/(Stuff[i][0][7].stddev))/sqrt(THINGY);
-}
-TGraphErrors* gc6=new TGraphErrors(n,x,y,ex,ey);
-  gc6->SetMarkerStyle(20);
-  gc6->SetMarkerSize(1);
-  gc6->SetMarkerColor(kOrange);
-  gc6->SetLineColor(kOrange);
-  legend3->AddEntry(gc6,"K-/K0S","p");
-  gc6->Draw("PL");
-
-for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
+  x[i]=SNNACTUAL[i]*1.133;
   y[i]=(Stuff[i][0][6].average)/(Stuff[i][0][7].average);
   ex[i]=0;
   THINGY=Stuff[i][0][6].entries;
   ey[i]=((Stuff[i][0][6].stddev)/(Stuff[i][0][7].stddev))/sqrt(THINGY);
 }
 TGraphErrors* gc7=new TGraphErrors(n,x,y,ex,ey);
-  gc7->SetMarkerStyle(20);
-  gc7->SetMarkerSize(1);
+  gc7->SetMarkerStyle(41);
+  gc7->SetMarkerSize(1.5);
   gc7->SetMarkerColor(kBlue);
-  gc7->SetLineColor(kBlue);
+  gc7->SetLineColor(kBlack);
   legend3->AddEntry(gc7,"K0L/K0S","p");
-  gc7->Draw("PL");
+  gc7->Draw("P");
   legend3->Draw();
+gl->Draw("L");
 c17->SetLogx();
 c17->Update();
 char* file17= Form("KaonChecks_Run%i.png",IDNUM);
 c17->SaveAs(file17);
 
 //pi0 test
-TCanvas *c18 =new TCanvas("c18","p-n checks",200,10,700,500);
+TCanvas *c18 =new TCanvas("c18","p-n checks",0,645,1280,745);
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
   blarg=((Stuff[i][0][12].average)/(Stuff[i][0][13].average));
@@ -1203,16 +1272,19 @@ for (Int_t i=0;i<n;i++){
   ey[i]=blarg/sqrt(THINGY);
 }
 TGraphErrors* gc8=new TGraphErrors(n,x,y,ex,ey);
-  gc8->SetTitle("Proton and Neutron Checks; SNN(GeV); (GeV)");
-  gc8->SetMarkerStyle(20);
-  gc8->SetMarkerSize(1);
+  gc8->SetTitle("Proton and Neutron Checks; SNN(GeV); Ratio");
+  gc8->SetMarkerStyle(22);
+  gc8->SetMarkerSize(1.5);
   gc8->SetMarkerColor(kRed);
-  gc8->SetLineColor(kRed);
+  gc8->SetLineColor(kBlack);
   legend4->AddEntry(gc8,"p/n","p");
-  gc8->Draw("APL");
+  gc8->Draw("AP");
+  gc8->GetXaxis()->SetLimits(6,300);
+  gc8->GetYaxis()->SetRangeUser(.5,1.5);
+  gc8->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
-  x[i]=SNNACTUAL[i];
+  x[i]=SNNACTUAL[i]*1.033;
   blarg=((Stuff[i][0][14].average)/(Stuff[i][0][15].average));
   y[i]=blarg;
   ex[i]=0;
@@ -1221,17 +1293,97 @@ for (Int_t i=0;i<n;i++){
   ey[i]=blarg/sqrt(THINGY);
 }
 TGraphErrors* gc9=new TGraphErrors(n,x,y,ex,ey);
-  gc9->SetMarkerStyle(20);
-  gc9->SetMarkerSize(1);
-  gc9->SetMarkerColor(kBlue);
-  gc9->SetLineColor(kBlue);
+  gc9->SetMarkerStyle(41);
+  gc9->SetMarkerSize(1.5);
+  gc9->SetMarkerColor(kRed);
+  gc9->SetLineColor(kBlack);
   legend4->AddEntry(gc9,"pBar/nBar","p");
-  gc9->Draw("LP");
+  gc9->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  blarg=((Stuff[i][0][12].average)/(Stuff[i][0][13].average));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=((Stuff[i][0][12].stddev)/(Stuff[i][0][13].stddev));
+  THINGY=Stuff[i][0][12].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc11=new TGraphErrors(n,x,y,ex,ey);
+  gc11->SetMarkerStyle(20);
+  gc11->SetMarkerSize(1.5);
+  gc11->SetMarkerColor(kRed);
+  gc11->SetLineColor(kBlack);
+  legend4->AddEntry(gc11,"p+pbar/n+nbar","p");
+  gc11->Draw("P");
   legend4->Draw();
+gl->Draw("L");
 c18->SetLogx();
 c18->Update();
 char* file18= Form("pncheck_Run%i.png",IDNUM);
 c18->SaveAs(file18);
+
+//vsALL
+TCanvas *c19 =new TCanvas("c19","Particle Et vs ETAll",0,645,1280,745);
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i];
+  blarg=1/((Stuff[i][0][1].average+Stuff[i][0][2].average+Stuff[i][0][3].average)/(Stuff[i][0][0].average));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=1/((Stuff[i][0][1].stddev+Stuff[i][0][2].stddev+Stuff[i][0][3].stddev)/(Stuff[i][0][0].stddev));
+  THINGY=Stuff[i][0][1].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc12=new TGraphErrors(n,x,y,ex,ey);
+  gc12->SetTitle("Species ET vs All; SNN(GeV); Ratio");
+  gc12->SetMarkerStyle(23);
+  gc12->SetMarkerSize(1.5);
+  gc12->SetMarkerColor(kBlack);
+  gc12->SetLineColor(kBlack);
+  legend5->AddEntry(gc12,"Pion","p");
+  gc12->SetMinimum(0);
+  gc12->SetMaximum(1.2);
+  gc12->Draw("AP");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.033;
+  blarg=1/((Stuff[i][0][4].average+Stuff[i][0][5].average+Stuff[i][0][6].average+Stuff[i][0][7].average)/(Stuff[i][0][0].average));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=1/((Stuff[i][0][4].stddev+Stuff[i][0][5].stddev+Stuff[i][0][6].stddev+Stuff[i][0][7].stddev)/(Stuff[i][0][0].stddev));
+  THINGY=Stuff[i][0][1].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc14=new TGraphErrors(n,x,y,ex,ey);
+  gc14->SetMarkerStyle(23);
+  gc14->SetMarkerSize(1.5);
+  gc14->SetMarkerColor(kBlue);
+  gc14->SetLineColor(kBlack);
+  legend5->AddEntry(gc14,"Kaon","p");
+  gc14->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  blarg=1/((Stuff[i][0][12].average+Stuff[i][0][13].average+Stuff[i][0][14].average+Stuff[i][0][15].average)/(Stuff[i][0][0].average));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=1/((Stuff[i][0][12].stddev+Stuff[i][0][13].stddev+Stuff[i][0][14].stddev+Stuff[i][0][15].stddev)/(Stuff[i][0][0].stddev));
+  THINGY=Stuff[i][0][1].entries;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc13=new TGraphErrors(n,x,y,ex,ey);
+  gc13->SetMarkerStyle(23);
+  gc13->SetMarkerSize(1.5);
+  gc13->SetMarkerColor(kRed);
+  gc13->SetLineColor(kBlack);
+  legend5->AddEntry(gc13,"protons and neutrons","p");
+  gc13->Draw("P");
+  legend5->Draw();
+  gl->Draw("L");
+c19->SetLogx();
+c19->Update();
+char* file19= Form("ALLCheck_Run%i.png",IDNUM);
+c19->SaveAs(file19);
 
 cout<<"program complete"<<endl<<endl;
 return 0;
