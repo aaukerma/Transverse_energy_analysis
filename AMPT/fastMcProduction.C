@@ -14,26 +14,26 @@
  *                                                                         *
  ***************************************************************************
      $Satyajit Jena || alien:sjena Sun Apr 21 14:05:19 CEST 2013$
-                                                                          
-       Sterring macro for fast production of MC events - Followed from 
-       the original macro of fastGenAmpt.C     
-     
+
+       Sterring macro for fast production of MC events - Followed from
+       the original macro of fastGenAmpt.C
+
      Implemented Generators: (Version 1.0: Sun Apr 21 14:05:19 CEST 2013)
      ----------------------------------------------------------------
-      kPythia6,            kPythia8,               kPythia6D6T,       
-      kPythiaPerugia0,     kPythia6ATLAS,          
-      kPythiaJets,         
-      kPhojet,                
-      kDPMjet,             kDPMjet_pA, 
+      kPythia6,            kPythia8,               kPythia6D6T,
+      kPythiaPerugia0,     kPythia6ATLAS,
+      kPythiaJets,
+      kPhojet,
+      kDPMjet,             kDPMjet_pA,
       kAmptDefault,        kAmptStringMelting,          kAmptStringMeltingNoART,
       kAmptpA,                kAmptFlow,
       kAmptReducedFlow,
 
-     FIXME: 
-     kPythia6ATLAS_Flat, 
-     kHijing,             kHijing2000,            kHijing_pA,             
+     FIXME:
+     kPythia6ATLAS_Flat,
+     kHijing,             kHijing2000,            kHijing_pA,
 
-                                                                
+
  ***************************************************************************/
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
@@ -81,22 +81,22 @@
 #endif
 
 //___________________________________________________________________________
-enum PDC06Proc_t { 
+enum PDC06Proc_t {
   kPythia6,
-  kPythia8, 
-  kPythia6D6T, 
-  kPythiaPerugia0, 
-  kPythia6ATLAS, 
-  kPythia6ATLAS_Flat, 
+  kPythia8,
+  kPythia6D6T,
+  kPythiaPerugia0,
+  kPythia6ATLAS,
+  kPythia6ATLAS_Flat,
   kPythiaJets,
-  kPhojet, 
-  kHijing, 
-  kHijing2000, 
+  kPhojet,
+  kHijing,
+  kHijing2000,
   kHijing_pA,
-  kDPMjet, 
+  kDPMjet,
   kDPMjet_pA,
   kAmptDefault,
-  kAmpt, 
+  kAmpt,
   kAmptpA,
   kAmptFlowStringMelting,
   kAmptStringMeltingNoART,
@@ -107,23 +107,23 @@ enum PDC06Proc_t {
 
 //___________________________________________________________________________
 const char * pprRunName[] = {
-  "kPythia6", 
+  "kPythia6",
   "kPythia8",
-  "kPythia6D6T", 
-  "kPythiaPerugia0", 
-  "kPythia6ATLAS", 
-  "kPythia6ATLAS_Flat", 
-  "kPythiaJets", 
-  "kPhojet",  
-  "kHijing", 
-  "kHijing2000", 
+  "kPythia6D6T",
+  "kPythiaPerugia0",
+  "kPythia6ATLAS",
+  "kPythia6ATLAS_Flat",
+  "kPythiaJets",
+  "kPhojet",
+  "kHijing",
+  "kHijing2000",
   "kHijing_pA",
-  "kDPMjet", 
-  "kDPMjet_pA", 
+  "kDPMjet",
+  "kDPMjet_pA",
   "kAmpt",
-  "kAmptpA", 
+  "kAmptpA",
   "kAmptFlow",
-  "kAmptReducedFlow"  
+  "kAmptReducedFlow"
 };
 
 enum PprTrigConf_t {kDefaultPPTrig, kDefaultPbPbTrig };
@@ -158,7 +158,7 @@ AliGenerator* AmptStringMeltingNoART();
 // Geterator, field, beam energy
 
 static Double_t    pBeamEnergy = 4000.0;  // Used during pA runs
-//static Double_t  energy  = 2.*pBeamEnergy*TMath::Sqrt(82./208.); //energy in CMS 
+//static Double_t  energy  = 2.*pBeamEnergy*TMath::Sqrt(82./208.); //energy in CMS
 
 static Double_t      energy    = 7000.;
 static PDC06Proc_t   proc      = kAmptDefault;
@@ -171,7 +171,7 @@ static Double_t  JpsiPol      = 0; // Jpsi polarisation
 static Bool_t    JpsiHarderPt = kFALSE; // Jpsi harder pt spectrum (8.8 TeV)
 static TString comment;
 //static PprTrigConf_t strig    = kDefaultPbPbTrig; // default pp trigger configuration
-TDatime dt; 
+TDatime dt;
 static UInt_t seed    = dt.Get();
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -181,33 +181,33 @@ void fastMcProduction(Int_t nev = 300) {
   ProcessEnvironmentVars();
 
   gRandom->SetSeed(seed);
-  cerr<<" Seed for random number generation = "<<seed<<endl; 
-  
+  cerr<<" Seed for random number generation = "<<seed<<endl;
+
 #if defined(__CINT__)
-  gSystem->Load("liblhapdf");  
-  gSystem->Load("libEGPythia6"); 
-  
+  gSystem->Load("liblhapdf");
+  gSystem->Load("libEGPythia6");
+
   if (proc == kPythia6 || proc == kPhojet || proc == kDPMjet || proc==kDPMjet_pA) {
     gSystem->Load("libpythia6");        // Pythia 6.2
     gSystem->Load("libAliPythia6");     // ALICE specific implementations
   }
-    
+
   if (proc == kHijing || proc == kHijing2000 || proc == kHijing_pA ) {
-    gSystem->Load("libHIJING");	
+    gSystem->Load("libHIJING");
     gSystem->Load("libTHijing");
-  } 
-  
+  }
+
   else if ( proc == kDPMjet || proc== kDPMjet_pA ) {
-    gSystem->Load("libDPMJET"); 
+    gSystem->Load("libDPMJET");
     gSystem->Load("libTDPMjet");
-  } 
-  
+  }
+
   else if (proc == kAmptDefault || kAmptFlowStringMelting || proc ==  kAmptStringMeltingNoART || proc == kAmptpA || proc == kAmptReducedFlow) {
-    gSystem->Load("libampt");  
+    gSystem->Load("libampt");
     gSystem->Load("libTAmpt");
     gSystem->Load("libpythia6");
     gSystem->Load("libAliPythia6");
-  } 
+  }
 
   if (proc == kPythia8) {
     gSystem->Load("libpythia8");
@@ -220,78 +220,78 @@ void fastMcProduction(Int_t nev = 300) {
 
 
  AliGenerator* gener = 0x0;
- 
+
  cout<<"Run type set to ------------- "<<pprRunName[proc]<<"   " << proc << "    " << kDPMjet_pA<< endl;
 
  if (proc == kPythia6) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA >>>>>>>>>>>>>>>>>>>>");
    gener = MbPythia();
- } 
- 
+ }
+
  else if (proc == kPythia8) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. Pythia 8 >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. Pythia 8 >>>>>>>>>>>>>>>>>>>>");
    gener = MyPythia8();
- }  
- 
+ }
+
  else if (proc == kPythia6D6T) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA D6T >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA D6T >>>>>>>>>>>>>>>>>>>>");
    gener = MbPythiaTuneD6T();
- } 
+ }
 
  else if (proc == kPythiaPerugia0) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA Perugia0 >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA Perugia0 >>>>>>>>>>>>>>>>>>>>");
    gener = MbPythiaTunePerugia0();
- } 
- 
+ }
+
  else if (proc == kPythia6ATLAS) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA ATLAS>>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA ATLAS>>>>>>>>>>>>>>>>>>>>");
    gener = MbPythiaTuneATLAS();
- } 
- 
+ }
+
  else if (proc == kPythia6ATLAS_Flat) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA ATLAS_FLAT >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PYTHIA ATLAS_FLAT >>>>>>>>>>>>>>>>>>>>");
    gener = MbPythiaTuneATLAS_Flat();
- } 
- 
+ }
+
  else if (proc == kPythiaJets ) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Pythia Jets >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Pythia Jets >>>>>>>>>>>>>>>>>>>>");
    gener = PythiaJets();
- } 
- 
+ }
+
  else if (proc == kPhojet) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PHOJET >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. PHOJET >>>>>>>>>>>>>>>>>>>>");
    gener = MbPhojet();
- } 
+ }
 
  else if (proc == kHijing) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. HIJING >>>>>>>>>>>>>>>>>>>>"); 
-   gener = Hijing();	
- } 
- 
- else if (proc == kHijing2000) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. HIJING 2000 >>>>>>>>>>>>>>>>>>>>"); 
-   gener = Hijing2000();	
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. HIJING >>>>>>>>>>>>>>>>>>>>");
+   gener = Hijing();
  }
- 
+
+ else if (proc == kHijing2000) {
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. HIJING 2000 >>>>>>>>>>>>>>>>>>>>");
+   gener = Hijing2000();
+ }
+
  else if (proc ==kHijing_pA) {
-   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. pA Hijing >>>>>>>>>>>>>>>>>>>>"); 
+   Printf("<<<<<<<<<<<<<<<<<<< Processing Mb. pA Hijing >>>>>>>>>>>>>>>>>>>>");
    gener = Hijing_pA(kTRUE);
- } 
- 
+ }
+
  else if (proc == kDPMjet) {
    Printf("<<<<<<<<<<<<<<<<<<< Processing  DMPJet  >>>>>>>>>>>>>>>>>>>>");
-   gener = DPMjet();	
- } 
+   gener = DPMjet();
+ }
 
  else if (proc == kDPMjet_pA) {
    Printf("<<<<<<<<<<<<<<<<<<< Processing  DMPJet pA >>>>>>>>>>>>>>>>>>>>");
-   gener = DPMjet_pA(kFALSE);	
- } 
- 
+   gener = DPMjet_pA(kFALSE);
+ }
+
  else if (proc == kAmptDefault) {
    Printf("<<<<<<<<<<<<<<<<<<< Processing  AMPT Default >>>>>>>>>>>>>>>>>>>>");
    gener = AmptDefault();
- } 
+ }
 
  else if (proc == kAmptFlowStringMelting) {
      Printf("<<<<<<<<<<<<<<<<<<< Processing  AMPT With Flow  >>>>>>>>>>>>>>>>>>>>");
@@ -306,14 +306,14 @@ void fastMcProduction(Int_t nev = 300) {
  else if (proc == kAmptpA) {
    Printf("<<<<<<<<<<<<<<<<<<< Processing  AMPT pA  >>>>>>>>>>>>>>>>>>>>");
    gener = AmptpA();
- } 
- 
+ }
+
 
  else if (proc == kAmptReducedFlow) {
    // Specific Fastgen
    Printf("<<<<<<<<<<<<<<<<<<< Processing  AMPT With Reduced Flow >>>>>>>>>>>>>>>>>>>>");
    gener = AmptReducedFlow();
- } 
+ }
 
  else {
    cout << "ERROR : Wrong Procss Selcted !!!" << endl;
@@ -323,10 +323,10 @@ void fastMcProduction(Int_t nev = 300) {
 
  AliPDG::AddParticlesToPdgDataBase();
  TDatabasePDG::Instance();
- 
+
  const char* filename = "galice.root";
  AliRunLoader* rl = AliRunLoader::Open(filename,"FASTRUN","recreate");
- 
+
  rl->SetCompressionLevel(2);
  rl->SetNumberOfEventsPerFile(nev);
  rl->LoadKinematics("RECREATE");
@@ -334,9 +334,9 @@ void fastMcProduction(Int_t nev = 300) {
  gAlice->SetRunLoader(rl);
  rl->MakeStack();
  AliStack* stack = rl->Stack();
- 
+
  AliHeader* header = rl->GetHeader();
- 
+
  /*
    Float_t sigmaz  = 5.4 / TMath::Sqrt(2.); // [cm]
    Float_t betast  = 3.5;                      // beta* [m]
@@ -347,13 +347,13 @@ void fastMcProduction(Int_t nev = 300) {
    gener->SetSigma(sigmaxy, sigmaxy, sigmaz);      // Sigma in (X,Y,Z) (cm) on IP position
    gener->SetVertexSmear(kPerEvent);
  */
- 
+
 
  gener->Init();
  gener->SetStack(stack);
- 
+
  rl->CdGAFile();
- 
+
  TStopwatch timer;
  timer.Start();
  for (Int_t iev = 0; iev < nev; iev++) {
@@ -374,7 +374,7 @@ void fastMcProduction(Int_t nev = 300) {
    cout << "Number of particles " << nprim << endl;
    cout << "Number of trials " << ntrial << endl;
    header->SetNprimary(stack->GetNprimary());
-   header->SetNtrack(stack->GetNtrack());  
+   header->SetNtrack(stack->GetNtrack());
    stack->FinishEvent();
     header->SetStack(stack);
     rl->TreeE()->Fill();
@@ -400,7 +400,7 @@ void ProcessEnvironmentVars() {
       }
     }
 
-    
+
     // Energy
     if (gSystem->Getenv("CONFIG_ENERGY")) {
       energy = atoi(gSystem->Getenv("CONFIG_ENERGY"));
@@ -429,14 +429,14 @@ void ProcessEnvironmentVars() {
 AliGenerator* MbPythia() // Mb Pythia
 {
       comment = comment.Append(" pp: Pythia low-pt");
-      AliGenPythia* pythia = new AliGenPythia(-1); 
+      AliGenPythia* pythia = new AliGenPythia(-1);
       /* pythia->SetMomentumRange(0, 999999.);
       pythia->SetThetaRange(0., 180.);
       pythia->SetYRange(-12.,12.);
       pythia->SetPtRange(0,1000.);*/
       pythia->SetProcess(kPyMb);
       pythia->SetEnergyCMS(energy);
-      
+
       return pythia;
 }
 
@@ -457,7 +457,7 @@ AliGenerator* MyPythia8()
 AliGenerator* MbPythiaTuneD6T()
 {
       comment = comment.Append(" pp: Pythia low-pt");
-      AliGenPythia* pythia = new AliGenPythia(-1); 
+      AliGenPythia* pythia = new AliGenPythia(-1);
       pythia->SetMomentumRange(0, 999999.);
       pythia->SetThetaRange(0., 180.);
       pythia->SetYRange(-12.,12.);
@@ -466,7 +466,7 @@ AliGenerator* MbPythiaTuneD6T()
       pythia->SetEnergyCMS(energy);
 //    Tune
 //    109     D6T : Rick Field's CDF Tune D6T (NB: needs CTEQ6L pdfs externally)
-      pythia->SetTune(109); // F I X 
+      pythia->SetTune(109); // F I X
       pythia->SetStrucFunc(kCTEQ6l);
 //
       return pythia;
@@ -478,7 +478,7 @@ AliGenerator* MbPythiaTunePerugia0()
       comment = comment.Append(" pp: Pythia low-pt (Perugia0)");
 //
 //    Pythia
-      AliGenPythia* pythia = new AliGenPythia(-1); 
+      AliGenPythia* pythia = new AliGenPythia(-1);
       /* pythia->SetMomentumRange(0, 999999.);
       pythia->SetThetaRange(0., 180.);
       pythia->SetYRange(-12.,12.);
@@ -487,7 +487,7 @@ AliGenerator* MbPythiaTunePerugia0()
       pythia->SetEnergyCMS(energy);
 //    Tune
 //    320     Perugia 0
-      pythia->SetTune(320); 
+      pythia->SetTune(320);
       pythia->UseNewMultipleInteractionsScenario();
 //
       return pythia;
@@ -499,7 +499,7 @@ AliGenerator* MbPythiaTuneATLAS()
       comment = comment.Append(" pp: Pythia low-pt");
 //
 //    Pythia
-      AliGenPythia* pythia = new AliGenPythia(-1); 
+      AliGenPythia* pythia = new AliGenPythia(-1);
       /*   pythia->SetMomentumRange(0, 999999.);
       pythia->SetThetaRange(0., 180.);
       pythia->SetYRange(-12.,12.);
@@ -519,9 +519,9 @@ AliGenerator* MbPythiaTuneATLAS()
 AliGenerator* MbPythiaTuneATLAS_Flat()
 {
   AliGenPythia* pythia = (AliGenPythia*)MbPythiaTuneATLAS();
-  
+
   comment = comment.Append("; flat multiplicity distribution");
-  
+
   // set high multiplicity trigger
   // this weight achieves a flat multiplicity distribution
   TH1 *weight = new TH1D("weight","weight",201,-0.5,200.5);
@@ -615,7 +615,7 @@ AliGenerator* PythiaJets()
       comment = comment.Append(" pp: Pythia low-pt");
 //
 //    Pythia
-      AliGenPythia* pythia = new AliGenPythia(-1); 
+      AliGenPythia* pythia = new AliGenPythia(-1);
       /*   pythia->SetMomentumRange(0, 999999.);
       pythia->SetThetaRange(0., 180.);
       pythia->SetYRange(-12.,12.);
@@ -654,9 +654,9 @@ AliGenerator* MbPhojet()
 AliGenerator* Hijing()
 {
     AliGenHijing *gener = new AliGenHijing(-1);
-    // centre of mass energy 
+    // centre of mass energy
     gener->SetEnergyCMS(energy);
-    gener->SetImpactParameterRange(bMin, bMax);	
+    gener->SetImpactParameterRange(bMin, bMax);
     // reference frame
     gener->SetReferenceFrame("CMS");
     // projectile
@@ -681,7 +681,7 @@ AliGenerator* Hijing()
 AliGenerator* Hijing2000()
 {
   AliGenHijing *gener = (AliGenHijing*) Hijing();
-  gener->SetJetQuenching(0);	
+  gener->SetJetQuenching(0);
   gener->SetPtHardMin (2.3);
   return gener;
 }
@@ -697,9 +697,9 @@ AliGenerator* Hijing_pA(Bool_t kSlowN) {
     gener->SetTarget    ("P",   1,  1);
     gener->SetEnergyCMS(energy);
   }
-  
+
   AliGenHijing   *hijing = new AliGenHijing(-1);
-  // centre of mass energy 
+  // centre of mass energy
   hijing->SetEnergyCMS(energy);
   // impact parameter range
   hijing->SetImpactParameterRange(0., 100.);
@@ -717,7 +717,7 @@ AliGenerator* Hijing_pA(Bool_t kSlowN) {
   hijing->SetShadowing(1);
   // kinematic selection
   hijing->SetSelectAll(0);
-  
+
   if (!kSlowN) {
     // DO track spectators
     hijing->SetSpectators(1);
@@ -740,10 +740,10 @@ AliGenerator* Hijing_pA(Bool_t kSlowN) {
     gray->SetNominalCmsEnergy(2.*pBeamEnergy);
     gray->NeedsCollisionGeometry();
     gray->SetCollisionGeometry(coll);
-    
+
     gener->AddGenerator(hijing, "Hijing pPb", 1);
     gener->AddGenerator(gray, "Gray Particles", 1);
-    
+
     return gener;
   }
 }
@@ -799,27 +799,30 @@ AliGenerator* AmptDefault()
   AliDecayer *decayer = new AliDecayerPythia();
   cout << "*****************************************" << endl;
   genHi->SetForceDecay( kHadronicD );
+  cout<<"1\n";
   genHi->SetDecayer( decayer );
+  cout<<"2\n";
   //=========================================================================
   genHi->SetEnergyCMS(energy);
+  cout<<"3\n";
   genHi->SetReferenceFrame("CMS");
   genHi->SetProjectile("A",208,82);
   genHi->SetTarget("A",208,82);
-    
+
   genHi->SetIsoft(1); //1: defaul - 4: string melting
   genHi->SetStringFrag(0.5,0.9); //Lund string frgmentation parameters
   genHi->SetPtHardMin (3);
   //genHi->SetImpactParameterRange(9.,9.5);
   genHi->SetImpactParameterRange(bMin,bMax);
-    
+
   // Xmu = 3.2 fm^-1 and as = 0.33 ==> sigma_{partonic} = 1.5mb
   // Ntmax = 150
   // v_2{2} = 0.102105 +/- 0.000266894
   // v_2{4} = 0.0829477 +/- 0.00106158
-    
+
   genHi->SetNtMax(150);        // NTMAX: number of timesteps (D=150)
   genHi->SetXmu(3.2264);        // parton screening mass in fm^(-1) (D=3.2264d0)
-    
+
   genHi->SetJetQuenching(0);  // enable jet quenching
   genHi->SetShadowing(1);     // enable shadowing
   genHi->SetDecaysOff(1);     // neutral pion and heavy particle decays switched off
@@ -828,7 +831,7 @@ AliGenerator* AmptDefault()
   genHi->SetBoostLHC(1);
   //  genHi->Init();
   genHi->SetRandomReactionPlane(kTRUE);
- 
+
   return genHi;
 }
 
@@ -847,7 +850,7 @@ AliGenerator* AmptStringMelting()
   genHi->SetReferenceFrame("CMS");
   genHi->SetProjectile("A",208,82);
   genHi->SetTarget("A",208,82);
-    
+
   genHi->SetIsoft(4); //1: defaul - 4: string melting
   genHi->SetStringFrag(0.5,0.9); //Lund string frgmentation parameters
   genHi->SetPtHardMin (3);
@@ -889,21 +892,21 @@ AliGenerator* AmptStringMeltingNoART()
     genHi->SetReferenceFrame("CMS");
     genHi->SetProjectile("A",208,82);
     genHi->SetTarget("A",208,82);
-    
+
     genHi->SetIsoft(4); //1: defaul - 4: string melting
     genHi->SetStringFrag(0.5,0.9); //Lund string frgmentation parameters
     genHi->SetPtHardMin (3);
     //genHi->SetImpactParameterRange(9.,9.5);
     genHi->SetImpactParameterRange(bMin,bMax);
-    
+
     // Xmu = 3.2 fm^-1 and as = 0.33 ==> sigma_{partonic} = 1.5mb
     // Ntmax = 150
     // v_2{2} = 0.102105 +/- 0.000266894
     // v_2{4} = 0.0829477 +/- 0.00106158
-    
+
     genHi->SetNtMax(3);        // NTMAX: number of timesteps (D=150)
     genHi->SetXmu(3.2264);        // parton screening mass in fm^(-1) (D=3.2264d0)
-    
+
     genHi->SetJetQuenching(0);  // enable jet quenching
     genHi->SetShadowing(1);     // enable shadowing
     genHi->SetDecaysOff(1);     // neutral pion and heavy particle decays switched off
@@ -913,7 +916,7 @@ AliGenerator* AmptStringMeltingNoART()
     //  genHi->Init();
     genHi->SetRandomReactionPlane(kTRUE);
     return genHi;
-    
+
 }
 
 
@@ -932,7 +935,7 @@ AliGenerator* AmptReducedFlow()
   genHi->SetReferenceFrame("CMS");
   genHi->SetProjectile("A",208,82);
   genHi->SetTarget("A",208,82);
-    
+
   genHi->SetIsoft(4); //1: defaul - 4: string melting
   genHi->SetStringFrag(0.5,0.9); //Lund string frgmentation parameters
   genHi->SetPtHardMin (3);
@@ -992,5 +995,5 @@ AliGenerator* AmptpA()
     //  genHi->Init();
     genHi->SetRandomReactionPlane(kTRUE);
     return genHi;
-    
+
 }
