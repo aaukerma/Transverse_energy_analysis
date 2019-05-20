@@ -336,7 +336,7 @@ void fastMcProduction(Int_t nev = 300) {
  AliStack* stack = rl->Stack();
 
  AliHeader* header = rl->GetHeader();
-
+cout<<"hola\n";
  /*
    Float_t sigmaz  = 5.4 / TMath::Sqrt(2.); // [cm]
    Float_t betast  = 3.5;                      // beta* [m]
@@ -828,7 +828,6 @@ AliGenerator* AmptDefault()
   genHi->SetBoostLHC(1);
   //  genHi->Init();
   genHi->SetRandomReactionPlane(kTRUE);
-  cout<<"1\n";
 
   return genHi;
 }
