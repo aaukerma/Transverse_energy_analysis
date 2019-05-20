@@ -799,12 +799,9 @@ AliGenerator* AmptDefault()
   AliDecayer *decayer = new AliDecayerPythia();
   cout << "*****************************************" << endl;
   genHi->SetForceDecay( kHadronicD );
-  cout<<"1\n";
   genHi->SetDecayer( decayer );
-  cout<<"2\n";
   //=========================================================================
   genHi->SetEnergyCMS(energy);
-  cout<<"3\n";
   genHi->SetReferenceFrame("CMS");
   genHi->SetProjectile("A",208,82);
   genHi->SetTarget("A",208,82);
@@ -831,6 +828,7 @@ AliGenerator* AmptDefault()
   genHi->SetBoostLHC(1);
   //  genHi->Init();
   genHi->SetRandomReactionPlane(kTRUE);
+  cout<<"1\n";
 
   return genHi;
 }
