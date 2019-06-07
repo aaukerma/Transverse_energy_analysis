@@ -447,8 +447,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN,Float_t 
 
       vector<pylista> pylis(1);
     // Show how far we got every 100'th event.
-    if (event % 100 == 0)
-      cout <<"Event # " << event <<endl;
+    if (event % 10 == 0)
+      cout <<"Collision Energy: "<< SNN <<" Event # " << event <<endl;
     // Make one event.
     pythia->GenerateEvent();
       hNEvents->Fill(0.5);
@@ -513,7 +513,7 @@ code, uncomment the below line
   Float_t mpL = MPart->GetLifetime();
   Int_t nobby=15;
 //cout<<part<<"\t"<<pylis[part].inde<<"\t"<<pylis[part].KFpart<<"\t"<<pylis[part].indePar<<endl;
-  if (rapidity<0.1){
+  if (rapidity<.1){
 /******************************************************************************
 To account for  pT properly, E_T is dependant on type of particle.
 For baryons and antibaryons, note that rest mass is included (see below)
@@ -795,7 +795,7 @@ hET<particleName> xaxis is ET particle/ Total ET
       Float_t Rat1=ETOmega/ETpi0;
       Float_t Rat2=ETEta/ETpi0;
 
-  }
+  }// end Event loop
   Double_t ETAll=0;
   Double_t ETpip=0;
   Double_t ETpim=0;

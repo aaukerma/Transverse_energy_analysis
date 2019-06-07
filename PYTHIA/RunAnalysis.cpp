@@ -538,7 +538,7 @@ TLegend* legend5=new TLegend(.103286,.784722,.322379,.893056);
     legend5->SetTextFont(72);
     legend5->SetTextSize(.03);
     legend5->SetFillColor(0);
-/*
+{/*
 //Total
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
@@ -1068,7 +1068,7 @@ c15->SetLogx();
 c15->Update();
 char* file15= Form("neutronBar_Run%i.png",IDNUM);
 c15->SaveAs(file15);
-*/
+*/} //extra Graphs
 cout<<"plotting comparisions"<<endl;
 Double_t blarg;
 
@@ -1107,7 +1107,7 @@ TGraphErrors* gc1=new TGraphErrors(n,x,y,ex,ey);
   legend2->AddEntry(gc1,"Mean(Pi+,Pi-)/Pi0","p");
   gc1->Draw("AP");
   gc1->GetXaxis()->SetLimits(6,300);
-  gc1->GetYaxis()->SetRangeUser(.5,2.5);
+  gc1->GetYaxis()->SetRangeUser(.8,1.1);
   gc1->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
@@ -1143,7 +1143,7 @@ TGraphErrors* gc15=new TGraphErrors(n,x,y,ex,ey);
   gc15->SetLineColor(kBlack);
   legend2->AddEntry(gc15,"Pi-/Pi0","p");
   gc15->Draw("P");
-
+/*
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i]*1.1;
   blarg=(Stuff[i][0][1].average+Stuff[i][0][2].average)/(Stuff[i][0][3].average);
@@ -1160,8 +1160,8 @@ TGraphErrors* gc16=new TGraphErrors(n,x,y,ex,ey);
   gc16->SetLineColor(kBlack);
   legend2->AddEntry(gc16,"Pi+,pi-/Pi0","p");
   gc16->Draw("P");
-  legend2->Draw();
-
+*/
+legend2->Draw();
 Int_t n1=3;
 Int_t x1[3]={0,100,15000};
 Int_t y1[3]={1,1,1};
@@ -1191,7 +1191,7 @@ TGraphErrors* gc2=new TGraphErrors(n,x,y,ex,ey);
   legend3->AddEntry(gc2,"K+/K-","p");
   gc2->Draw("AP");
   gc2->GetXaxis()->SetLimits(6,300);
-  gc2->GetYaxis()->SetRangeUser(.5,1.5);
+  gc2->GetYaxis()->SetRangeUser(.9,1.1);
   gc2->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
@@ -1280,7 +1280,7 @@ TGraphErrors* gc8=new TGraphErrors(n,x,y,ex,ey);
   legend4->AddEntry(gc8,"p/n","p");
   gc8->Draw("AP");
   gc8->GetXaxis()->SetLimits(6,300);
-  gc8->GetYaxis()->SetRangeUser(.5,1.5);
+  gc8->GetYaxis()->SetRangeUser(.9,1.1);
   gc8->Draw("AP");
 
 for (Int_t i=0;i<n;i++){

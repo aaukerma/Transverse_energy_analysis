@@ -1,4 +1,21 @@
-run with 
-root -b -q driver.C
+To run most up to date version of PYTHIA for RHIP group:
 
-Note that getting the correct tune loaded in PYTHIA is non-trivial and requires a version of ROOT which is correctly cross compiled with a version of PYTHIA.  This is non-trivial.  However, code development can proceed with this.
+open directory containing:
+  PYTHIALoop2.C
+  PythiaStartUpRoot.C
+  PythiaFullRunRoot.C
+  RunAnalysis.C
+
+There are two ways to run the program,
+1) if you wish to run a single event, then simply run:
+      root PythiaStartUpRoot.C
+      makeEventSample(Number_of_Events,custom_ID,350,Collision Energy)
+2) to run a full analysis across 15 energies:
+      open PythiaFullRunRoot.C in an editor,
+      modify EVN to equal number of events for lower energies and HIGHEVN for higher energies (1TeV+)
+      set ID to custom ID
+   then simply run:
+      root PythiaFullRunRoot.C
+   when the collisions are complete, it will prompt the ID you had set.
+   type in the custom ID you had choosen and press enter.
+   the graphs analyzing the assumptions made about neutral particles will be returned
