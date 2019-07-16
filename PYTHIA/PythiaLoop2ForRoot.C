@@ -355,6 +355,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   Int_t cp_=0;
   Int_t cn_=0;
   Int_t cother=0;
+  Int_t cETAall=0;
+  Int_t cOmegaall=0;
 
   //ETpart/ETALL
   Double_t pETpip=0;
@@ -379,6 +381,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   Double_t pETp_=0;
   Double_t pETn_=0;
   Double_t pETother=0;
+  Double_t pETETAall=0;
+  Double_t pETOmegaall=0;
 
   //ETpart/ETALL
   Double_t pPTpip=0;
@@ -403,6 +407,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   Double_t pPTp_=0;
   Double_t pPTn_=0;
   Double_t pPTother=0;
+  Double_t pPTETAall=0;
+  Double_t pPTOmegaall=0;
 
 
 
@@ -807,7 +813,7 @@ neutron          ALL INCLUDED
     pPTother+=partE;
     PTAll+=partE;
     cother++;
-    out<<event<<"\t"<<KFID<<endl;
+    //out<<event<<"\t"<<KFID<<";\t";
   }
 }//FULL INCLUSION
 if (DMODE=='b'){ //ONLY IF FINAL
@@ -1098,31 +1104,36 @@ if ((KFID==411)||(KFID==421)||(KFID==431)||(KFID==511)||(KFID==521)||(KFID==531)
 if (DMODE=='c'){ //Decay version 1
 /****************************************************
 The following section counts particles based on the below conditions to ensure no double counting
+FOR ET TOTAL:
 
 Particle:        inclusion requirements:
-pion+-           ALL INCLUDED
-pion0            Most Included (if omega parent is 2nd decay mode, pi0 is not included)
+pion+-           All but KOS, [anti]Lambda daughters
+pion0            Most Included (if omega parent is 2nd decay mode or KOS/lambda/antilam daughter, pi0 is not included)
 kaon+            ALL INCLUDED
 kaon-            ALL INCLUDED
 kaon0_L          ALL INCLUDED ct=15.34m
-kaon0_S          [WIP] ct=2.6844cm
+kaon0_S          ALL INCLUDED ct=2.6844cm
 eta              Included only if it decays to gamma t=5.02E-19s
 omega            Included only if it decays to gamma t=7.75E-23s
-Lambda0          [WIP] ct=7.89cm
-LambdaBar0       [WIP]
+Lambda0          ALL INCLUDED ct=7.89cm
+LambdaBar0       ALL INCLUDED
 Omega-           ALL INCLUDED ct=2.461cm
 Xi0              ALL INCLUDED ct=8.71cm
 Xi-              ALL INCLUDED ct=4.91cm
 Sigma+           ALL INCLUDED ct=2.404cm
 Sigma0           ALL INCLUDED ct=2.22x10^(-11)m
 Sigma-           ALL INCLUDED ct=4.424cm
-proton           ALL INCLUDED
-neutron          ALL INCLUDED
+proton           All except from [anti]lambda decays
+antiproton       All except from [anti]lambda decays
+neutron          All except from [anti]lambda decays
+Antineutron      All except from [anti]lambda decays
 exotics          Final State Particles Only
 
 ****************************************************/
 
-if (KFID==211){ //pi+ all included
+if (KFID==211){ //pi+
+  XEM=pylis[mpP].KFpart;
+  if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
     ETpip+=partE; //repeated for event
     pETpip+=partE; //repeated over total run
     ETAll+=partE;
@@ -1132,8 +1143,10 @@ if (KFID==211){ //pi+ all included
     PTAll+=pT;
     PTcharge=+pT;
     cpip++;  //repeated over total run
-}
-if (KFID==-211){ //pi- all included
+}}
+if (KFID==-211){ //pi-
+  XEM=pylis[mpP].KFpart;
+  if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
   ETpim+=partE;
   pETpim+=partE;
   ETAll+=partE;
@@ -1143,14 +1156,15 @@ if (KFID==-211){ //pi- all included
   PTAll+=pT;
   PTcharge=+pT;
   cpim++;
-}
-if (KFID==111){ //pi0 // BUG double counts for each omega counted!!!!!
-  XEM=pylis[mpP].KFpart;
+}}
+if (KFID==111){ //pi0
+  XEM=pylis[mpP].KFpart; // is one of parents daughters a gamma? if so not included (this is to exclude certain omega and eta modes of decay)
   nobby=0;
   if (XEM==223){
     nobby=GetDaughterCheck(pylis,mpP,111,22);
   }
   if (nobby==0){
+  if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
   ETpi0+=partE;
   pETpi0+=partE;
   ETAll+=partE;
@@ -1158,7 +1172,7 @@ if (KFID==111){ //pi0 // BUG double counts for each omega counted!!!!!
   pPTpi0+=pT;
   PTAll+=pT;
   cpi0++;
-}}
+}}}
 if (KFID==321){ //K+ //all included
   ETKp+=partE;
   pETKp+=partE;
@@ -1182,7 +1196,6 @@ if (KFID==-321){ //K- //all included
   cKm++;
 }
 if (KFID==130){// KL
-  //if ((mpL>=100)||(mpartD==0)){//counted if final particle or lifetime > 1cm
   ETKL+=partE;
   pETKL+=partE;
   ETAll+=partE;
@@ -1192,7 +1205,6 @@ if (KFID==130){// KL
   cKL++;
 }
 if (KFID==310){ //KS
-  //if ((mpL>=100)||(mpartD==0)){//counted if final particle or lifetime > 1cm
   ETKS+=partE;
   pETKS+=partE;
   ETAll+=partE;
@@ -1203,6 +1215,9 @@ if (KFID==310){ //KS
 }
 if (KFID==221){ //eta
   nobby=GetDaughterCheck(pylis,ind,221,22);
+  cETAall++;
+  pETETAall+=partE;
+  pPTETAall+=pT;
   if (nobby==1){
   ETEta+=partE;
   pETEta+=partE;
@@ -1214,6 +1229,9 @@ if (KFID==221){ //eta
 }}
 if (KFID==223){ // omega
   nobby=GetDaughterCheck(pylis,ind,223,22);
+  cOmegaall++;
+  pETOmegaall+=partE;
+  pPTOmegaall+=pT;
   if (nobby==1){
   ETOmega+=partE;
   pETOmega+=partE;
@@ -1309,6 +1327,8 @@ if (KFID==3212){ //sigma0
   cSigma0++;
 }}
 if (KFID==2212){ //proton
+  XEM=pylis[mpP].KFpart;
+if ((XEM!=3122)&&(XEM!=-3122)){
     ETp+=partE;
     pETp+=partE;
     ETAll+=partE;
@@ -1318,8 +1338,10 @@ if (KFID==2212){ //proton
     PTAll+=pT;
     PTcharge=+pT;
     cp++;
-}
+}}
 if (KFID==2112){ //neutron
+  XEM=pylis[mpP].KFpart;
+if ((XEM!=3122)&&(XEM!=-3122)){
   ETn+=partE;
   pETn+=partE;
   ETAll+=partE;
@@ -1327,8 +1349,10 @@ if (KFID==2112){ //neutron
   pPTn+=pT;
   PTAll+=pT;
   cn++;
-}
+}}
 if (KFID==-2212){ //antiproton
+  XEM=pylis[mpP].KFpart;
+if ((XEM!=3122)&&(XEM!=-3122)){
     ETp_+=partE;
     pETp_+=partE;
     ETAll+=partE;
@@ -1338,8 +1362,10 @@ if (KFID==-2212){ //antiproton
     PTAll+=pT;
     PTcharge=+pT;
     cp_++;
-}
+}}
 if (KFID==-2112){ //antineutron
+  XEM=pylis[mpP].KFpart;
+if ((XEM!=3122)&&(XEM!=-3122)){
   ETn_+=partE;
   pETn_+=partE;
   ETAll+=partE;
@@ -1347,7 +1373,7 @@ if (KFID==-2112){ //antineutron
   pPTn_+=pT;
   PTAll+=pT;
   cn_++;
-}
+}}
 if ((KFID==411)||(KFID==421)||(KFID==431)||(KFID==511)||(KFID==521)||(KFID==531)||(KFID==541)||(KFID==331)||(KFID==441)||(KFID==551)||(KFID==333)||(KFID==443)||(KFID==553)||(KFID==110)||(KFID==4112)||(KFID==4122)||(KFID==4212)||(KFID==4222)||(KFID==4132)||(KFID==4312)||(KFID==4232)||(KFID==4322)||(KFID==4332)||(KFID==5112)||(KFID==5122)||(KFID==5212)||(KFID==5222)||(KFID==3114)||(KFID==3214)||(KFID==3224)||(KFID==3314)||(KFID==3324)||(KFID==4114)||(KFID==4214)||(KFID==4224)||(KFID==4314)||(KFID==4324)||(KFID==4334)||(KFID==5114)||(KFID==5214)||(KFID==5224)) {
   if ((mpartD==22)||mpartD2==22){
   ETother+=partE;
@@ -1357,7 +1383,7 @@ if ((KFID==411)||(KFID==421)||(KFID==431)||(KFID==511)||(KFID==521)||(KFID==531)
   pPTother+=partE;
   PTAll+=partE;
   cother++;
-  out<<event<<"\t"<<KFID<<endl;
+  //out<<event<<"\t"<<KFID<<endl;
 }}
 
 }//FULL INCLUSION
@@ -1624,7 +1650,9 @@ hPTn_->Scale((1.)/(2*TMath::Pi()));
     out<<"Neutron:\t"<<cn<<"\t"<<pETn<<"\t"<<pPTn<<"\t"<<(pETn/TET)*100<<"\t"<<(pPTn/TPT)*100<<endl;
     out<<"Antineutron:\t"<<cn_<<"\t"<<pETn_<<"\t"<<pPTn_<<"\t"<<(pETn_/TET)*100<<"\t"<<(pPTn_/TPT)*100<<endl;
     out<<"eta:\t"<<cEta<<"\t"<<pETEta<<"\t"<<pPTEta<<"\t"<<(pETEta/TET)*100<<"\t"<<(pPTEta/TPT)*100<<endl;
+    out<<"[eta]:\t"<<cETAall<<"\t"<<pETETAall<<"\t"<<pPTETAall<<"\t"<<(pETETAall/TET)*100<<"\t"<<(pPTETAall/TPT)*100<<endl;
     out<<"omega:\t"<<cOmega<<"\t"<<pETOmega<<"\t"<<pPTOmega<<"\t"<<(pETOmega/TET)*100<<"\t"<<(pPTOmega/TPT)*100<<endl;
+    out<<"[omega]:\t"<<cOmegaall<<"\t"<<pETOmegaall<<"\t"<<pPTOmegaall<<"\t"<<(pETOmegaall/TET)*100<<"\t"<<(pPTOmegaall/TPT)*100<<endl;
     out<<"Omega-:\t"<<cOMEGAm<<"\t"<<pETOMEGAm<<"\t"<<pPTOMEGAm<<"\t"<<(pETOMEGAm/TET)*100<<"\t"<<(pPTOMEGAm/TPT)*100<<endl;
     out<<"Xi0:\t"<<cXi0<<"\t"<<pETXi0<<"\t"<<pPTXi0<<"\t"<<(pETXi0/TET)*100<<"\t"<<(pPTXi0/TPT)*100<<endl;
     out<<"Xi-:\t"<<cXim<<"\t"<<pETXim<<"\t"<<pPTXim<<"\t"<<(pETXim/TET)*100<<"\t"<<(pPTXim/TPT)*100<<endl;
