@@ -1,0 +1,44 @@
+void PythiaFullRunRoot(){
+  gSystem->Load("libEG");
+  gSystem->Load("libEGPythia8");//gSystem->Load("$HOME/alice/sw/ubuntu1804_x86-64/AliRoot/v5-09-47c-1/lib/libpythia6_4_28");
+  gSystem->Load("libpythia6");
+  int EVN=100;
+  int HIGHEVN=10;
+  int ID=20190716;
+  char CUT='y'; //
+  float YNCUT=0.1;
+  char DTYPE='r';
+  char DMODE='c';
+  gROOT->ProcessLine(".L PAngantyr.C");
+  char* event1= Form("makeEventSample(%i,%i,350,7.7,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event2= Form("makeEventSample(%i,%i,350,11.6,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event3= Form("makeEventSample(%i,%i,350,19.5,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event4= Form("makeEventSample(%i,%i,350,27,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event5= Form("makeEventSample(%i,%i,350,39,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event6= Form("makeEventSample(%i,%i,350,62.4,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event7= Form("makeEventSample(%i,%i,350,130,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event8= Form("makeEventSample(%i,%i,350,200,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event9= Form("makeEventSample(%i,%i,350,900,'%c',%f,'%c','%c')",EVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event10= Form("makeEventSample(%i,%i,350,2760,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event11= Form("makeEventSample(%i,%i,350,5020,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event12= Form("makeEventSample(%i,%i,350,7000,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event13= Form("makeEventSample(%i,%i,350,8000,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event14= Form("makeEventSample(%i,%i,350,13000,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  char* event15= Form("makeEventSample(%i,%i,350,14000,'%c',%f,'%c','%c')",HIGHEVN,ID,CUT,YNCUT,DTYPE,DMODE);
+  gROOT->ProcessLine(event1);
+  gROOT->ProcessLine(event2);
+  gROOT->ProcessLine(event3);
+  gROOT->ProcessLine(event4);
+  gROOT->ProcessLine(event5);
+  gROOT->ProcessLine(event6);
+  gROOT->ProcessLine(event7);
+  gROOT->ProcessLine(event8);
+  gROOT->ProcessLine(event9);
+  gROOT->ProcessLine(event10);
+  gROOT->ProcessLine(event11);
+  gROOT->ProcessLine(event12);
+  gROOT->ProcessLine(event13);
+  gROOT->ProcessLine(event14);
+  gROOT->ProcessLine(event15);
+  gROOT->ProcessLine(".x RunAnalysisR.cpp");
+}
