@@ -37,7 +37,6 @@ In order to run, ypou may need to adjust PythiaStdlib.h ln26
 #include "TFile.h"
 #include "TError.h"
 #include "TTree.h"
-#include "TClonesArray.h"
 #include "TH1.h"
 #include "TF1.h"
 #include "TStyle.h"
@@ -49,7 +48,6 @@ In order to run, ypou may need to adjust PythiaStdlib.h ln26
 #include "TH2F.h"
 #include "TH1F.h"
 #include "TMath.h"
-#include "TMCParticle.h"
 #include "THnSparse.h"
 #include <iostream>
 #include <vector>
@@ -139,7 +137,7 @@ Int_t GetDaughterCheck(vector<pylista> pylis,Int_t ind, Int_t INPUT, Int_t CHECK
     }
   }
   //cout<<d[0]<<" "<<d[1]<<" "<<d[2]<<endl;
-  if (INPUT==111){ //eta
+  if (INPUT==111){ //pi0
     if ((d[0]==CHECK)||(d[1]==CHECK)){
       R=1;
     }
@@ -172,7 +170,7 @@ Int_t GetDaughterCheck(vector<pylista> pylis,Int_t ind, Int_t INPUT, Int_t CHECK
 
 
 
-int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CUT, Float_t yncut, char DTYPE, char DMODE) {
+int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t yncut, char DTYPE, char DMODE) {
   Int_t l=0;
   vector <KF_Code> partname(0);
   /**************************************************************************
@@ -197,7 +195,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
     modSNN=SNN;
   }
   cout<<modSNN<<endl;
-  cout<<"I made it here, running "<<nEvents<<" events, job id "<<jobID<<", tune "<<tune<<", at "<<SNN<<"GeV"<<endl;
+  cout<<"Running "<<nEvents<<" events, job id "<<jobID<<", at "<<SNN<<"GeV"<<endl;
   char *filename = Form("%i_%iGeVoutfile.root",jobID,modSNN);
   char *filename2 = Form("%i_%iGeVoutfile.txt",jobID,modSNN);
   ifstream in;
@@ -209,18 +207,15 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   }
   ofstream out;
   out.open(filename2);
-  cout<<"I made it here line 200"<<endl;
 
   //Create new instance of the Pythia event generator
   string pVERSION;
   Pythia pythia;
   pVERSION="Pythia8 Angantyr";
 
-  cout<<"I made it here line 207"<<endl;
-
   string temporarything="fail";
   out<<"RUN DATA\n******************************************************\n";
-  out<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<"\t tune: "<<tune<<endl<<endl;
+  out<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
   out<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
   if (CUT=='y'){
     temporarything = "rapidity (y)";
@@ -231,17 +226,17 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   out<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
   out<<"Counting method: "<<DMODE<<endl<<endl;
 
-  cout<<"I made it here line 222"<<endl;
   // Setup the beams.
+  pythia.readFile("PAngantyr.cmnd");
   char* SNNthing=Form("Beams:eCM = %f",SNN);
-  pythia.readString("Beams:idA = 1000791970"); //sets gold (Au-197)
-  pythia.readString("Beams:idB = 1000791970");
+  char* IDthing=Form("Random:seed = %i",jobID);
+  char* Eventthing=Form("Main:numberOfEvents = %i",nEvents);
   pythia.readString(SNNthing); //SNN
-  pythia.settings.addFlag("Main:writeRoot",false);
-  pythia.readString("Main:timesAllowErrors = 10000000");
-  pythia.readString("Random:setSeed = on");
+  pythia.readString(IDthing);
+  pythia.readString(Eventthing);
+  pythia.readString("xmlpath = /home/ben/pythia8242/share/Pythia8/xmldoc/");
   // using PDG codes of the format 100ZZZAAAI: 1000020040 = 4He , 1000030060 = 6Li, 1000060120 = 12C, 1000080160 = 16O, 1000290630 = 63Cu, 1000791970 = 197Au, and 1000822080 = 208Pb.
-  cout<<"I made it here line 229"<<endl;
+
   // Initialize the Angantyr model to fit the total and semi-includive
   // cross sections in Pythia within some tolerance.
   pythia.readString("HeavyIon:SigFitErr = "
@@ -252,7 +247,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   // A simple genetic algorithm is run for 20 generations to fit the
   // parameters.
   pythia.readString("HeavyIon:SigFitNGen = 20");
-  cout<<"I made it here line 240"<<endl;
+
   // There will be nine centrality bins based on the sum transverse
   // emergy in a rapidity interval between 3.2 and 4.9 obtained from
   // the borders from the generated transverse energy spectrum. The
@@ -266,8 +261,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
 
   // Book the pseudorapidity and multiplicity histograms and get
   // counters for number of events and sum of event weights:
-  typedef map<double,int,std::greater<double> > MapIdx;
-  MapIdx genetaidx;
+  //typedef map<double,int,std::greater<double> > MapIdx;
+  /*MapIdx genetaidx;
   vector<Hist*> etadist(9), lmult(9), hmult(9);
   string etaname("EtadistC"), mname("MultC");
   vector<double> gensumw(9, 0.0), gensumn(9, 0.0);
@@ -279,13 +274,13 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
     lmult[i] = new Hist(mname + 'L' + char('0' + i),
                         75, -0.5, 299.5);
   }
-
+*/
   // Book histogram for the centrality measure.
   Hist sumet("SumETfwd", 200, 0.0, 4000.0);
 
   // Also make a map of all weight to check the generated centrality
   // classes.
-  multimap<double,double> gencent;
+  //multimap<double,double> gencent;
 
   // Book a histogram for the distribution of number of wounded
   // nucleons.
@@ -298,22 +293,12 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
 
   // Sum up the weights of all generated events.
   double sumw = 0.0;
-  char* IDthing=Form("Random:seed = %i",jobID);
-  pythia.readString(IDthing);
-  pythia.readString("Beams:frameType = 1");
-  char* Eventthing=Form("Next:numberCount = %i",nEvents);
-  pythia.readString(Eventthing);
-  pythia.readString("PartonLevel:all = 1");
-  pythia.readString("ProcessLevel:all = 1");
-  pythia.readString("Tune:ee = 1");
-  pythia.readString("Tune:pp = 1");
-  pythia.readString("Next:numberShowEvent = 1");
 
-  cout<<"I made it here line 286"<<endl;
   // Initialise pythia.
   pythia.init();
+  pythia.readFile("PAngantyr.cmnd");
+  pythia.settings.listChanged();
 
-  cout<<"I made it here line 290"<<endl;
   TFile* file = TFile::Open(filename, "RECREATE");
   if (!file || !file->IsOpen()) {
     Error("makeEventSample", "Couldn;t open file %s", filename);
@@ -382,7 +367,6 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
 
 
   //tree->Branch(BRANCHNAME, &particles);
-  cout<<"I made it here line 359"<<endl;
   // Now we make some events
   //counters
   Int_t cpip=0;
@@ -462,6 +446,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
   Double_t pPTETAall=0;
   Double_t pPTOmegaall=0;
 
+  int iAbort = 0;
+  int nAbort = pythia.mode("Main:timesAllowErrors");
 
   for ( int event = 0; event < nEvents; ++event ) {
     Double_t ETAll=0;
@@ -523,32 +509,36 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
       cout <<"Collision Energy: "<< SNN <<" Event # " << event <<endl;
     // Make one event.
     //pythia.GenerateEvent(); //?
-
-    if ( !pythia.next() ) continue;
-      hNEvents->Fill(0.5);
+    if (!pythia.next()) {
+      if (++iAbort < nAbort) continue;
+      cout << " Event generation aborted prematurely, owing to error!\n";
+      break;
+    }
+    hNEvents->Fill(0.5);
+    pythia.pylist(1); //DEBUG helper
     Event TheEvent = pythia.event;
     Int_t npart = TheEvent.size();
     for (Int_t parta=0; parta<npart; parta++) {
-      Particle* particle =& TheEvent.at(parta);
+      Particle particle = TheEvent.at(parta);
       pylis.push_back(pylista());
       pylis[parta].inde=parta;
-      pylis[parta].indePar=particle->mother1();
+      pylis[parta].indePar=particle.mother1();
       pylis[parta].KFpart=TheEvent.at(pylis[parta].indePar).id();
     }
     for (Int_t part=0; part<npart; part++) {
       //TObject *object = particles->At(part);
       //cout<<"I am a "<<object->ClassName()<<endl;
-      Particle* MPart =& TheEvent.at(part);
-      Int_t KFID = MPart->id();
+      Particle MPart = TheEvent.at(part);
+      Int_t KFID = MPart.id();
       Int_t Ckf=GetKFConversion(KFID,partname);
       Int_t ind = part+1; //index
       //hEve->Fill(Ckf,event,ind);
       char N ='n';
-      Float_t E= MPart ->e();
+      Float_t E= MPart.e();
       Float_t partE;
-      Float_t px=MPart->px();
-      Float_t py=MPart->py();
-      Float_t pz=MPart->pz();
+      Float_t px=MPart.px();
+      Float_t py=MPart.py();
+      Float_t pz=MPart.pz();
       if (pz<0){
         pz*=(-1); //useful to keep numbers positive while calculating
         N='y'; //not used but can be used to make pz negative again later
@@ -556,15 +546,15 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Int_t tune, Float_t SNN, char CU
       Float_t pT= sqrt(pow(px,2)+pow(py,2));
       Float_t Theta = atan(pT/pz);
       Float_t p_tot=(pT)/sin(Theta);
-      Float_t m=MPart->m();
+      Float_t m=MPart.m();
       Float_t Ei_TOT= sqrt(pow(p_tot,2)+pow(m,2));
       Float_t pseudorapidity=-log(tan(Theta/2));
       Float_t rapidity=(0.5)*log((E+pz)/(E-pz));
       //cout<<pseudorapidity<<" "<<rapidity<<endl;
-      Int_t mpartD = MPart->daughter1();
-      Int_t mpartD2 = MPart->daughter2();
-      Int_t mpP = MPart->mother1();
-      Float_t mpL = MPart->tau0();
+      Int_t mpartD = MPart.daughter1();
+      Int_t mpartD2 = MPart.daughter2();
+      Int_t mpP = MPart.mother1();
+      Float_t mpL = MPart.tau0();
       Int_t nobby=15;
       Int_t XEM=31;
       Float_t cuttype;
@@ -592,7 +582,7 @@ For baryons and antibaryons, note that rest mass is included (see below)
       }
       else if (DTYPE=='c')
       partE=Ei_TOT;
-      if (DMODE=='a'){ //ALL INCLUDED
+  if (DMODE=='a'){ //ALL INCLUDED
 /****************************************************
 The following section counts particles based on the below conditions to ensure no double counting
 
@@ -1423,13 +1413,15 @@ exotics          Final State Particles Only
       //out<<event<<"\t"<<KFID<<endl;
   }}
   }//FULL INCLUSION
-  } //end pseudorapidity cut
+} //end pseudorapidity cut
+//cout<<"11."<<part<<" ";
   }//end particle loop
   /******************************************************************************
   Histogarms are filled here, the histograms are of the format:
   hET<particleName> xaxis is ET particle/ Total ET
                     yaxis is number of events at that fraction
   *******************************************************************************/
+  {
         Double_t omegaET=0;
         Double_t pi0ET=0;
         Double_t ChAllRat=0;
@@ -1571,7 +1563,8 @@ exotics          Final State Particles Only
         hPTother->Fill(PTother);
           //cout<<"other "<<ETother<<endl;
         }
-    // First sum up transverse energy for centrality measure and also
+      }
+          // First sum up transverse energy for centrality measure and also
     // check that the trigger requiring ar least one charged particle
     // forward and backward.
     /*
@@ -1579,6 +1572,7 @@ exotics          Final State Particles Only
     bool trigfwd = false;
     bool trigbwd = false;
     int nc = 0;
+
     for (int i = 0; i < pythia.event.size(); ++i) {
       Particle & p = pythia.event[i];
       if ( p.isFinal() ) {
@@ -1610,7 +1604,6 @@ exotics          Final State Particles Only
              pythia.info.hiinfo->nAbsProj() +
              pythia.info.hiinfo->nDiffProj();
     wounded.fill(nw, weight);
-
     // Find the correct centrality histograms.
     MapIdx::iterator genit = genetaidx.upper_bound(etfwd);
     int genidx = genit== genetaidx.end()? -1: genit->second;
@@ -1625,16 +1618,17 @@ exotics          Final State Particles Only
     cmult2[genidx] += nc*nc*weight;
     wound[genidx] += nw*weight;
     wound2[genidx] += nw*nw*weight;
-
     // Go through the event again and fill the eta distributions.
     for (int i = 0; i < pythia.event.size(); ++i) {
+      cout<<"10."<<i<<"\n";
       Particle & p = pythia.event[i];
       if ( p.isFinal() && p.isCharged() &&
            abs(p.eta()) < 2.7 && p.pT() > 0.1 ) {
          etadist[genidx]->fill(p.eta(), weight);
       }
     }
-    */
+*/
+  TheEvent.clear();
   }//end event loop
 
     hNEvents->Write();
@@ -1735,6 +1729,7 @@ exotics          Final State Particles Only
   // Now, we just have to normalize and prtint out the histograms. We
   // choose to print the histograms to a file that can be read by
   // eg. gnuplot.
+/*
   char* nameOfile= Form("%i%fPAngatyr.dat",jobID,SNN);
   ofstream ofs(nameOfile);
 
@@ -1809,7 +1804,7 @@ exotics          Final State Particles Only
     cout << setw(4) << int(pclim[idx]*100.0 + 0.5)
          << setw(10) << fixed << setprecision(1) << genlim[idx]
          << setw(10) << fixed << setprecision(1) << newlim[idx] << endl;
-
+*/
   // And we're done!
   return 0;
 }
@@ -1864,8 +1859,8 @@ int showEventSample()
   return 0;
 }
 
-void SimplePYTHIALoop(Int_t n=1000, Int_t jobID=0, Int_t tune = 350,Float_t SNN = 2760,char CUT='y',Float_t yncut=0.1,char DTYPE='r',char DMODE='a') {
-  makeEventSample(n,jobID,tune,SNN,CUT,yncut,DTYPE,DMODE);
+void SimplePYTHIALoop(Int_t n=1000, Int_t jobID=0,Float_t SNN = 2760,char CUT='y',Float_t yncut=0.1,char DTYPE='r',char DMODE='a') {
+  makeEventSample(n,jobID,SNN,CUT,yncut,DTYPE,DMODE);
 }
 
 #ifndef __CINT__
@@ -1879,7 +1874,7 @@ int main(int argc, char** argv)
 
   int retVal = 0;
   if (n > 0)
-    retVal = makeEventSample(n,0,0,7.7,'y',0.1,'r','a');
+    retVal = makeEventSample(n,0,7.7,'y',0.1,'r','a');
   else {
     retVal = showEventSample();
     app.Run();
@@ -1893,3 +1888,9 @@ int main(int argc, char** argv)
 //
 // EOF
 //
+/*meeting notes
+check where omegas come from! this may be a bug of sort
+do a cross check to see if turn off decays!  (for primordial pi0 but also just check eta and omega) just a coulple runs
+
+
+*/
