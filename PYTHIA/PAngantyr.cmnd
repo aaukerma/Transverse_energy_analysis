@@ -16,9 +16,12 @@ PartonLevel:all = 1
 PDF:nPDFBeamA = 1000791970
 PDF:nPDFBeamB = 1000791970
 ProcessLevel:all = 1
+ParticleDecays:limitTau0 = on      ! Only Particles with tau0 < tau0Max are decayed
+ParticleDecays:tau0Max = 10.       ! Tau0Max = 10. mm/c
 Random:setSeed = on
 Stat:showPartonLevel = on          ! additional statistics on MPI
-Tune:ee = 1
-Tune:pp = 1
+Tune:ee = 7
+Tune:pp = 14                       !MONASH
 
 ! 3) Settings related to output
+!MONASH
