@@ -1,37 +1,6 @@
-// main113.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
-// PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
-// Please respect the MCnet Guidelines, see GUIDELINES for details.
-
-// This test program will generate Pb-Pb collisions at
-// sqrt(S_NN)=2.76TeV using the Angantyr model for Heavy Ion
-// collisions. The analysis will divide the event in centrality
-// classes using the same observable as was used for p-Pb in the ATLAS
-// analysis in arXiv:1508.00848 [hep-ex] (see main112.cc). The
-// centrality classes are same as in the ALICE analysis in
-// arXiv:1012.1657 [nucl-ex] although the actual observable used is
-// not the same. Histograms of multiplicity distributions are measured
-// for each centrality percentile.
-
-// Note that heavy ion collisions are computationally quite CPU
-// intensive and generating a single event will take around a second
-// on a reasonable desktop. To get reasonable statistics, this program
-// will take a couple of hours to run.
-
-/*
-In order to run, ypou may need to adjust PythiaStdlib.h ln26
-
-// Stdlib header file for dynamic library loading.
-   #ifndef __CINT__
-   #define dlsym __
-   #include <dlfcn.h>
-   #undef dlsym
-   #endif
-*/
-
+//TODO: tune questions->EMAIL CHRISTINE
 
 #ifndef __CINT__
-#include "TApplication.h"
 #include "Pythia8/Pythia.h"
 #include "Pythia8/HeavyIons.h"
 #include "TFile.h"
@@ -42,13 +11,10 @@ In order to run, ypou may need to adjust PythiaStdlib.h ln26
 #include "TStyle.h"
 #include "TLatex.h"
 #include "TCanvas.h"
-#include "Riostream.h"
-#include <cstdlib>
 #include "TH3F.h"
 #include "TH2F.h"
 #include "TH1F.h"
 #include "TMath.h"
-#include "THnSparse.h"
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -172,6 +138,7 @@ Int_t GetDaughterCheck(vector<pylista> pylis,Int_t ind, Int_t INPUT, Int_t CHECK
 
 int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t yncut, char DTYPE, char DMODE) {
   Int_t l=0;
+  int debug=1;
   vector <KF_Code> partname(0);
   /**************************************************************************
   choose energy
@@ -198,6 +165,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
   cout<<"Running "<<nEvents<<" events, job id "<<jobID<<", at "<<SNN<<"GeV"<<endl;
   char *filename = Form("%i_%iGeVoutfile.root",jobID,modSNN);
   char *filename2 = Form("%i_%iGeVoutfile.txt",jobID,modSNN);
+  char *filename3 = Form("%i_%iGeVexotics.txt",jobID,modSNN);
   ifstream in;
   in.open("KF_Code.dat");
   while (in.good()){
@@ -206,17 +174,25 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
     l++;
   }
   ofstream out;
+  ofstream out2;
   out.open(filename2);
+  out2.open(filename3);
 
   //Create new instance of the Pythia event generator
   string pVERSION;
   Pythia pythia;
   pVERSION="Pythia8 Angantyr";
+  pythia.initPtrs();
 
   string temporarything="fail";
   out<<"RUN DATA\n******************************************************\n";
   out<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
   out<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
+
+  out2<<"RUN DATA\n******************************************************\n";
+  out2<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
+  out2<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
+
   if (CUT=='y'){
     temporarything = "rapidity (y)";
   }
@@ -225,6 +201,10 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
   }
   out<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
   out<<"Counting method: "<<DMODE<<endl<<endl;
+
+  out2<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
+  out2<<"Counting method: "<<DMODE<<endl<<endl;
+  out2<<"Event\tParticle\tET\tpT\n";
 
   // Setup the beams.
   pythia.readFile("PAngantyr.cmnd");
@@ -246,7 +226,7 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
                     "17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0");
   // A simple genetic algorithm is run for 20 generations to fit the
   // parameters.
-  pythia.readString("HeavyIon:SigFitNGen = 20");
+  pythia.readString("HeavyIon:SigFitNGen = 2");
 
   // There will be nine centrality bins based on the sum transverse
   // emergy in a rapidity interval between 3.2 and 4.9 obtained from
@@ -261,8 +241,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
 
   // Book the pseudorapidity and multiplicity histograms and get
   // counters for number of events and sum of event weights:
-  //typedef map<double,int,std::greater<double> > MapIdx;
-  /*MapIdx genetaidx;
+  typedef map<double,int,std::greater<double> > MapIdx;
+  MapIdx genetaidx;
   vector<Hist*> etadist(9), lmult(9), hmult(9);
   string etaname("EtadistC"), mname("MultC");
   vector<double> gensumw(9, 0.0), gensumn(9, 0.0);
@@ -274,13 +254,13 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
     lmult[i] = new Hist(mname + 'L' + char('0' + i),
                         75, -0.5, 299.5);
   }
-*/
+
   // Book histogram for the centrality measure.
   Hist sumet("SumETfwd", 200, 0.0, 4000.0);
 
   // Also make a map of all weight to check the generated centrality
   // classes.
-  //multimap<double,double> gencent;
+  multimap<double,double> gencent;
 
   // Book a histogram for the distribution of number of wounded
   // nucleons.
@@ -295,9 +275,11 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
   double sumw = 0.0;
 
   // Initialise pythia.
+  //pythia.settings.listAll();
   pythia.init();
-  pythia.readFile("PAngantyr.cmnd");
+  //pythia.readFile("PAngantyr.cmnd");
   pythia.settings.listChanged();
+  //pythia.settings.listAll();
 
   TFile* file = TFile::Open(filename, "RECREATE");
   if (!file || !file->IsOpen()) {
@@ -394,6 +376,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
   Int_t cETAall=0;
   Int_t cOmegaall=0;
 
+  Int_t cetapis=0;
+  Int_t comegapis=0;
+
   //ETpart/ETALL
   Double_t pETpip=0;
   Double_t pETpim=0;
@@ -476,48 +461,60 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
     Double_t ETn_=0;
     Double_t ETother=0;
 
+    Double_t ETetapis=0;
+    Double_t ETomegapis=0;
 
-      Double_t PTAll=0;
-      Double_t PTcharge=0;
-      Double_t PTpip=0;
-      Double_t PTpim=0;
-      Double_t PTpi0=0;
-      Double_t PTKp=0;
-      Double_t PTKm=0;
-      Double_t PTK0=0;
-      Double_t PTKL=0;
-      Double_t PTKS=0;
-      Double_t PTEta=0;
-      Double_t PTOmega=0; //THIS IS omega not Omega
-      Double_t PTLambda0=0;
-      Double_t PTLambdaBar0=0;
-      Double_t PTOMEGAm=0;
-      Double_t PTXi0=0;
-      Double_t PTXim=0;
-      Double_t PTSigmap=0;
-      Double_t PTSigmam=0;
-      Double_t PTSigma0=0;
-      Double_t PTp=0;
-      Double_t PTn=0;
-      Double_t PTp_=0;
-      Double_t PTn_=0;//int LambDecayCount=0;
-      Double_t PTother=0;
+    Double_t PTAll=0;
+    Double_t PTcharge=0;
+    Double_t PTpip=0;
+    Double_t PTpim=0;
+    Double_t PTpi0=0;
+    Double_t PTKp=0;
+    Double_t PTKm=0;
+    Double_t PTK0=0;
+    Double_t PTKL=0;
+    Double_t PTKS=0;
+    Double_t PTEta=0;
+    Double_t PTOmega=0; //THIS IS omega not Omega
+    Double_t PTLambda0=0;
+    Double_t PTLambdaBar0=0;
+    Double_t PTOMEGAm=0;
+    Double_t PTXi0=0;
+    Double_t PTXim=0;
+    Double_t PTSigmap=0;
+    Double_t PTSigmam=0;
+    Double_t PTSigma0=0;
+    Double_t PTp=0;
+    Double_t PTn=0;
+    Double_t PTp_=0;
+    Double_t PTn_=0;//int LambDecayCount=0;
+    Double_t PTother=0;
 
-      vector<pylista> pylis(1);
+    Double_t PTetapis=0;
+    Double_t PTomegapis=0;
+
+    vector<pylista> pylis(1);
     // Show how far we got every 100'th event.
-    if (event % 10 == 0)
+    //if (event % 10 == 0)
       cout <<"Collision Energy: "<< SNN <<" Event # " << event <<endl;
+    if(debug)cout << "1\n";
     // Make one event.
     //pythia.GenerateEvent(); //?
-    if (!pythia.next()) {
+    bool NEXT = pythia.next();
+    if (!NEXT) {
+      cout<<"HELLO\n";
       if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
+    if(debug)cout << "2\n";
     hNEvents->Fill(0.5);
-    pythia.pylist(1); //DEBUG helper
+    //pythia.pylist(1); //DEBUG helper
     Event TheEvent = pythia.event;
+    TheEvent.init();
+    //pythia.event.free();
     Int_t npart = TheEvent.size();
+    if(debug)cout << "3\n";
     for (Int_t parta=0; parta<npart; parta++) {
       Particle particle = TheEvent.at(parta);
       pylis.push_back(pylista());
@@ -525,7 +522,9 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
       pylis[parta].indePar=particle.mother1();
       pylis[parta].KFpart=TheEvent.at(pylis[parta].indePar).id();
     }
+    if(debug)cout << "4\n";
     for (Int_t part=0; part<npart; part++) {
+      //if(debug)cout << "2."<<part<<"\t";
       //TObject *object = particles->At(part);
       //cout<<"I am a "<<object->ClassName()<<endl;
       Particle MPart = TheEvent.at(part);
@@ -555,6 +554,8 @@ int makeEventSample(Int_t nEvents, Int_t jobID, Float_t SNN, char CUT, Float_t y
       Int_t mpartD2 = MPart.daughter2();
       Int_t mpP = MPart.mother1();
       Float_t mpL = MPart.tau0();
+      bool finalp = MPart.isFinalPartonLevel();
+      int STATUS = MPart.status();
       Int_t nobby=15;
       Int_t XEM=31;
       Float_t cuttype;
@@ -1412,7 +1413,299 @@ exotics          Final State Particles Only
       cother++;
       //out<<event<<"\t"<<KFID<<endl;
   }}
-  }//FULL INCLUSION
+  }//SOME INCLUSION
+  if (DMODE=='d'){ //Christine's Preferred counting method
+/****************************************************
+The following section counts particles based on the below conditions to ensure no double counting
+FOR ET TOTAL:
+
+Particle:        inclusion requirements:
+pion+-           All but KOS, [anti]Lambda, Xi0+-, Omega-+, Sigma+-bar daughters
+pion0            All but KOS, [anti]Lambda, Xi0+-, Omega-+, Sigma+-bar daughters
+kaon+            ALL INCLUDED
+kaon-            ALL INCLUDED
+kaon0_L          ALL INCLUDED ct=15.34m
+kaon0_S          ALL INCLUDED ct=2.6844cm
+eta              Included only if it decays to gamma t=5.02E-19s
+omega            Included only if it decays to gamma t=7.75E-23s
+Lambda0          ALL INCLUDED ct=7.89cm
+LambdaBar0       ALL INCLUDED
+Omega-           ALL INCLUDED ct=2.461cm
+Xi0              ALL INCLUDED ct=8.71cm
+Xi-              ALL INCLUDED ct=4.91cm
+Sigma+           ALL INCLUDED ct=2.404cm
+Sigma0           ALL INCLUDED ct=2.22x10^(-11)m
+Sigma-           ALL INCLUDED ct=4.424cm
+proton           All except from [anti]lambda decays
+antiproton       All except from [anti]lambda decays
+neutron          All except from [anti]lambda decays
+Antineutron      All except from [anti]lambda decays
+exotics          Final State Particles Only
+
+****************************************************/
+  if (KFID==211){ //pi+
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETpip+=partE; //repeated for event
+      pETpip+=partE; //repeated over total run
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTpip+=pT;
+      pPTpip+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cpip++;  //repeated over total run
+  }}
+  if (KFID==-211){ //pi-
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+      ETpim+=partE;
+      pETpim+=partE;
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTpim+=pT;
+      pPTpim+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cpim++;
+  }}
+  if (KFID==111){ //pi0
+    XEM=pylis[mpP].KFpart; // is one of parents daughters a gamma? if so not included (this is to exclude certain omega and eta modes of decay)
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+      ETpi0+=partE;
+      pETpi0+=partE;
+      ETAll+=partE;
+      PTpi0+=pT;
+      pPTpi0+=pT;
+      PTAll+=pT;
+      cpi0++;
+    }
+    if (XEM==223){
+      ETomegapis+=partE;
+      PTomegapis+=pT;
+      comegapis++;
+    }
+    if (XEM==221){
+      ETetapis+=partE;
+      PTetapis+=pT;
+      cetapis++;
+    }
+  }
+  if (KFID==321){ //K+ //all included
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETKp+=partE;
+      pETKp+=partE;
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTKp+=pT;
+      pPTKp+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cKp++;
+  }}
+  if (KFID==-321){ //K- //all included
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETKm+=partE;
+      pETKm+=partE;
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTKm+=pT;
+      pPTKm+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cKm++;
+  }}
+  if (KFID==130){// KL
+    ETKL+=partE;
+    pETKL+=partE;
+    ETAll+=partE;
+    PTKL+=pT;
+    pPTKL+=pT;
+    PTAll+=pT;
+    cKL++;
+  }
+  if (KFID==310){ //KS
+    ETKS+=partE;
+    pETKS+=partE;
+    ETAll+=partE;
+    PTKS+=pT;
+    pPTKS+=pT;
+    PTAll+=pT;
+    cKS++;
+  }
+  if (KFID==221){ //eta
+    nobby=GetDaughterCheck(pylis,ind,221,22);
+    cETAall++;
+    pETETAall+=partE;
+    pPTETAall+=pT;
+    if (nobby==1){
+      ETEta+=partE;
+      pETEta+=partE;
+      ETAll+=partE;
+      PTEta+=pT;
+      pPTEta+=pT;
+      PTAll+=pT;
+      cEta++;
+  }}
+  if (KFID==223){ // omega
+    nobby=GetDaughterCheck(pylis,ind,223,22);
+    cOmegaall++;
+    pETOmegaall+=partE;
+    pPTOmegaall+=pT;
+    if (nobby==1){
+      ETOmega+=partE;
+      pETOmega+=partE;
+      ETAll+=partE;
+      PTOmega+=pT;
+      pPTOmega+=pT;
+      PTAll+=pT;
+      cOmega++;
+  }}
+  if (KFID==3122){ //Lambda0
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETLambda0+=partE;
+      pETLambda0+=partE;
+      ETAll+=partE;
+      PTLambda0+=pT;
+      pPTLambda0+=pT;
+      PTAll+=pT;
+      cLambda0++;
+  }}
+  if (KFID==-3122){ //LambdaBar0
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETLambdaBar0+=partE;
+      pETLambdaBar0+=partE;
+      ETAll+=partE;
+      PTLambdaBar0+=pT;
+      pPTLambdaBar0+=pT;
+      PTAll+=pT;
+      cLambdaBar0++;
+  }}
+  if (KFID==3334){ //Omega-
+    ETOMEGAm+=partE;
+    pETOMEGAm+=partE;
+    ETAll+=partE;
+    PTOMEGAm+=pT;
+    pPTOMEGAm+=pT;
+    PTAll+=pT;
+    PTcharge=+pT;
+    cOMEGAm++;
+  }
+  if (KFID==3322){ //Xi0
+    ETXi0+=partE;
+    pETXi0+=partE;
+    ETAll+=partE;
+    PTXi0+=pT;
+    pPTXi0+=pT;
+    PTAll+=pT;
+    cXi0++;
+  }
+  if (KFID==3312){ //Xi-
+    ETXim+=partE;
+    pETXim+=partE;
+    ETAll+=partE;
+    PTXim+=pT;
+    pPTXim+=pT;
+    PTAll+=pT;
+    PTcharge=+pT;
+    cXim++;
+  }
+  if (KFID==3222){ //Sigma+
+    if ((mpL>=100)||(mpartD==0)){
+      ETSigmap+=partE;
+      pETSigmap+=partE;
+      ETAll+=partE;
+      PTSigmap+=pT;
+      pPTSigmap+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cSigmap++;
+  }}
+  if (KFID==3112){ //sigma-
+    if ((mpL>=100)||(mpartD==0)){
+      ETSigmam+=partE;
+      pETSigmam+=partE;
+      ETAll+=partE;
+      PTSigmam+=pT;
+      pPTSigmam+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cSigmam++;
+  }}
+  if (KFID==3212){ //sigma0
+      ETSigma0+=partE;
+      pETSigma0+=partE;
+      ETAll+=partE;
+      PTSigma0+=pT;
+      pPTSigma0+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cSigma0++;
+  }
+  if (KFID==2212){ //proton
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETp+=partE;
+      pETp+=partE;
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTp+=pT;
+      pPTp+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cp++;
+  }}
+  if (KFID==2112){ //neutron
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETn+=partE;
+      pETn+=partE;
+      ETAll+=partE;
+      PTn+=pT;
+      pPTn+=pT;
+      PTAll+=pT;
+      cn++;
+  }}
+  if (KFID==-2212){ //antiproton
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETp_+=partE;
+      pETp_+=partE;
+      ETAll+=partE;
+      ETcharge+=partE;
+      PTp_+=pT;
+      pPTp_+=pT;
+      PTAll+=pT;
+      PTcharge=+pT;
+      cp_++;
+  }}
+  if (KFID==-2112){ //antineutron
+    XEM=pylis[mpP].KFpart;
+    if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+      ETn_+=partE;
+      pETn_+=partE;
+      ETAll+=partE;
+      PTn_+=pT;
+      pPTn_+=pT;
+      PTAll+=pT;
+      cn_++;
+  }}
+  if ((KFID==411)||(KFID==421)||(KFID==431)||(KFID==511)||(KFID==521)||(KFID==531)||(KFID==541)||(KFID==331)||(KFID==441)||(KFID==551)||(KFID==333)||(KFID==443)||(KFID==553)||(KFID==110)||(KFID==4112)||(KFID==4122)||(KFID==4212)||(KFID==4222)||(KFID==4132)||(KFID==4312)||(KFID==4232)||(KFID==4322)||(KFID==4332)||(KFID==5112)||(KFID==5122)||(KFID==5212)||(KFID==5222)||(KFID==3114)||(KFID==3214)||(KFID==3224)||(KFID==3314)||(KFID==3324)||(KFID==4114)||(KFID==4214)||(KFID==4224)||(KFID==4314)||(KFID==4324)||(KFID==4334)||(KFID==5114)||(KFID==5214)||(KFID==5224)||(KFID==22)||(KFID==11)||(KFID==13)) {
+    if (mpartD==0){
+      ETother+=partE;
+      pETother+=partE;
+      ETAll+=partE;
+      PTother+=pT;
+      pPTother+=pT;
+      PTAll+=pT;
+      cother++;
+      out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
+  }}
+  }//SOME INCLUSION
 } //end pseudorapidity cut
 //cout<<"11."<<part<<" ";
   }//end particle loop
@@ -1567,13 +1860,14 @@ exotics          Final State Particles Only
           // First sum up transverse energy for centrality measure and also
     // check that the trigger requiring ar least one charged particle
     // forward and backward.
-    /*
+
     double etfwd = 0.0;
     bool trigfwd = false;
     bool trigbwd = false;
     int nc = 0;
 
     for (int i = 0; i < pythia.event.size(); ++i) {
+    //  if(debug)cout << "3."<<i<<"\t";
       Particle & p = pythia.event[i];
       if ( p.isFinal() ) {
         double eta = p.eta();
@@ -1620,15 +1914,15 @@ exotics          Final State Particles Only
     wound2[genidx] += nw*nw*weight;
     // Go through the event again and fill the eta distributions.
     for (int i = 0; i < pythia.event.size(); ++i) {
-      cout<<"10."<<i<<"\n";
+    //  if(debug)cout << "4."<<i<<"\t";
       Particle & p = pythia.event[i];
       if ( p.isFinal() && p.isCharged() &&
            abs(p.eta()) < 2.7 && p.pT() > 0.1 ) {
          etadist[genidx]->fill(p.eta(), weight);
       }
     }
-*/
-  TheEvent.clear();
+
+  //TheEvent.clear();
   }//end event loop
 
     hNEvents->Write();
@@ -1721,15 +2015,16 @@ exotics          Final State Particles Only
     out<<"[other]:\t"<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
 
     out.close();
+    out2.close();
     outfile->Close();
-    cout<<"I made it here line 1716"<<endl;
+    cout<<"I made it here line 2007"<<endl;
   // The run is over, so we write out some statistics.
 
 
   // Now, we just have to normalize and prtint out the histograms. We
   // choose to print the histograms to a file that can be read by
   // eg. gnuplot.
-/*
+
   char* nameOfile= Form("%i%fPAngatyr.dat",jobID,SNN);
   ofstream ofs(nameOfile);
 
@@ -1804,7 +2099,7 @@ exotics          Final State Particles Only
     cout << setw(4) << int(pclim[idx]*100.0 + 0.5)
          << setw(10) << fixed << setprecision(1) << genlim[idx]
          << setw(10) << fixed << setprecision(1) << newlim[idx] << endl;
-*/
+
   // And we're done!
   return 0;
 }
