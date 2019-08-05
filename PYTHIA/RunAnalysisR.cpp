@@ -173,7 +173,7 @@ int RunAnalysisR(){
   cin>>IDNUM;
 
   cout<<"preparing data for run: "<<IDNUM<<endl<<endl;
-  for (int x=0;x<15;x++){
+  for (int x=0;x<10;x++){
     double TET;
     double TPT;
     int num;
@@ -181,8 +181,8 @@ int RunAnalysisR(){
     double pt;
     double pet;
     double ppt;
-    char* temp = Form("hh%iGeVoutfile%i.root",SNN[x],IDNUM);
-    char* temptxt = Form("hh%iGeVoutfile%i.txt",SNN[x],IDNUM);
+    char* temp = Form("%i_%iGeVoutfile.root",IDNUM,SNN[x]);
+    char* temptxt = Form("%i_%iGeVoutfile.txt",IDNUM,SNN[x]);
     TFile f(temp);
     f.Open(temp);
     ifstream f2;
@@ -195,7 +195,13 @@ int RunAnalysisR(){
     //cout<<"JOB: "<<JOBIDD<<"\t";
     f2>>TRASH>>TRASH>>NUMBER;
     cout<<"No.Events: "<<NUMBER<<"\t";
-    f2>>TRASH>>NUMBER>>TRASH>>NUMBER>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>NUMBER>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH;
+    f2>>TRASH>>NUMBER;
+    f2>>TRASH>>TRASH;
+    f2>>TRASH>>TRASH>>TRASH;
+    f2>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH;
+    f2>>TRASH>>NUMBER;
+    f2>>TRASH>>TRASH>>TRASH>>TRASH;
+    f2>>TRASH>>TRASH>>TRASH;
     f2>>TRASH>>TRASH>>TRASH>>NUMBER;
     TET=NUMBER;
     cout<<"Total ET: "<<TET<<"\t";
@@ -207,6 +213,7 @@ int RunAnalysisR(){
     //b=pi+,pi-,pi0,K+,K-,K0L,K0S,Lam,Lam_,p,pBAR,n,nBAR,eta,[eta],omega,[omega],Om-,Xi0,Xi-,Sig+,Sig-,Sig0,other
     for (int b=0;b<23;b++){
       f2>>TRASH>>num>>et>>pt>>pet>>ppt;
+      //cout<<TRASH<<" "<<num<<" "<<et<<" "<<pt<<" "<<pet<<" "<<ppt<<endl;
       StuffTXT[x][0][b].V=et;
       StuffTXT[x][1][b].V=pt;
       StuffTXT[x][0][b].n=num;
@@ -221,6 +228,7 @@ int RunAnalysisR(){
     //start TOTALS
     //b=pions,kaons,lams,p/pbar,n/nbar,eta/ome,other
     for (int b=0;b<8;b++){
+      //cout<<TRASH<<" "<<num<<" "<<et<<" "<<pt<<" "<<pet<<" "<<ppt<<endl;
       f2>>TRASH>>num>>et>>pt>>pet>>ppt;
       TOTs[x][0][b].V=et;
       TOTs[x][1][b].V=pt;
@@ -233,7 +241,7 @@ int RunAnalysisR(){
       TOTs[x][1][b].s=sd;
       //cout<<TRASH<<endl;
     }
-
+    cout<<"I made it here Line 243\n";
     TH1F* hNEvents= (TH1F*)f.Get("hNEvents")->Clone();
     TH1F* hETAll= (TH1F*)f.Get("hETAll")->Clone();
     TH1F* hETPiPlus= (TH1F*)f.Get("hETPiPlus")->Clone();
@@ -279,304 +287,235 @@ int RunAnalysisR(){
     TH1F* hptn= (TH1F*)f.Get("hptn")->Clone();
     TH1F* hptpBar= (TH1F*)f.Get("hptpBar")->Clone();
     TH1F* hptnBar= (TH1F*)f.Get("hptnBar")->Clone();
+    cout<<"Histos Loaded\n";
     f.Close();
 
     a=0;
     b=0;
     ETALLAVG=hETAll->Integral(); //THIS NEEDS TO BE INTEGRAL!!!
-    Stuff[x][a][b].VALUE=ETALLAVG; //DEBUG
-    b++;
-    ETPiPAVG=hETPiPlus->Integral();
-    Stuff[x][a][b].VALUE=ETPiPAVG;
-    b++;
-    ETPiMAVG=hETPiMinus->Integral();
-    Stuff[x][a][b].VALUE=ETPiMAVG;
-    b++;
-    ETPi0AVG=hETPi0->Integral();
-    Stuff[x][a][b].VALUE=ETPi0AVG;
-    b++;
-    ETKaPAVG=hETKPlus->Integral();
-    Stuff[x][a][b].VALUE=ETKaPAVG;
-    b++;
-    ETKaMAVG=hETKMinus->Integral();
-    Stuff[x][a][b].VALUE=ETKaMAVG;
-    b++;
-    ETK0LAVG=hETKL->Integral();
-    Stuff[x][a][b].VALUE=ETK0LAVG;
-    b++;
-    ETK0SAVG=hETKS->Integral();
-    Stuff[x][a][b].VALUE=ETK0SAVG;
-    b++;
-    ETETAAVG=hETEta->Integral();
-    Stuff[x][a][b].VALUE=ETETAAVG;
-    b++;
-    ETOMGAVG=hETomega->Integral();
-    Stuff[x][a][b].VALUE=ETOMGAVG;
-    b++;
-    ETLa0AVG=hETLambda0->Integral();
-    Stuff[x][a][b].VALUE=ETLa0AVG;
-    b++;
-    ETLB0AVG=hETLambdaBar0->Integral();
-    Stuff[x][a][b].VALUE=ETLB0AVG;
-    b++;
-    ETPROAVG=hETp->Integral();
-    Stuff[x][a][b].VALUE=ETPROAVG;
-    b++;
-    ETNEUAVG=hETn->Integral();
-    Stuff[x][a][b].VALUE=ETNEUAVG;
-    b++;
-    ETPRBAVG=hETpBar->Integral();
-    Stuff[x][a][b].VALUE=ETPRBAVG;
-    b++;
-    ETNEBAVG=hETnBar->Integral();
-    Stuff[x][a][b].VALUE=ETNEBAVG;
-    b=0;
-
-
-
+    Stuff[x][a][b].VALUE=ETALLAVG; //
     ETALLS=hETAll->GetStdDev(1);
     Stuff[x][a][b].stddev=ETALLS;
-    b++;
-    ETPiPS=hETPiPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPiPS;
-    b++;
-    ETPiMS=hETPiMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPiMS;
-    b++;
-    ETPi0S=hETPi0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPi0S;
-    b++;
-    ETKaPS=hETKPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETKaPS;
-    b++;
-    ETKaMS=hETKMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETKaMS;
-    b++;
-    ETK0LS=hETKL->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETK0LS;
-    b++;
-    ETK0SS=hETKS->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETK0SS;
-    b++;
-    ETETAS=hETEta->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETETAS;
-    b++;
-    ETOMGS=hETomega->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETOMGS;
-    b++;
-    ETLa0S=hETLambda0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETLa0S;
-    b++;
-    ETLB0S=hETLambdaBar0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETLB0S;
-    b++;
-    ETPROS=hETp->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPROS;
-    b++;
-    ETNEUS=hETn->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETNEUS;
-    b++;
-    ETPRBS=hETpBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPRBS;
-    b++;
-    ETNEBS=hETnBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETNEBS;
-    b=0;
-
-
     ETALLN=hETAll->GetEntries();
     Stuff[x][a][b].entries=ETALLN;
     b++;
+    ETPiPAVG=hETPiPlus->Integral();
+    Stuff[x][a][b].VALUE=ETPiPAVG;
+    ETPiPS=hETPiPlus->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETPiPS;
     ETPiPN=hETPiPlus->GetEntries();
     Stuff[x][a][b].entries=ETPiPN;
     b++;
+    ETPiMAVG=hETPiMinus->Integral();
+    Stuff[x][a][b].VALUE=ETPiMAVG;
+    ETPiMS=hETPiMinus->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETPiMS;
     ETPiMN=hETPiMinus->GetEntries();
     Stuff[x][a][b].entries=ETPiMN;
     b++;
+    ETPi0AVG=hETPi0->Integral();
+    Stuff[x][a][b].VALUE=ETPi0AVG;
+    ETPi0S=hETPi0->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETPi0S;
     ETPi0N=hETPi0->GetEntries();
     Stuff[x][a][b].entries=ETPi0N;
     b++;
+    ETKaPAVG=hETKPlus->Integral();
+    Stuff[x][a][b].VALUE=ETKaPAVG;
+    ETKaPS=hETKPlus->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETKaPS;
     ETKaPN=hETKPlus->GetEntries();
     Stuff[x][a][b].entries=ETKaPN;
     b++;
+    ETKaMAVG=hETKMinus->Integral();
+    Stuff[x][a][b].VALUE=ETKaMAVG;
+    ETKaMS=hETKMinus->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETKaMS;
     ETKaMN=hETKMinus->GetEntries();
     Stuff[x][a][b].entries=ETKaMN;
     b++;
+    ETK0LAVG=hETKL->Integral();
+    Stuff[x][a][b].VALUE=ETK0LAVG;
+    ETK0LS=hETKL->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETK0LS;
     ETK0LN=hETKL->GetEntries();
     Stuff[x][a][b].entries=ETK0LN;
     b++;
+    ETK0SAVG=hETKS->Integral();
+    Stuff[x][a][b].VALUE=ETK0SAVG;
+    ETK0SS=hETKS->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETK0SS;
     ETK0SN=hETKS->GetEntries();
     Stuff[x][a][b].entries=ETK0SN;
     b++;
+    ETETAAVG=hETEta->Integral();
+    Stuff[x][a][b].VALUE=ETETAAVG;
+    ETETAS=hETEta->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETETAS;
     ETETAN=hETEta->GetEntries();
     Stuff[x][a][b].entries=ETETAN;
     b++;
+    ETOMGAVG=hETomega->Integral();
+    Stuff[x][a][b].VALUE=ETOMGAVG;
+    ETOMGS=hETomega->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETOMGS;
     ETOMGN=hETomega->GetEntries();
     Stuff[x][a][b].entries=ETOMGN;
     b++;
+    ETLa0AVG=hETLambda0->Integral();
+    Stuff[x][a][b].VALUE=ETLa0AVG;
+    ETLa0S=hETLambda0->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETLa0S;
     ETLa0N=hETLambda0->GetEntries();
     Stuff[x][a][b].entries=ETLa0N;
     b++;
+    ETLB0AVG=hETLambdaBar0->Integral();
+    Stuff[x][a][b].VALUE=ETLB0AVG;
+    ETLB0S=hETLambdaBar0->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETLB0S;
     ETLB0N=hETLambdaBar0->GetEntries();
     Stuff[x][a][b].entries=ETLB0N;
     b++;
+    ETPROAVG=hETp->Integral();
+    Stuff[x][a][b].VALUE=ETPROAVG;
+    ETPROS=hETp->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETPROS;
     ETPRON=hETp->GetEntries();
     Stuff[x][a][b].entries=ETPRON;
     b++;
+    ETNEUAVG=hETn->Integral();
+    Stuff[x][a][b].VALUE=ETNEUAVG;
+    ETNEUS=hETn->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETNEUS;
     ETNEUN=hETn->GetEntries();
     Stuff[x][a][b].entries=ETNEUN;
     b++;
+    ETPRBAVG=hETpBar->Integral();
+    Stuff[x][a][b].VALUE=ETPRBAVG;
+    ETPRBS=hETpBar->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETPRBS;
     ETPRBN=hETpBar->GetEntries();
     Stuff[x][a][b].entries=ETPRBN;
     b++;
+    ETNEBAVG=hETnBar->Integral();
+    Stuff[x][a][b].VALUE=ETNEBAVG;
+    ETNEBS=hETnBar->GetStdDev(1);
+    Stuff[x][a][b].stddev=ETNEBS;
     ETNEBN=hETnBar->GetEntries();
     Stuff[x][a][b].entries=ETNEBN;
     b=0;
 
+
     a++;
     PTALLAVG=hPTAll->Integral();
     Stuff[x][a][b].VALUE=PTALLAVG;
-    b++;
-    PTPiPAVG=hptPiPlus->Integral();
-    Stuff[x][a][b].VALUE=PTPiPAVG;
-    b++;
-    PTPiMAVG=hptPiMinus->Integral();
-    Stuff[x][a][b].VALUE=PTPiMAVG;
-    b++;
-    PTPi0AVG=hptPi0->Integral();
-    Stuff[x][a][b].VALUE=PTPi0AVG;
-    b++;
-    PTKaPAVG=hptKPlus->Integral();
-    Stuff[x][a][b].VALUE=PTKaPAVG;
-    b++;
-    PTKaMAVG=hptKMinus->Integral();
-    Stuff[x][a][b].VALUE=PTKaMAVG;
-    b++;
-    PTK0LAVG=hptKL->Integral();
-    Stuff[x][a][b].VALUE=PTK0LAVG;
-    b++;
-    PTK0SAVG=hptKS->Integral();
-    Stuff[x][a][b].VALUE=PTK0SAVG;
-    b++;
-    PTETAAVG=hptEta->Integral();
-    Stuff[x][a][b].VALUE=PTETAAVG;
-    b++;
-    PTOMGAVG=hptomega->Integral();
-    Stuff[x][a][b].VALUE=PTOMGAVG;
-    b++;
-    PTLa0AVG=hptLambda0->Integral();
-    Stuff[x][a][b].VALUE=PTLa0AVG;
-    b++;
-    PTLB0AVG=hptLambdaBar0->Integral();
-    Stuff[x][a][b].VALUE=PTLB0AVG;
-    b++;
-    PTPROAVG=hptp->Integral();
-    Stuff[x][a][b].VALUE=PTPROAVG;
-    b++;
-    PTNEUAVG=hptn->Integral();
-    Stuff[x][a][b].VALUE=PTNEUAVG;
-    b++;
-    PTPRBAVG=hptpBar->Integral();
-    Stuff[x][a][b].VALUE=PTPRBAVG;
-    b++;
-    PTNEBAVG=hptnBar->Integral();
-    Stuff[x][a][b].VALUE=PTNEBAVG;
-    b=0;
-
     PTALLS=hPTAll->GetStdDev(1);
     Stuff[x][a][b].stddev=PTALLS;
-    b++;
-    PTPiPS=hptPiPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPiPS;
-    b++;
-    PTPiMS=hptPiMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPiMS;
-    b++;
-    PTPi0S=hptPi0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPi0S;
-    b++;
-    PTKaPS=hptKPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTKaPS;
-    b++;
-    PTKaMS=hptKMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTKaMS;
-    b++;
-    PTK0LS=hptKL->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTK0LS;
-    b++;
-    PTK0SS=hptKS->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTK0SS;
-    b++;
-    PTETAS=hptEta->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTETAS;
-    b++;
-    PTOMGS=hptomega->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTOMGS;
-    b++;
-    PTLa0S=hptLambda0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTLa0S;
-    b++;
-    PTLB0S=hptLambdaBar0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTLB0S;
-    b++;
-    PTPROS=hptp->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPROS;
-    b++;
-    PTNEUS=hptn->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTNEUS;
-    b++;
-    PTPRBS=hptpBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPRBS;
-    b++;
-    PTNEBS=hptnBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTNEBS;
-    b=0;
-
     PTALLN=hPTAll->GetEntries();
     Stuff[x][a][b].entries=PTALLN;
     b++;
+    PTPiPAVG=hptPiPlus->Integral();
+    Stuff[x][a][b].VALUE=PTPiPAVG;
+    PTPiPS=hptPiPlus->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTPiPS;
     PTPiPN=hptPiPlus->GetEntries();
     Stuff[x][a][b].entries=PTPiPN;
     b++;
+    PTPiMAVG=hptPiMinus->Integral();
+    Stuff[x][a][b].VALUE=PTPiMAVG;
+    PTPiMS=hptPiMinus->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTPiMS;
     PTPiMN=hptPiMinus->GetEntries();
     Stuff[x][a][b].entries=PTPiMN;
     b++;
+    PTPi0AVG=hptPi0->Integral();
+    Stuff[x][a][b].VALUE=PTPi0AVG;
+    PTPi0S=hptPi0->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTPi0S;
     PTPi0N=hptPi0->GetEntries();
     Stuff[x][a][b].entries=PTPi0N;
     b++;
+    PTKaPAVG=hptKPlus->Integral();
+    Stuff[x][a][b].VALUE=PTKaPAVG;
+    PTKaPS=hptKPlus->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTKaPS;
     PTKaPN=hptKPlus->GetEntries();
     Stuff[x][a][b].entries=PTKaPN;
     b++;
+    PTKaMAVG=hptKMinus->Integral();
+    Stuff[x][a][b].VALUE=PTKaMAVG;
+    PTKaMS=hptKMinus->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTKaMS;
     PTKaMN=hptKMinus->GetEntries();
     Stuff[x][a][b].entries=PTKaMN;
     b++;
+    PTK0LAVG=hptKL->Integral();
+    Stuff[x][a][b].VALUE=PTK0LAVG;
+    PTK0LS=hptKL->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTK0LS;
     PTK0LN=hptKL->GetEntries();
     Stuff[x][a][b].entries=PTK0LN;
     b++;
+    PTK0SAVG=hptKS->Integral();
+    Stuff[x][a][b].VALUE=PTK0SAVG;
+    PTK0SS=hptKS->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTK0SS;
     PTK0SN=hptKS->GetEntries();
     Stuff[x][a][b].entries=PTK0SN;
     b++;
+    PTETAAVG=hptEta->Integral();
+    Stuff[x][a][b].VALUE=PTETAAVG;
+    PTETAS=hptEta->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTETAS;
     PTETAN=hptEta->GetEntries();
     Stuff[x][a][b].entries=PTETAN;
     b++;
+    PTOMGAVG=hptomega->Integral();
+    Stuff[x][a][b].VALUE=PTOMGAVG;
+    PTOMGS=hptomega->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTOMGS;
     PTOMGN=hptomega->GetEntries();
     Stuff[x][a][b].entries=PTOMGN;
     b++;
+    PTLa0AVG=hptLambda0->Integral();
+    Stuff[x][a][b].VALUE=PTLa0AVG;
+    PTLa0S=hptLambda0->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTLa0S;
     PTLa0N=hptLambda0->GetEntries();
     Stuff[x][a][b].entries=PTLa0N;
     b++;
+    PTLB0AVG=hptLambdaBar0->Integral();
+    Stuff[x][a][b].VALUE=PTLB0AVG;
+    PTLB0S=hptLambdaBar0->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTLB0S;
     PTLB0N=hptLambdaBar0->GetEntries();
     Stuff[x][a][b].entries=PTLB0N;
     b++;
+    PTPROAVG=hptp->Integral();
+    Stuff[x][a][b].VALUE=PTPROAVG;
+    PTPROS=hptp->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTPROS;
     PTPRON=hptp->GetEntries();
     Stuff[x][a][b].entries=PTPRON;
     b++;
+    PTNEUAVG=hptn->Integral();
+    Stuff[x][a][b].VALUE=PTNEUAVG;
+    PTNEUS=hptn->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTNEUS;
     PTNEUN=hptn->GetEntries();
     Stuff[x][a][b].entries=PTNEUN;
     b++;
+    PTPRBAVG=hptpBar->Integral();
+    Stuff[x][a][b].VALUE=PTPRBAVG;
+    PTPRBS=hptpBar->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTPRBS;
     PTPRBN=hptpBar->GetEntries();
     Stuff[x][a][b].entries=PTPRBN;
     b++;
+    PTNEBAVG=hptnBar->Integral();
+    Stuff[x][a][b].VALUE=PTNEBAVG;
+    PTNEBS=hptnBar->GetStdDev(1);
+    Stuff[x][a][b].stddev=PTNEBS;
     PTNEBN=hptnBar->GetEntries();
     Stuff[x][a][b].entries=PTNEBN;
     b=0;
@@ -1194,7 +1133,7 @@ TGraphErrors* gc1=new TGraphErrors(n,x,y,ex,ey);
   legend2->AddEntry(gc1,"Mean(Pi+,Pi-)/Pi0","p");
   gc1->Draw("AP");
   gc1->GetXaxis()->SetLimits(6,300);
-  gc1->GetYaxis()->SetRangeUser(.8,1.1);
+  gc1->GetYaxis()->SetRangeUser(.7,1.3);
   gc1->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
@@ -1257,7 +1196,7 @@ TGraph* gl=new TGraph(n1,x1,y1);
   gl->Draw("L");
 c16->SetLogx();
 c16->Update();
-char* file16= Form("Pi0Check_Run%i.png",IDNUM);
+char* file16= Form("%iPi0Check.png",IDNUM);
 c16->SaveAs(file16);
 
 //kaon check
@@ -1278,7 +1217,7 @@ TGraphErrors* gc2=new TGraphErrors(n,x,y,ex,ey);
   legend3->AddEntry(gc2,"K+/K-","p");
   gc2->Draw("AP");
   gc2->GetXaxis()->SetLimits(6,300);
-  gc2->GetYaxis()->SetRangeUser(.9,1.1);
+  gc2->GetYaxis()->SetRangeUser(.6,1.4);
   gc2->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
@@ -1344,7 +1283,7 @@ TGraphErrors* gc7=new TGraphErrors(n,x,y,ex,ey);
 gl->Draw("L");
 c17->SetLogx();
 c17->Update();
-char* file17= Form("KaonChecks_Run%i.png",IDNUM);
+char* file17= Form("%iKaonChecks.png",IDNUM);
 c17->SaveAs(file17);
 
 //pi0 test
@@ -1367,7 +1306,7 @@ TGraphErrors* gc8=new TGraphErrors(n,x,y,ex,ey);
   legend4->AddEntry(gc8,"p/n","p");
   gc8->Draw("AP");
   gc8->GetXaxis()->SetLimits(6,300);
-  gc8->GetYaxis()->SetRangeUser(.9,1.1);
+  gc8->GetYaxis()->SetRangeUser(.6,1.4);
   gc8->Draw("AP");
 
 for (Int_t i=0;i<n;i++){
@@ -1389,10 +1328,10 @@ TGraphErrors* gc9=new TGraphErrors(n,x,y,ex,ey);
 
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i]*1.066;
-  blarg=((Stuff[i][0][12].VALUE)/(Stuff[i][0][13].VALUE));
+  blarg=((Stuff[i][0][12].VALUE+Stuff[i][0][14].VALUE)/(Stuff[i][0][13].VALUE+Stuff[i][0][15].VALUE));
   y[i]=blarg;
   ex[i]=0;
-  blarg=((Stuff[i][0][12].stddev)/(Stuff[i][0][13].stddev));
+  blarg=((Stuff[i][0][12].stddev+Stuff[i][0][14].stddev)/(Stuff[i][0][13].stddev+Stuff[i][0][15].stddev));
   THINGY=Stuff[i][0][12].entries;
   ey[i]=blarg/sqrt(THINGY);
 }
@@ -1407,10 +1346,10 @@ TGraphErrors* gc11=new TGraphErrors(n,x,y,ex,ey);
 gl->Draw("L");
 c18->SetLogx();
 c18->Update();
-char* file18= Form("pncheck_Run%i.png",IDNUM);
+char* file18= Form("%ipncheck.png",IDNUM);
 c18->SaveAs(file18);
 
-//vsALL
+{/*//vsALL
 TCanvas *c19 =new TCanvas("c19","Particle Et vs ETAll",0,645,1280,745);
 for (Int_t i=0;i<n;i++){
   x[i]=SNNACTUAL[i];
@@ -1471,6 +1410,242 @@ c19->SetLogx();
 c19->Update();
 char* file19= Form("ALLCheck_Run%i.png",IDNUM);
 c19->SaveAs(file19);
+*/}
+
+
+TLegend* legend6=new TLegend(.719092,.115278,.895931,.256944);
+    legend6->SetTextFont(72);
+    legend6->SetTextSize(.03);
+    legend6->SetFillColor(0);
+TLegend* legend7=new TLegend(.712833,.709722,.895149,.893056);
+    legend7->SetTextFont(72);
+    legend7->SetTextSize(.03);
+    legend7->SetFillColor(0);
+TLegend* legend8=new TLegend(.743349,.781944,.897496,.895833);
+    legend8->SetTextFont(72);
+    legend8->SetTextSize(.03);
+    legend8->SetFillColor(0);
+
+TCanvas *c80 =new TCanvas("c80","pi0 check txt",0,645,1280,745);
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i];
+  blarg=((StuffTXT[i][0][0].V+StuffTXT[i][0][1].V)/2)/(StuffTXT[i][0][2].V);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=((StuffTXT[i][0][0].s+StuffTXT[i][0][1].s)/2)/(StuffTXT[i][0][2].s);
+  THINGY=StuffTXT[i][0][0].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc70=new TGraphErrors(n,x,y,ex,ey);
+  gc70->SetTitle("Pi0 check (from .TXT); SNN(GeV); Ratio");
+  gc70->SetMarkerStyle(20);
+  gc70->SetMarkerSize(1.5);
+  gc70->SetMarkerColor(kBlack);
+  gc70->SetLineColor(kBlack);
+  legend6->AddEntry(gc70,"Mean(Pi+,Pi-)/Pi0","p");
+  gc70->Draw("AP");
+  gc70->GetXaxis()->SetLimits(6,300);
+  gc70->GetYaxis()->SetRangeUser(.7,1.3);
+  gc70->Draw("AP");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.033;
+  blarg=(StuffTXT[i][0][0].V)/(StuffTXT[i][0][2].V);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=(StuffTXT[i][0][0].s)/(StuffTXT[i][0][2].s);
+  THINGY=StuffTXT[i][0][0].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc71=new TGraphErrors(n,x,y,ex,ey);
+  gc71->SetMarkerStyle(41);
+  gc71->SetMarkerSize(1.5);
+  gc71->SetMarkerColor(kBlack);
+  gc71->SetLineColor(kBlack);
+  legend6->AddEntry(gc71,"Pi+/Pi0","p");
+  gc71->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  blarg=(StuffTXT[i][0][1].V)/(StuffTXT[i][0][2].V);
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=(StuffTXT[i][0][1].s)/(StuffTXT[i][0][2].s);
+  THINGY=StuffTXT[i][0][1].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc72=new TGraphErrors(n,x,y,ex,ey);
+  gc72->SetMarkerStyle(22);
+  gc72->SetMarkerSize(1.5);
+  gc72->SetMarkerColor(kBlack);
+  gc72->SetLineColor(kBlack);
+  legend6->AddEntry(gc72,"Pi-/Pi0","p");
+  gc72->Draw("P");
+legend6->Draw();
+TGraph* gl73=new TGraph(n1,x1,y1);
+  gl73->SetLineColor(kBlack);
+  gl73->Draw("L");
+c80->SetLogx();
+c80->Update();
+char* file80= Form("%iPi0CheckFROMTXT.png",IDNUM);
+c80->SaveAs(file80);
+
+
+
+
+/////KAONS
+TCanvas *c81 =new TCanvas("c81","kaon checks",0,645,1280,745);
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i];
+  y[i]=(StuffTXT[i][0][3].V)/(StuffTXT[i][0][4].V);
+  ex[i]=0;
+  THINGY=StuffTXT[i][0][3].n;
+  ey[i]=((StuffTXT[i][0][3].s)/(StuffTXT[i][0][4].s))/sqrt(THINGY);
+}
+TGraphErrors* gc74=new TGraphErrors(n,x,y,ex,ey);
+  gc74->SetTitle("Kaon Checks avg (from .TXT); SNN(GeV); Ratio");
+  gc74->SetMarkerStyle(22);
+  gc74->SetMarkerSize(1.5);
+  gc74->SetMarkerColor(kBlue);
+  gc74->SetLineColor(kBlack);
+  legend7->AddEntry(gc74,"K+/K-","p");
+  gc74->Draw("AP");
+  gc74->GetXaxis()->SetLimits(6,300);
+  gc74->GetYaxis()->SetRangeUser(.6,1.4);
+  gc74->Draw("AP");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.033;
+  y[i]=(StuffTXT[i][0][3].V)/(StuffTXT[i][0][5].V);
+  ex[i]=0;
+  THINGY=StuffTXT[i][0][3].n;
+  ey[i]=((StuffTXT[i][0][3].s)/(StuffTXT[i][0][5].s))/sqrt(THINGY);
+}
+TGraphErrors* gc75=new TGraphErrors(n,x,y,ex,ey);
+  gc75->SetMarkerStyle(21);
+  gc75->SetMarkerSize(1.5);
+  gc75->SetMarkerColor(kBlue);
+  gc75->SetLineColor(kBlack);
+  legend7->AddEntry(gc75,"K+/K0L","p");
+  gc75->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  y[i]=(StuffTXT[i][0][3].V)/(StuffTXT[i][0][6].V);
+  ex[i]=0;
+  THINGY=StuffTXT[i][0][3].n;
+  ey[i]=((StuffTXT[i][0][3].s)/(StuffTXT[i][0][6].s))/sqrt(THINGY);
+}
+TGraphErrors* gc76=new TGraphErrors(n,x,y,ex,ey);
+  gc76->SetMarkerStyle(33);
+  gc76->SetMarkerSize(2);
+  gc76->SetMarkerColor(kBlue);
+  gc76->SetLineColor(kBlack);
+  legend7->AddEntry(gc76,"K+/K0S","p");
+  gc76->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.1;
+  y[i]=(StuffTXT[i][0][3].V+StuffTXT[i][0][4].V)/(StuffTXT[i][0][5].V+StuffTXT[i][0][6].V);
+  ex[i]=0;
+  THINGY=StuffTXT[i][0][4].n;
+  ey[i]=((StuffTXT[i][0][3].s+StuffTXT[i][0][4].s)/(StuffTXT[i][0][5].s+StuffTXT[i][0][6].s))/sqrt(THINGY);
+}
+TGraphErrors* gc77=new TGraphErrors(n,x,y,ex,ey);
+  gc77->SetMarkerStyle(20);
+  gc77->SetMarkerSize(1.5);
+  gc77->SetMarkerColor(kBlue);
+  gc77->SetLineColor(kBlack);
+  legend7->AddEntry(gc77,"Kp+Km/K0L+K0S","p");
+  gc77->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.133;
+  y[i]=(StuffTXT[i][0][5].V)/(StuffTXT[i][0][6].V);
+  ex[i]=0;
+  THINGY=StuffTXT[i][0][5].n;
+  ey[i]=((StuffTXT[i][0][5].s)/(StuffTXT[i][0][6].s))/sqrt(THINGY);
+}
+TGraphErrors* gc78=new TGraphErrors(n,x,y,ex,ey);
+  gc78->SetMarkerStyle(41);
+  gc78->SetMarkerSize(1.5);
+  gc78->SetMarkerColor(kBlue);
+  gc78->SetLineColor(kBlack);
+  legend7->AddEntry(gc78,"K0L/K0S","p");
+  gc78->Draw("P");
+  legend3->Draw();
+gl73->Draw("L");
+c81->SetLogx();
+c81->Update();
+char* file81= Form("%iKaonChecksFROMTXT.png",IDNUM);
+c81->SaveAs(file81);
+
+//proton/neutron
+TCanvas *c82 =new TCanvas("c82","p-n checks",0,645,1280,745);
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i];
+  blarg=((StuffTXT[i][0][9].V)/(StuffTXT[i][0][11].V));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=((StuffTXT[i][0][9].s)/(StuffTXT[i][0][11].s));
+  THINGY=StuffTXT[i][0][9].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc79=new TGraphErrors(n,x,y,ex,ey);
+  gc79->SetTitle("Proton and Neutron Checks (from .TXT); SNN(GeV); Ratio");
+  gc79->SetMarkerStyle(22);
+  gc79->SetMarkerSize(1.5);
+  gc79->SetMarkerColor(kRed);
+  gc79->SetLineColor(kBlack);
+  legend8->AddEntry(gc79,"p/n","p");
+  gc79->Draw("AP");
+  gc79->GetXaxis()->SetLimits(6,300);
+  gc79->GetYaxis()->SetRangeUser(.6,1.4);
+  gc79->Draw("AP");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.033;
+  blarg=((StuffTXT[i][0][10].V)/(StuffTXT[i][0][12].V));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=((StuffTXT[i][0][10].s)/(StuffTXT[i][0][12].s));
+  THINGY=StuffTXT[i][0][10].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc80=new TGraphErrors(n,x,y,ex,ey);
+  gc80->SetMarkerStyle(41);
+  gc80->SetMarkerSize(1.5);
+  gc80->SetMarkerColor(kRed);
+  gc80->SetLineColor(kBlack);
+  legend8->AddEntry(gc80,"pBar/nBar","p");
+  gc80->Draw("P");
+
+for (Int_t i=0;i<n;i++){
+  x[i]=SNNACTUAL[i]*1.066;
+  blarg=((StuffTXT[i][0][9].V+StuffTXT[i][0][10].V)/(StuffTXT[i][0][11].V+StuffTXT[i][0][12].V));
+  y[i]=blarg;
+  ex[i]=0;
+  blarg=((StuffTXT[i][0][9].s+StuffTXT[i][0][10].s)/(StuffTXT[i][0][11].s+StuffTXT[i][0][12].s));
+  THINGY=StuffTXT[i][0][9].n;
+  ey[i]=blarg/sqrt(THINGY);
+}
+TGraphErrors* gc81=new TGraphErrors(n,x,y,ex,ey);
+  gc81->SetMarkerStyle(20);
+  gc81->SetMarkerSize(1.5);
+  gc81->SetMarkerColor(kRed);
+  gc81->SetLineColor(kBlack);
+  legend8->AddEntry(gc81,"p+pbar/n+nbar","p");
+  gc81->Draw("P");
+  legend8->Draw();
+gl73->Draw("L");
+c82->SetLogx();
+c82->Update();
+char* file82= Form("%ipncheckFROMTXT.png",IDNUM);
+c82->SaveAs(file82);
+
+
+
+
 
 cout<<"program complete"<<endl<<endl;
 return 0;
