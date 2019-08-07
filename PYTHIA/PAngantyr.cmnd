@@ -2,10 +2,12 @@
 ! a simple pp soft QCD run at 7 TeV.
 Beams:idA = 1000791970        ! first beam p = 2212
 Beams:idB = 1000791970        ! second beam p = 2212
+Beams:frameType = 1
+Tune:ee = 7                   !MONASH 2013
+Tune:pp = 14                  !MONASH 2013
 
 ! 2) Settings related to the run
-
-
+HeavyIon:SigFitNGen = 0
 Main:timesAllowErrors = 10000000
 Next:numberCount = 1000            ! print message every n events
 Next:numberShowLHA = 1             ! print LHA information n times
@@ -19,9 +21,5 @@ ProcessLevel:all = 1
 ParticleDecays:limitTau0 = on      ! Only Particles with tau0 < tau0Max are decayed
 ParticleDecays:tau0Max = 10.       ! Tau0Max = 10. mm/c
 Random:setSeed = on
-Stat:showPartonLevel = on          ! additional statistics on MPI
-Tune:ee = 7
-Tune:pp = 14                       !MONASH
 
 ! 3) Settings related to output
-!MONASH
