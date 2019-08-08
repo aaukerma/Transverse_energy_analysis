@@ -17,7 +17,7 @@
 #include <vector>
 #include <ctime>
 using namespace Pythia8;
-using namespace std;
+//using namespace std;
 #endif
 
 #define FILENAME   "pythia.root"
@@ -484,6 +484,9 @@ Total Run Counters and Data
   Double_t pETETAall=0;
   Double_t pETOmegaall=0;
 
+  Double_t ETetapis=0;
+  Double_t ETomegapis=0;
+
   //Transverse Momenta
   Double_t pPTpip=0;
   Double_t pPTpim=0;
@@ -509,6 +512,9 @@ Total Run Counters and Data
   Double_t pPTother=0;
   Double_t pPTETAall=0;
   Double_t pPTOmegaall=0;
+
+  Double_t PTetapis=0;
+  Double_t PTomegapis=0;
 
   //DECAY COUNTERS
   vector <double> ETADECAYS ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -555,9 +561,6 @@ Total Run Counters and Data
     Double_t ETn_=0;
     Double_t ETother=0;
 
-    Double_t ETetapis=0;
-    Double_t ETomegapis=0;
-
     //Transverse Momenta
     Double_t PTAll=0;
     Double_t PTcharge=0;
@@ -585,10 +588,7 @@ Total Run Counters and Data
     Double_t PTn_=0;//int LambDecayCount=0;
     Double_t PTother=0;
 
-    Double_t PTetapis=0;
-    Double_t PTomegapis=0;
-
-    vector<pylista> pylis(1);            //particle list (akin to pylist())
+    vector<pylista> pylis(0);            //particle list (akin to pylist())
 
     /**************************
     Event Generation Sequence
@@ -605,31 +605,29 @@ Total Run Counters and Data
       break;
     }
     if(debug)cout << "3 ";             //DEBUG STATEMENT
-    Event TheEvent = pythia.event;
-    npart = TheEvent.size();
+    Event* TheEvent =& pythia.event;
+    npart = TheEvent->size();
     //cout<<npart<<endl;
 
     /****************************************
     Particle Parent and Decay Chain Structure
     *****************************************/
     for (int parta=0; parta<npart; parta++) {
-      Particle particle = TheEvent.at(parta);
-      //if(debug)cout << "4.1."<<parta<<" ";             //DEBUG STATEMENT
+      Particle particle = TheEvent->at(parta);
       pylis.push_back(pylista());
-      //if(debug)cout << "4.2."<<parta<<" ";             //DEBUG STATEMENT
       pylis[parta].inde=parta;
       pylis[parta].indePar=particle.mother1();
-      pylis[parta].KFpart=TheEvent.at(pylis[parta].indePar).id();
+      pylis[parta].KFpart=TheEvent->at(pylis[parta].indePar).id();
     }
-
 
     /************************
     =========================
          PARTICLE LOOP
     =========================
     ************************/
+
     for (int part=0; part<npart; part++) {
-      Particle MPart = TheEvent.at(part);
+      Particle MPart = TheEvent->at(part);
       Int_t KFID = MPart.id();
       Int_t Ckf=GetKFConversion(KFID,partname);
       Int_t ind = part+1; //index
@@ -1462,7 +1460,7 @@ Total Run Counters and Data
         if (DMODE=='d'){ //Christines preferred method
           if (KFID==211){ //pi+
             XEM=pylis[ind].KFpart;
-            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
               ETpip+=partE; //repeated for event
               pETpip+=partE; //repeated over total run
               ETAll+=partE;
@@ -1472,10 +1470,20 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cpip++;  //repeated over total run
+            }
+            if (XEM==223){
+              ETomegapis+=partE;
+              PTomegapis+=pT;
+              comegapis++;
+            }
+            if (XEM==221){
+              ETetapis+=partE;
+              PTetapis+=pT;
+              cetapis++;
           }}
           if (KFID==-211){ //pi-
             XEM=pylis[ind].KFpart;
-            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
               ETpim+=partE;
               pETpim+=partE;
               ETAll+=partE;
@@ -1485,10 +1493,20 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cpim++;
+            }
+            if (XEM==223){
+              ETomegapis+=partE;
+              PTomegapis+=pT;
+              comegapis++;
+            }
+            if (XEM==221){
+              ETetapis+=partE;
+              PTetapis+=pT;
+              cetapis++;
           }}
           if (KFID==111){ //pi0
             XEM=pylis[ind].KFpart; // is one of parents daughters a gamma? if so not included (this is to exclude certain omega and eta modes of decay)
-            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
               ETpi0+=partE;
               pETpi0+=partE;
               ETAll+=partE;
@@ -1553,48 +1571,39 @@ Total Run Counters and Data
             cKS++;
           }
           if (KFID==221){ //eta
-            nobby=0;
             for (int hxq=0;hxq<ds;hxq++){
-              XEM=TheEvent.at(DAU[hxq]).id();
+              XEM=TheEvent->at(DAU[hxq]).id();
               DAU2[hxq]=XEM;
-              if (TheEvent.at(DAU[hxq]).id()==22){
-                nobby=1;
-              }
             }
             decayed = GetEtaDecayMode(DAU2);
             ETADECAYS[decayed]+=1;
             //cout<<ETADECAYS[decayed]<<"\t";
             cETAall++;
-            if (nobby==1){
-              ETEta+=partE;
-              pETEta+=partE;
-              ETAll+=partE;
-              PTEta+=pT;
-              pPTEta+=pT;
-              PTAll+=pT;
-              cEta++;
-          }}
+            ETEta+=partE;
+            pETEta+=partE;
+            ETAll+=partE;
+            PTEta+=pT;
+            pPTEta+=pT;
+            PTAll+=pT;
+            cEta++;
+          }
           if (KFID==223){ // omega
             nobby=0;
             for (int hxd=0;hxd<ds;hxd++){
-              XEM=TheEvent.at(DAU[hxd]).id();
+              XEM=TheEvent->at(DAU[hxd]).id();
               DAU2[hxd]=XEM;
-              if (TheEvent.at(DAU[hxd]).id()==22){
-                nobby=1;
-              }
             }
             decayed = GetOmegaDecayMode(DAU2);
             OMEGADECAYS[decayed]+=1;
             cOmegaall++;
-            if (nobby==1){
-              ETOmega+=partE;
-              pETOmega+=partE;
-              ETAll+=partE;
-              PTOmega+=pT;
-              pPTOmega+=pT;
-              PTAll+=pT;
-              cOmega++;
-          }}
+            ETOmega+=partE;
+            pETOmega+=partE;
+            ETAll+=partE;
+            PTOmega+=pT;
+            pPTOmega+=pT;
+            PTAll+=pT;
+            cOmega++;
+          }
           if (KFID==3122){ //Lambda0
             XEM=pylis[ind].KFpart;
             if ((XEM!=310)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
@@ -1741,6 +1750,8 @@ Total Run Counters and Data
           }
           if ((KFID!=211)&&(KFID!=-211)&&(KFID!=111)&&(KFID!=321)&&(KFID!=-321)&&(KFID!=130)&&(KFID!=310)&&(KFID!=221)&&(KFID!=223)&&(KFID!=3122)&&(KFID!=-3122)&&(KFID!=3334)&&(KFID!=3322)&&(KFID!=3312)&&(KFID!=3222)&&(KFID!=3112)&&(KFID!=3212)&&(KFID!=2212)&&(KFID!=2112)&&(KFID!=-2212)&&(KFID!=-2112)&&(KFID!=22)&&((KFID>=100)||(KFID==11)||(KFID==12)||(KFID==13)||(KFID==14)||(KFID==15)||(KFID==16)||(KFID==17)||(KFID==18)||(KFID==-11)||(KFID==-12)||(KFID==-13)||(KFID==-14)||(KFID==-15)||(KFID==-16)||(KFID==-17)||(KFID==-18))) {
             if (mpartD==0){
+              XEM=pylis[ind].KFpart;
+              if ((XEM!=221)&&(XEM!=223){
               ETother+=partE;
               pETother+=partE;
               ETAll+=partE;
@@ -1749,7 +1760,7 @@ Total Run Counters and Data
               PTAll+=pT;
               cother++;
               out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
-          }}
+          }}}
         }//END DMODE 'd'
       }//end rap cut
     }//end part loop
@@ -1855,7 +1866,8 @@ Total Run Counters and Data
       hPTother->Fill(PTother);
     }
     }
-    TheEvent.free();
+    //TheEvent->free();
+    TheEvent->reset();
   }//end event loop
   cout<<"Run complete, Writing to Disk\n";
 /**************
@@ -1948,6 +1960,10 @@ Writing to File
   out<<"[eta,ome]:\t"<<(cEta+cOmega)<<"\t"<<(pETEta+pETOmega)<<"\t"<<(pPTEta+pPTOmega)<<"\t"<<((pETEta+pETOmega)/TET)*100<<"\t"<<((pPTEta+pPTOmega)/TPT)*100<<endl;
   out<<"[exotics]:\t"<<(cOMEGAm+cXi0+cXim+cSigmap+cSigmam+cSigma0)<<"\t"<<(pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)<<"\t"<<(pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)<<"\t"<<((pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)/TET)*100<<"\t"<<((pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)/TPT)*100<<endl;
   out<<"[other]:\t"<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
+  out<<endl;
+  out<<"Decay Products vs 'Primary'\nGroup\tET\tPT\tORIGINAL: ETo\tPTo\tET%\tPT%\n";
+  out<<"[Pions (eta)]\t"<<ETetapis<<"\t"<<PTetapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETetapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTetapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
+  out<<"[Pions (omega)]\t"<<ETomegapis<<"\t"<<PTomegapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETomegapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTomegapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
 
   out.close();
   out2.close();
