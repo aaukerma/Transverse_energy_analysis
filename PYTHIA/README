@@ -218,7 +218,8 @@ other            Only if final
 'c'
 Particle:        inclusion requirements:
 pion+-           All but KOS, [anti]Lambda daughters
-pion0            Most Included (if omega parent is 2nd decay mode or KOS/lambda/antilam daughter, pi0 is not included)
+pion0            Most Included (if omega parent is 2nd decay mode or KOS/lambda/
+                   antilam daughter, pi0 is not included)
 kaon+            ALL INCLUDED
 kaon-            ALL INCLUDED
 kaon0_L          ALL INCLUDED ct=15.34m
@@ -242,10 +243,14 @@ exotics          Final State Particles Only
 
 'd'
 Particle:        inclusion requirements:
-pion+-           All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-pion0            All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-kaon+            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-kaon-            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+pion+-           All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,
+                    Sigma+,Sigma-,Xi0,Xi-,Omega-
+pion0            All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,
+                    Sigma+,Sigma-,Xi0,Xi-,Omega-
+kaon+            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+kaon-            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
 kaon0_L          ALL INCLUDED
 kaon0_S          ALL INCLUDED
 eta              ALL INCLUDED
@@ -258,10 +263,14 @@ Xi-              ALL INCLUDED
 Sigma+           ALL INCLUDED
 Sigma0           ALL INCLUDED
 Sigma-           ALL INCLUDED
-proton           All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-antiproton       All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-neutron          All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
-Antineutron      All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+proton           All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+antiproton       All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+neutron          All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+Antineutron      All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
 gamma            All expect daughters of pi0,eta,omega,Sigma0
 exotics          Primary Particles Only (WIP)
 --------------------------------------------------------------------------------
