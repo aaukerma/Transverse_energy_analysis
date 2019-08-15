@@ -89,8 +89,31 @@ To run Angantyr:
             root AngantyrStartUpRoot.C
 
         (c)   The run is now complete. Resulting files are of the form:
-        "pp[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
+        "pA[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
         ext is either .txt or .root (ID and SNN  are described below)
+================================================================================
+
+RUNNING ANALYSIS:
+================================================================================
+To run the analysis:
+
+        (a)   Ensure all 10 SNN have been run for a given ID
+        (b)   Run the program with the following command:
+
+            root RunAnalysisR.C
+
+        (c)   The program will prompt you with the ID (see below) and version.
+              The ID should match the files.
+                  ex: pp20190815_7GeVoutfile.root
+                  ID is 20190815
+              The version will be asked via "pp or pA?". Input 'p' for pp and
+              'A' for pA.
+                  ex: pp20190815_7GeVoutfile.root
+                  pp or pA? is 'p'
+        (d)   The analysis will result with 6 graphs. Any that end with the
+              string "FROMTXT" are from the .txt files and are universal numbers
+              meaning that the ET is a total over all events. The other plots
+              are based on histograms filled in each event.
 ================================================================================
 
 Specifications and Run Parameters:
@@ -131,6 +154,9 @@ desired manner:
        Both are essentially the same, however, Angantyr_3.C includes an extra
        output file that shows the full decay modes of the eta and omega mesons
        to ensure that the tune is functioning properly.
+(10)   HIGHEVN  [number of events for LHC energies 2760GeV and 5020GeV as they
+                tend to take longer to run. It is recommended that his value is
+                lower than EVN]
 --------------------------------------------------------------------------------
 
 Tuning:
