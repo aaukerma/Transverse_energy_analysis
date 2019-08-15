@@ -1,21 +1,241 @@
-To run most up to date version of PYTHIA for RHIP group:
+********************************************************************************
+ |||||||    |||      |||    ||||||||||    ||       ||    ||||||||||      |||
+ ||    ||     ||    ||          ||        ||       ||        ||         |||||
+ ||    ||      ||  ||           ||        ||       ||        ||        ||   ||
+ |||||||        ||||            ||        |||||||||||        ||        |||||||
+ ||              ||             ||        ||       ||        ||        ||   ||
+ ||              ||             ||        ||       ||        ||        ||   ||
+ ||              ||             ||        ||       ||        ||        ||   ||
+ ||              ||             ||        ||       ||    ||||||||||    ||   ||
+********************************************************************************
 
-open directory containing:
-  PYTHIALoop2.C
-  PythiaStartUpRoot.C
-  PythiaFullRunRoot.C
-  RunAnalysis.C
+These programs were made for use in the Relativistic Heavy Ion Physics group
 
+System Dependencies:
+--------------------------------------------------------------------------------
+  ROOT6:
+    Version--6.18/00*
+  Pythia6:
+    Version--6.428
+  Pythia8:
+    Version--8.242
+
+*ROOT must be built with Pythia6 and Pythia8 as plugins.
+--------------------------------------------------------------------------------
+
+File Dependencies:
+--------------------------------------------------------------------------------
+  Pythia 6:
+    Pythia6.C
+    PythiaStartUpRoot.C
+    PythiaFullRunRoot.C
+    RunAnalysisR.C
+    KF_Code.dat
+
+  Pythia 8 Angantyr:
+    Angantyr_3.C
+    Angantry_4.C
+    AngantryStartUpRoot.C
+    PAngantyr.cmnd
+    RunAnalysisR.C
+    KF_Code.dat
+--------------------------------------------------------------------------------
+
+RUNNING PYTHIA6 FOR ANALYZING TRANSVERSE ENERGY PER COLLISION ENERGY:
+================================================================================
 There are two ways to run the program,
-1) if you wish to run a single event, then simply run:
-      root PythiaStartUpRoot.C
-      makeEventSample(Number_of_Events,custom_ID,350,Collision Energy)
-2) to run a full analysis across 15 energies:
-      open PythiaFullRunRoot.C in an editor,
-      modify EVN to equal number of events for lower energies and HIGHEVN for higher energies (1TeV+)
-      set ID to custom ID
-   then simply run:
-      root PythiaFullRunRoot.C
-   when the collisions are complete, it will prompt the ID you had set.
-   type in the custom ID you had choosen and press enter.
-   the graphs analyzing the assumptions made about neutral particles will be returned
+
+1) if you wish to run a single event:
+      (a)   open PythiaStartUpRoot.C in an editor and modify the inputs to your
+      specifications (see below)
+
+      (b)   while open to the directory containing the file dependencies, run:
+
+          root PythiaStartUpRoot.C
+
+      (c)   You can either close root with .q or you can run another event with
+      the line:
+
+          makeEventSample(EVN,ID,TUNE,SNN,CUT,YNCUT,DTYPE,DMODE)
+
+       where each of the inputs are as described below (see below). Resulting
+       files are of the form: "pp[ID]_[SNN]GeV[type].[ext]" where [type] is the
+       output file type and [ext] is either .txt or .root
+       (ID and SNN  are described below)
+
+2) to run a full analysis across 10 energies:
+      (a)   open PythiaFullRunRoot.C in an editor and modify the inputs to your
+      specifications (see below)
+
+      (b)   Run the program with the following command:
+
+          root PythiaFullRunRoot.C
+
+      (c)   The run is now complete. Resulting files are of the form:
+      "pp[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
+      ext is either .txt or .root (ID and SNN  are described below)
+================================================================================
+
+RUNNING PYTHIA8 ANGANTYR FOR ANALYZING TRANSVERSE ENERGY PER COLLISION ENERGY:
+================================================================================
+To run Angantyr:
+
+        (a)   open AngantyrStartUpRoot.C in an editor and modify the inputs to
+        your specifications and be sure to specify which angantyr to run
+        (see below)
+
+        (b)   Run the program with the following command:
+
+            root AngantyrStartUpRoot.C
+
+        (c)   The run is now complete. Resulting files are of the form:
+        "pp[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
+        ext is either .txt or .root (ID and SNN  are described below)
+================================================================================
+
+Specifications and Run Parameters:
+--------------------------------------------------------------------------------
+There are a number of parameters that can be modified to run Pythia in the
+desired manner:
+
+(1)   ENV   [modifies the number of events to be run]
+(2)   ID    [Changes the ID of the job preferred method is the date as YYYYMMDD]
+(3)   TUNE  [PYTHIA6 ONLY Default is 350 changes tuning]
+(4)   SNN   [Collision Energy choose from list in xxStartUpRoot.C Program]
+(5)   CUT   [type of cut: 'y' for rapidity cut and 'n' for pseudorapidity cut]
+(6)   YNCUT [Range of above cut]
+(7)   DTYPE [Detector type, chooses to either measure the ET equally  with 'c'
+             or to measure ET with consideration for baryons 'r' which is
+             defined as
+                ET=Etot-m0    for baryons
+                ET=Etot+m0    for antibaryons
+                ET=Etot       for mesons and other
+             and Etot is described as:
+                Etot=sqrt(p^2+(m0)^2)]
+(8)   DMODE [This refers to the counting method. There are four main counting
+             modes:
+                'a'
+                'b'
+                'c'
+                'd' [DEFAULT]
+             where mode 'a' counts all particles giving an over estimation with
+             pletny of double counting. mode 'b' gives an under estimation and
+             only includes final state particles. mode 'c' is a unique method of
+             counting that was designed to include decays. mode 'c' is a work in
+             progress and should not be used unless modified. mode 'd' is the
+             default and has no double counting. the method of counting for each
+             mode is described in detail at the bottom of this README.
+(9)    For Angantyr, there are two programs that can be run:
+          Angantyr_3.C
+          Angantyr_4.C
+       Both are essentially the same, however, Angantyr_3.C includes an extra
+       output file that shows the full decay modes of the eta and omega mesons
+       to ensure that the tune is functioning properly.
+--------------------------------------------------------------------------------
+
+Tuning:
+--------------------------------------------------------------------------------
+Pythia6 is running the Perugia 2011 tune*
+Pythia8 Angantyr is running the MONASH 2013 tune*
+
+*for specifics see Pythia6.C and Angantyr_4.C
+--------------------------------------------------------------------------------
+
+DMODE COUNTING METHODS:
+================================================================================
+'a'
+--------------------------------------------------------------------------------
+Particle:        inclusion requirements:
+pion+-           ALL INCLUDED
+pion0            ALL INCLUDED
+kaon+            ALL INCLUDED
+kaon-            ALL INCLUDED
+kaon0_L          ALL INCLUDED
+kaon0_S          ALL INCLUDED
+eta              ALL INCLUDED
+omega            ALL INCLUDED
+Lambda0          ALL INCLUDED
+LambdaBar0       ALL INCLUDED
+Omega-           ALL INCLUDED
+Xi0              ALL INCLUDED
+Xi-              ALL INCLUDED
+Sigma+           ALL INCLUDED
+Sigma0           ALL INCLUDED
+Sigma-           ALL INCLUDED
+proton           ALL INCLUDED
+neutron          ALL INCLUDED
+--------------------------------------------------------------------------------
+
+'b'
+Particle:        inclusion requirements:
+pion+-           ALL INCLUDED
+pion0            ALL INCLUDED
+kaon+            Only if final
+kaon-            Only if final
+kaon0_L          Only if final
+kaon0_S          Only if final
+eta              Only if final
+omega            Only if final
+Lambda0          Only if final
+LambdaBar0       Only if final
+Omega-           Only if final
+Xi0              Only if final
+Xi-              Only if final
+Sigma+           Only if final
+Sigma0           Only if final
+Sigma-           Only if final
+proton           ALL INCLUDED
+neutron          ALL INCLUDED
+other            Only if final
+--------------------------------------------------------------------------------
+
+'c'
+Particle:        inclusion requirements:
+pion+-           All but KOS, [anti]Lambda daughters
+pion0            Most Included (if omega parent is 2nd decay mode or KOS/lambda/antilam daughter, pi0 is not included)
+kaon+            ALL INCLUDED
+kaon-            ALL INCLUDED
+kaon0_L          ALL INCLUDED ct=15.34m
+kaon0_S          ALL INCLUDED ct=2.6844cm
+eta              Included only if it decays to gamma t=5.02E-19s
+omega            Included only if it decays to gamma t=7.75E-23s
+Lambda0          ALL INCLUDED ct=7.89cm
+LambdaBar0       ALL INCLUDED
+Omega-           ALL INCLUDED ct=2.461cm
+Xi0              ALL INCLUDED ct=8.71cm
+Xi-              ALL INCLUDED ct=4.91cm
+Sigma+           ALL INCLUDED ct=2.404cm
+Sigma0           ALL INCLUDED ct=2.22x10^(-11)m
+Sigma-           ALL INCLUDED ct=4.424cm
+proton           All except from [anti]lambda decays
+antiproton       All except from [anti]lambda decays
+neutron          All except from [anti]lambda decays
+Antineutron      All except from [anti]lambda decays
+exotics          Final State Particles Only
+--------------------------------------------------------------------------------
+
+'d'
+Particle:        inclusion requirements:
+pion+-           All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+pion0            All except daughters of K0s,eta,omega,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+kaon+            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+kaon-            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+kaon0_L          ALL INCLUDED
+kaon0_S          ALL INCLUDED
+eta              ALL INCLUDED
+omega            ALL INCLUDED
+Lambda0          All except daughters of Sigma+,Sigma-,Xi0,Xi-,Omega-
+LambdaBar0       All except daughters of Sigma+,Sigma-,Xi0,Xi-,Omega-
+Omega-           ALL INCLUDED
+Xi0              ALL INCLUDED
+Xi-              ALL INCLUDED
+Sigma+           ALL INCLUDED
+Sigma0           ALL INCLUDED
+Sigma-           ALL INCLUDED
+proton           All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+antiproton       All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+neutron          All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+Antineutron      All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,Xi0,Xi-,Omega-
+gamma            All expect daughters of pi0,eta,omega,Sigma0
+exotics          Primary Particles Only (WIP)
+--------------------------------------------------------------------------------
