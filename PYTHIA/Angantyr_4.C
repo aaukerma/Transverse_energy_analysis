@@ -1,3 +1,6 @@
+/*
+TODO: do it the old way for comparison: pion contribution added from omegas and etas
+*/
 #ifndef __CINT__
 #include "Pythia8/Pythia.h"
 #include "Pythia8/HeavyIons.h"
@@ -44,8 +47,8 @@ return 0;
 }
 
 TH1F *CreateEnergyHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,1000,0,10);
-  histo->GetYaxis()->SetTitle("Ratio");
+  TH1F *histo = new TH1F(name,name,1000,0,100);
+  histo->GetYaxis()->SetTitle("number of entries");
   histo->GetXaxis()->SetTitle("Et");
   return histo;
 }
@@ -56,9 +59,15 @@ TH2F *CreateEnergyHistogram2(char *name){
   return histo;
 }
 TH1F *CreatePTHistogram(char *name){
-  TH1F *histo = new TH1F(name,name,1000,0,10);
+  TH1F *histo = new TH1F(name,name,1000,0,100);
   histo->GetYaxis()->SetTitle("number of entries");
-  histo->GetXaxis()->SetTitle("Energy_Tpart/ETAll");
+  histo->GetXaxis()->SetTitle("Pt");
+  return histo;
+}
+TH1F *CreateMultHistogram(char *name){
+  TH1F *histo = new TH1F(name,name,1000,0,100);
+  histo->GetYaxis()->SetTitle("number of entries");
+  histo->GetXaxis()->SetTitle("Number of Particles");
   return histo;
 }
 Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){  //This is a convenient conversion from KF code to an index without spaces
@@ -329,9 +338,9 @@ Output Files
   else {
     modSNN=SNN;
   }
-  char *filename = Form("%i_%iGeVoutfile.root",jobID,modSNN);
-  char *filename2 = Form("%i_%iGeVoutfile.txt",jobID,modSNN);
-  char *filename3 = Form("%i_%iGeVexotics.txt",jobID,modSNN);
+  char *filename = Form("pA%i_%iGeVoutfile.root",jobID,modSNN);
+  char *filename2 = Form("pA%i_%iGeVoutfile.txt",jobID,modSNN);
+  char *filename3 = Form("pA%i_%iGeVexotics.txt",jobID,modSNN);
   TFile* file = TFile::Open(filename, "RECREATE");
   if (!file || !file->IsOpen()) {
     Error("TEST", "Couldn't open file %s", filename);
@@ -392,6 +401,7 @@ Histogram Intialization
   TH1F *hETn = CreateEnergyHistogram("hETn");
   TH1F *hETp_ = CreateEnergyHistogram("hETpBar");
   TH1F *hETn_ = CreateEnergyHistogram("hETnBar");
+  TH1F *hETgamma = CreateEnergyHistogram("hETgamma");
   TH1F *hETother = CreateEnergyHistogram("hETother");
 
   TH1F *hPTAll = CreatePTHistogram("hPTAll");
@@ -418,10 +428,35 @@ Histogram Intialization
   TH1F *hPTn = CreatePTHistogram("hptn");
   TH1F *hPTp_ = CreatePTHistogram("hptpBar");
   TH1F *hPTn_ = CreatePTHistogram("hptnBar");
+  TH1F *hPTgamma = CreatePTHistogram("hptgamma");
   TH1F *hPTother = CreatePTHistogram("hptother");
   TH1F *hNEvents = new TH1F("hNEvents","Number of events",1,0,1.0);
     hNEvents->GetYaxis()->SetTitle("N_{events}");
     hNEvents->GetXaxis()->SetTitle("no title");
+
+  TH1F *hccpip = CreateMultHistogram("hccPiPlus");
+  TH1F *hccpim = CreateMultHistogram("hccPiMinus");
+  TH1F *hccpi0 = CreateMultHistogram("hccPi0");
+  TH1F *hccKp = CreateMultHistogram("hccKPlus");
+  TH1F *hccKm = CreateMultHistogram("hccKMinus");
+  TH1F *hccKL = CreateMultHistogram("hccKL");
+  TH1F *hccKS = CreateMultHistogram("hccKS");
+  TH1F *hccEta = CreateMultHistogram("hccEta");
+  TH1F *hccOmega = CreateMultHistogram("hccomega");
+  TH1F *hccLambda0 = CreateMultHistogram("hccLambda0");
+  TH1F *hccLambdaBar0 = CreateMultHistogram("hccLambdaBar0");
+  TH1F *hccOMEGAm = CreateMultHistogram("hccOMEGAm"); //3334
+  TH1F *hccXi0 = CreateMultHistogram("hccXi0"); //3322
+  TH1F *hccXim = CreateMultHistogram("hccXim"); //3312
+  TH1F *hccSigmap = CreateMultHistogram("hccSigmap"); //3222
+  TH1F *hccSigmam = CreateMultHistogram("hccSigmam"); //3112
+  TH1F *hccSigma0 = CreateMultHistogram("hccSigma0"); //3212
+  TH1F *hccp = CreateMultHistogram("hccp");
+  TH1F *hccn = CreateMultHistogram("hccn");
+  TH1F *hccp_ = CreateMultHistogram("hccpBar");
+  TH1F *hccn_ = CreateMultHistogram("hccnBar");
+  TH1F *hccgamma = CreateMultHistogram("hccgamma");
+  TH1F *hccother = CreateMultHistogram("hccother");
   cout<<"Histogram intialization complete\n";
 
 /***************************
@@ -452,6 +487,7 @@ Total Run Counters and Data
   Int_t cp_=0;
   Int_t cn_=0;
   Int_t cother=0;
+  Int_t cgamma=0;
   Int_t cETAall=0;
   Int_t cOmegaall=0;
 
@@ -480,9 +516,12 @@ Total Run Counters and Data
   Double_t pETn=0;
   Double_t pETp_=0;
   Double_t pETn_=0;
+  Double_t pETgamma=0;
   Double_t pETother=0;
   Double_t pETETAall=0;
   Double_t pETOmegaall=0;
+
+  Double_t pETALL=0;
 
   Double_t ETetapis=0;
   Double_t ETomegapis=0;
@@ -509,6 +548,7 @@ Total Run Counters and Data
   Double_t pPTn=0;
   Double_t pPTp_=0;
   Double_t pPTn_=0;
+  Double_t pPTgamma=0;
   Double_t pPTother=0;
   Double_t pPTETAall=0;
   Double_t pPTOmegaall=0;
@@ -534,6 +574,33 @@ Total Run Counters and Data
     In-Event Counters and Data
     **************************/
     int npart = 0;
+    //particle counters
+    Int_t ccpip=0;
+    Int_t ccpim=0;
+    Int_t ccpi0=0;
+    Int_t ccKp=0;
+    Int_t ccKm=0;
+    Int_t ccKL=0;
+    Int_t ccKS=0;
+    Int_t ccEta=0;
+    Int_t ccOmega=0; //THIS IS omega not Omega
+    Int_t ccLambda0=0;
+    Int_t ccLambdaBar0=0;
+    Int_t ccOMEGAm=0;
+    Int_t ccXi0=0;
+    Int_t ccXim=0;
+    Int_t ccSigmap=0;
+    Int_t ccSigmam=0;
+    Int_t ccSigma0=0;
+    Int_t ccp=0;
+    Int_t ccn=0;
+    Int_t ccp_=0;
+    Int_t ccn_=0;
+    Int_t ccgamma=0;
+    Int_t ccother=0;
+    Int_t ccETAall=0;
+    Int_t ccOmegaall=0;
+
     //Transverse Energy
     Double_t ETAll=0;
     Double_t ETcharge=0;
@@ -559,6 +626,7 @@ Total Run Counters and Data
     Double_t ETn=0;
     Double_t ETp_=0;
     Double_t ETn_=0;
+    Double_t ETgamma=0;
     Double_t ETother=0;
 
     //Transverse Momenta
@@ -586,6 +654,7 @@ Total Run Counters and Data
     Double_t PTn=0;
     Double_t PTp_=0;
     Double_t PTn_=0;//int LambDecayCount=0;
+    Double_t PTgamma=0;
     Double_t PTother=0;
 
     vector<pylista> pylis(0);            //particle list (akin to pylist())
@@ -684,6 +753,7 @@ Total Run Counters and Data
         }
         else if (DTYPE=='c')
         partE=Ei_TOT;
+        if ((STATUS>=81)&&(STATUS<=89)){pETALL+=partE;}
         if (DMODE=='a'){//ALL INCLUDED
           if (KFID==211){ //pi+ all included
             ETpip+=partE; //repeated for event
@@ -1161,303 +1231,7 @@ Total Run Counters and Data
               out<<event<<"\t"<<KFID<<endl;
           }}
         }//END DMODE 'b'
-        if (DMODE=='c'){ //Decay version 1
-          if (KFID==211){ //pi+
-            XEM=pylis[ind].KFpart;
-            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
-              ETpip+=partE; //repeated for event
-              pETpip+=partE; //repeated over total run
-              ETAll+=partE;
-              ETcharge+=partE;
-              PTpip+=pT;
-              pPTpip+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cpip++;  //repeated over total run
-            }
-          }
-          if (KFID==-211){ //pi-
-              XEM=pylis[ind].KFpart;
-              if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
-                ETpim+=partE;
-                pETpim+=partE;
-                ETAll+=partE;
-                ETcharge+=partE;
-                PTpim+=pT;
-                pPTpim+=pT;
-                PTAll+=pT;
-                PTcharge=+pT;
-                cpim++;
-              }
-          }
-          if (KFID==111){ //pi0
-            XEM=pylis[ind].KFpart; // is one of parents daughters a gamma? if so not included (this is to exclude certain omega and eta modes of decay)
-            nobby=0;
-            if (XEM==223){
-              t=0;/*
-              for (int i=0;i<pylis.size();i++){
-                if (pylis[i].indePar==ind){
-                  //d[t]=pylis[i].KFpart;
-                  t++;
-                }
-              }
-              if ((d[0]==22)&&(d[1]==22)){
-                nobby=1;
-              }
-              else
-                nobby=0;*/
-            }
-            if (nobby==0){
-              if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)){ //do not count if daughter of KOS
-                ETpi0+=partE;
-                pETpi0+=partE;
-                ETAll+=partE;
-                PTpi0+=pT;
-                pPTpi0+=pT;
-                PTAll+=pT;
-                cpi0++;
-              }}
-          }
-          if (KFID==321){ //K+ //all included
-            ETKp+=partE;
-            pETKp+=partE;
-            ETAll+=partE;
-            ETcharge+=partE;
-            PTKp+=pT;
-            pPTKp+=pT;
-            PTAll+=pT;
-            PTcharge=+pT;
-            cKp++;
-          }
-          if (KFID==-321){ //K- //all included
-            ETKm+=partE;
-            pETKm+=partE;
-            ETAll+=partE;
-            ETcharge+=partE;
-            PTKm+=pT;
-            pPTKm+=pT;
-            PTAll+=pT;
-            PTcharge=+pT;
-            cKm++;
-          }
-          if (KFID==130){// KL
-            ETKL+=partE;
-            pETKL+=partE;
-            ETAll+=partE;
-            PTKL+=pT;
-            pPTKL+=pT;
-            PTAll+=pT;
-            cKL++;
-          }
-          if (KFID==310){ //KS
-            ETKS+=partE;
-            pETKS+=partE;
-            ETAll+=partE;
-            PTKS+=pT;
-            pPTKS+=pT;
-            PTAll+=pT;
-            cKS++;
-          }
-          if (KFID==221){ //eta
-            t=0;/*
-            for (int i=0;i<pylis.size();i++){
-              if (pylis[i].indePar==ind){
-                d[t]=pylis[i].KFpart;
-                t++;
-              }
-            }
-            if ((d[0]==22)&&(d[1]==22)){
-              nobby=1;
-            }
-            else
-              nobby=0;*/
-            cETAall++;
-            pETETAall+=partE;
-            pPTETAall+=pT;
-            if (nobby==1){
-              ETEta+=partE;
-              pETEta+=partE;
-              ETAll+=partE;
-              PTEta+=pT;
-              pPTEta+=pT;
-              PTAll+=pT;
-              cEta++;
-            }
-          }
-          if (KFID==223){ // omega
-            t=0;/*
-            for (int i=0;i<pylis.size();i++){
-              if (pylis[i].indePar==ind){
-                d[t]=pylis[i].KFpart;
-                t++;
-              }
-            }
-            if ((d[0]==22)&&(d[1]==22)){
-              nobby=1;
-            }
-            else
-              nobby=0;*/
-            cOmegaall++;
-            pETOmegaall+=partE;
-            pPTOmegaall+=pT;
-            if (nobby==1){
-              ETOmega+=partE;
-              pETOmega+=partE;
-              ETAll+=partE;
-              PTOmega+=pT;
-              pPTOmega+=pT;
-              PTAll+=pT;
-              cOmega++;
-            }
-          }
-          if (KFID==3122){ //Lambda0
-            ETLambda0+=partE;
-            pETLambda0+=partE;
-            ETAll+=partE;
-            PTLambda0+=pT;
-            pPTLambda0+=pT;
-            PTAll+=pT;
-            cLambda0++;
-          }
-          if (KFID==-3122){ //LambdaBar0
-            ETLambdaBar0+=partE;
-            pETLambdaBar0+=partE;
-            ETAll+=partE;
-            PTLambdaBar0+=pT;
-            pPTLambdaBar0+=pT;
-            PTAll+=pT;
-            cLambdaBar0++;
-          }
-          if (KFID==3334){ //Omega-
-            ETOMEGAm+=partE;
-            pETOMEGAm+=partE;
-            ETAll+=partE;
-            PTOMEGAm+=pT;
-            pPTOMEGAm+=pT;
-            PTAll+=pT;
-            PTcharge=+pT;
-            cOMEGAm++;
-          }
-          if (KFID==3322){ //Xi0
-            ETXi0+=partE;
-            pETXi0+=partE;
-            ETAll+=partE;
-            PTXi0+=pT;
-            pPTXi0+=pT;
-            PTAll+=pT;
-            cXi0++;
-          }
-          if (KFID==3312){ //Xi-
-            ETXim+=partE;
-            pETXim+=partE;
-            ETAll+=partE;
-            PTXim+=pT;
-            pPTXim+=pT;
-            PTAll+=pT;
-            PTcharge=+pT;
-            cXim++;
-          }
-          if (KFID==3222){ //Sigma+
-            if ((mpL>=100)||(mpartD==0)){
-              ETSigmap+=partE;
-              pETSigmap+=partE;
-              ETAll+=partE;
-              PTSigmap+=pT;
-              pPTSigmap+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cSigmap++;
-            }
-          }
-          if (KFID==3112){ //sigma-
-            if ((mpL>=100)||(mpartD==0)){
-              ETSigmam+=partE;
-              pETSigmam+=partE;
-              ETAll+=partE;
-              PTSigmam+=pT;
-              pPTSigmam+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cSigmam++;
-            }
-          }
-          if (KFID==3212){ //sigma0
-            if ((mpL>=100)||(mpartD==0)){
-              ETSigma0+=partE;
-              pETSigma0+=partE;
-              ETAll+=partE;
-              PTSigma0+=pT;
-              pPTSigma0+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cSigma0++;
-            }
-          }
-          if (KFID==2212){ //proton
-            XEM=pylis[ind].KFpart;
-            if ((XEM!=3122)&&(XEM!=-3122)){
-              ETp+=partE;
-              pETp+=partE;
-              ETAll+=partE;
-              ETcharge+=partE;
-              PTp+=pT;
-              pPTp+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cp++;
-            }
-          }
-          if (KFID==2112){ //neutron
-            XEM=pylis[ind].KFpart;
-            if ((XEM!=3122)&&(XEM!=-3122)){
-              ETn+=partE;
-              pETn+=partE;
-              ETAll+=partE;
-              PTn+=pT;
-              pPTn+=pT;
-              PTAll+=pT;
-              cn++;
-            }
-          }
-          if (KFID==-2212){ //antiproton
-            XEM=pylis[ind].KFpart;
-            if ((XEM!=3122)&&(XEM!=-3122)){
-              ETp_+=partE;
-              pETp_+=partE;
-              ETAll+=partE;
-              ETcharge+=partE;
-              PTp_+=pT;
-              pPTp_+=pT;
-              PTAll+=pT;
-              PTcharge=+pT;
-              cp_++;
-            }
-          }
-          if (KFID==-2112){ //antineutron
-            XEM=pylis[ind].KFpart;
-            if ((XEM!=3122)&&(XEM!=-3122)){
-              ETn_+=partE;
-              pETn_+=partE;
-              ETAll+=partE;
-              PTn_+=pT;
-              pPTn_+=pT;
-              PTAll+=pT;
-              cn_++;
-            }
-          }
-          if ((KFID==411)||(KFID==421)||(KFID==431)||(KFID==511)||(KFID==521)||(KFID==531)||(KFID==541)||(KFID==331)||(KFID==441)||(KFID==551)||(KFID==333)||(KFID==443)||(KFID==553)||(KFID==110)||(KFID==4112)||(KFID==4122)||(KFID==4212)||(KFID==4222)||(KFID==4132)||(KFID==4312)||(KFID==4232)||(KFID==4322)||(KFID==4332)||(KFID==5112)||(KFID==5122)||(KFID==5212)||(KFID==5222)||(KFID==3114)||(KFID==3214)||(KFID==3224)||(KFID==3314)||(KFID==3324)||(KFID==4114)||(KFID==4214)||(KFID==4224)||(KFID==4314)||(KFID==4324)||(KFID==4334)||(KFID==5114)||(KFID==5214)||(KFID==5224)) {
-            if ((mpartD==22)||mpartD2==22){
-              ETother+=partE;
-              pETother+=partE;
-              ETAll+=partE;
-              PTother+=partE;
-              pPTother+=partE;
-              PTAll+=partE;
-              cother++;
-            }
-          }
-        }//END DMODE 'c'
-        if (DMODE=='d'){ //Christines preferred method
+        if (DMODE=='c'){ //Christines preferred method
           if (KFID==211){ //pi+
             XEM=pylis[ind].KFpart;
             if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
@@ -1470,6 +1244,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cpip++;  //repeated over total run
+              ccpip++;
             }
             if (XEM==223){
               ETomegapis+=partE;
@@ -1493,6 +1268,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cpim++;
+              ccpim++;
             }
             if (XEM==223){
               ETomegapis+=partE;
@@ -1514,6 +1290,7 @@ Total Run Counters and Data
               pPTpi0+=pT;
               PTAll+=pT;
               cpi0++;
+              ccpi0++;
             }
             if (XEM==223){
               ETomegapis+=partE;
@@ -1538,6 +1315,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cKp++;
+              ccKp++;
           }}
           if (KFID==-321){ //K- //all included
             XEM=pylis[ind].KFpart;
@@ -1551,6 +1329,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cKm++;
+              ccKm++;
           }}
           if (KFID==130){// KL
             ETKL+=partE;
@@ -1560,6 +1339,7 @@ Total Run Counters and Data
             pPTKL+=pT;
             PTAll+=pT;
             cKL++;
+            ccKL++;
           }
           if (KFID==310){ //KS
             ETKS+=partE;
@@ -1569,6 +1349,7 @@ Total Run Counters and Data
             pPTKS+=pT;
             PTAll+=pT;
             cKS++;
+            ccKS++;
           }
           if (KFID==221){ //eta
             for (int hxq=0;hxq<ds;hxq++){
@@ -1586,6 +1367,7 @@ Total Run Counters and Data
             pPTEta+=pT;
             PTAll+=pT;
             cEta++;
+            ccEta++;
           }
           if (KFID==223){ // omega
             nobby=0;
@@ -1603,6 +1385,7 @@ Total Run Counters and Data
             pPTOmega+=pT;
             PTAll+=pT;
             cOmega++;
+            ccOmega++;
           }
           if (KFID==3122){ //Lambda0
             XEM=pylis[ind].KFpart;
@@ -1614,6 +1397,7 @@ Total Run Counters and Data
               pPTLambda0+=pT;
               PTAll+=pT;
               cLambda0++;
+              ccLambda0++;
           }}
           if (KFID==-3122){ //LambdaBar0
             XEM=pylis[ind].KFpart;
@@ -1625,6 +1409,7 @@ Total Run Counters and Data
               pPTLambdaBar0+=pT;
               PTAll+=pT;
               cLambdaBar0++;
+              ccLambdaBar0++;
           }}
           if (KFID==3334){ //Omega-
             ETOMEGAm+=partE;
@@ -1635,6 +1420,7 @@ Total Run Counters and Data
             PTAll+=pT;
             PTcharge=+pT;
             cOMEGAm++;
+            ccOMEGAm++;
           }
           if (KFID==3322){ //Xi0
             ETXi0+=partE;
@@ -1644,6 +1430,7 @@ Total Run Counters and Data
             pPTXi0+=pT;
             PTAll+=pT;
             cXi0++;
+            ccXi0++;
           }
           if (KFID==3312){ //Xi-
             ETXim+=partE;
@@ -1654,9 +1441,9 @@ Total Run Counters and Data
             PTAll+=pT;
             PTcharge=+pT;
             cXim++;
+            ccXim++;
           }
           if (KFID==3222){ //Sigma+
-            if ((mpL>=100)||(mpartD==0)){
               ETSigmap+=partE;
               pETSigmap+=partE;
               ETAll+=partE;
@@ -1665,9 +1452,9 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cSigmap++;
-          }}
+              ccSigmap++;
+          }
           if (KFID==3112){ //sigma-
-            if ((mpL>=100)||(mpartD==0)){
               ETSigmam+=partE;
               pETSigmam+=partE;
               ETAll+=partE;
@@ -1676,7 +1463,8 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cSigmam++;
-          }}
+              ccSigmam++;
+          }
           if (KFID==3212){ //sigma0
               ETSigma0+=partE;
               pETSigma0+=partE;
@@ -1686,6 +1474,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cSigma0++;
+              ccSigma0++;
           }
           if (KFID==2212){ //proton
             XEM=pylis[ind].KFpart;
@@ -1699,6 +1488,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cp++;
+              ccp++;
           }}
           if (KFID==2112){ //neutron
             XEM=pylis[ind].KFpart;
@@ -1710,6 +1500,7 @@ Total Run Counters and Data
               pPTn+=pT;
               PTAll+=pT;
               cn++;
+              ccn++;
           }}
           if (KFID==-2212){ //antiproton
             XEM=pylis[ind].KFpart;
@@ -1723,6 +1514,7 @@ Total Run Counters and Data
               PTAll+=pT;
               PTcharge=+pT;
               cp_++;
+              ccp_++;
           }}
           if (KFID==-2112){ //antineutron
             XEM=pylis[ind].KFpart;
@@ -1734,24 +1526,26 @@ Total Run Counters and Data
               pPTn_+=pT;
               PTAll+=pT;
               cn_++;
+              ccn_++;
           }}
           if (KFID==22){ //gamma
             XEM=pylis[ind].KFpart;
             if ((XEM!=111)&&(XEM!=221)&&(XEM!=223)&&(XEM!=3212)){
-              ETother+=partE;
-              pETother+=partE;
+              ETgamma+=partE;
+              pETgamma+=partE;
               ETAll+=partE;
-              PTother+=pT;
-              pPTother+=pT;
+              PTgamma+=pT;
+              pPTgamma+=pT;
               PTAll+=pT;
-              cother++;
+              cgamma++;
+              ccgamma++;
               out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
             }
           }
           if ((KFID!=211)&&(KFID!=-211)&&(KFID!=111)&&(KFID!=321)&&(KFID!=-321)&&(KFID!=130)&&(KFID!=310)&&(KFID!=221)&&(KFID!=223)&&(KFID!=3122)&&(KFID!=-3122)&&(KFID!=3334)&&(KFID!=3322)&&(KFID!=3312)&&(KFID!=3222)&&(KFID!=3112)&&(KFID!=3212)&&(KFID!=2212)&&(KFID!=2112)&&(KFID!=-2212)&&(KFID!=-2112)&&(KFID!=22)&&((KFID>=100)||(KFID==11)||(KFID==12)||(KFID==13)||(KFID==14)||(KFID==15)||(KFID==16)||(KFID==17)||(KFID==18)||(KFID==-11)||(KFID==-12)||(KFID==-13)||(KFID==-14)||(KFID==-15)||(KFID==-16)||(KFID==-17)||(KFID==-18))) {
             if (mpartD==0){
               XEM=pylis[ind].KFpart;
-              if ((XEM!=221)&&(XEM!=223){
+              if ((XEM!=221)&&(XEM!=223)){
               ETother+=partE;
               pETother+=partE;
               ETAll+=partE;
@@ -1759,6 +1553,333 @@ Total Run Counters and Data
               pPTother+=pT;
               PTAll+=pT;
               cother++;
+              ccother++;
+              out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
+          }}}
+        }//END DMODE 'd'
+        if (DMODE=='d'){ //Christines preferred method
+          if (KFID==211){ //pi+
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETpip+=partE; //repeated for event
+              pETpip+=partE; //repeated over total run
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTpip+=pT;
+              pPTpip+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cpip++;  //repeated over total run
+              ccpip++;
+            }
+            if (XEM==223){
+              ETomegapis+=partE;
+              PTomegapis+=pT;
+              comegapis++;
+            }
+            if (XEM==221){
+              ETetapis+=partE;
+              PTetapis+=pT;
+              cetapis++;
+          }}
+          if (KFID==-211){ //pi-
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+              ETpim+=partE;
+              pETpim+=partE;
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTpim+=pT;
+              pPTpim+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cpim++;
+              ccpim++;
+            }
+            if (XEM==223){
+              ETomegapis+=partE;
+              PTomegapis+=pT;
+              comegapis++;
+            }
+            if (XEM==221){
+              ETetapis+=partE;
+              PTetapis+=pT;
+              cetapis++;
+          }}
+          if (KFID==111){ //pi0
+            XEM=pylis[ind].KFpart; // is one of parents daughters a gamma? if so not included (this is to exclude certain omega and eta modes of decay)
+            if ((XEM!=310)&&(XEM!=223)&&(XEM!=221)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //do not count if daughter of KOS
+              ETpi0+=partE;
+              pETpi0+=partE;
+              ETAll+=partE;
+              PTpi0+=pT;
+              pPTpi0+=pT;
+              PTAll+=pT;
+              cpi0++;
+              ccpi0++;
+            }
+            if (XEM==223){
+              ETomegapis+=partE;
+              PTomegapis+=pT;
+              comegapis++;
+            }
+            if (XEM==221){
+              ETetapis+=partE;
+              PTetapis+=pT;
+              cetapis++;
+            }
+          }
+          if (KFID==321){ //K+ //all included
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETKp+=partE;
+              pETKp+=partE;
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTKp+=pT;
+              pPTKp+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cKp++;
+              ccKp++;
+          }}
+          if (KFID==-321){ //K- //all included
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETKm+=partE;
+              pETKm+=partE;
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTKm+=pT;
+              pPTKm+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cKm++;
+              ccKm++;
+          }}
+          if (KFID==130){// KL
+            ETKL+=partE;
+            pETKL+=partE;
+            ETAll+=partE;
+            PTKL+=pT;
+            pPTKL+=pT;
+            PTAll+=pT;
+            cKL++;
+            ccKL++;
+          }
+          if (KFID==310){ //KS
+            ETKS+=partE;
+            pETKS+=partE;
+            ETAll+=partE;
+            PTKS+=pT;
+            pPTKS+=pT;
+            PTAll+=pT;
+            cKS++;
+            ccKS++;
+          }
+          if (KFID==221){ //eta
+            for (int hxq=0;hxq<ds;hxq++){
+              XEM=TheEvent->at(DAU[hxq]).id();
+              DAU2[hxq]=XEM;
+            }
+            decayed = GetEtaDecayMode(DAU2);
+            ETADECAYS[decayed]+=1;
+            //cout<<ETADECAYS[decayed]<<"\t";
+            cETAall++;
+            ETEta+=partE;
+            pETEta+=partE;
+            ETAll+=partE;
+            PTEta+=pT;
+            pPTEta+=pT;
+            PTAll+=pT;
+            cEta++;
+            ccEta++;
+          }
+          if (KFID==223){ // omega
+            nobby=0;
+            for (int hxd=0;hxd<ds;hxd++){
+              XEM=TheEvent->at(DAU[hxd]).id();
+              DAU2[hxd]=XEM;
+            }
+            decayed = GetOmegaDecayMode(DAU2);
+            OMEGADECAYS[decayed]+=1;
+            cOmegaall++;
+            ETOmega+=partE;
+            pETOmega+=partE;
+            ETAll+=partE;
+            PTOmega+=pT;
+            pPTOmega+=pT;
+            PTAll+=pT;
+            cOmega++;
+            ccOmega++;
+          }
+          if (KFID==3122){ //Lambda0
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETLambda0+=partE;
+              pETLambda0+=partE;
+              ETAll+=partE;
+              PTLambda0+=pT;
+              pPTLambda0+=pT;
+              PTAll+=pT;
+              cLambda0++;
+              ccLambda0++;
+          }}
+          if (KFID==-3122){ //LambdaBar0
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETLambdaBar0+=partE;
+              pETLambdaBar0+=partE;
+              ETAll+=partE;
+              PTLambdaBar0+=pT;
+              pPTLambdaBar0+=pT;
+              PTAll+=pT;
+              cLambdaBar0++;
+              ccLambdaBar0++;
+          }}
+          if (KFID==3334){ //Omega-
+            ETOMEGAm+=partE;
+            pETOMEGAm+=partE;
+            ETAll+=partE;
+            PTOMEGAm+=pT;
+            pPTOMEGAm+=pT;
+            PTAll+=pT;
+            PTcharge=+pT;
+            cOMEGAm++;
+            ccOMEGAm++;
+          }
+          if (KFID==3322){ //Xi0
+            ETXi0+=partE;
+            pETXi0+=partE;
+            ETAll+=partE;
+            PTXi0+=pT;
+            pPTXi0+=pT;
+            PTAll+=pT;
+            cXi0++;
+            ccXi0++;
+          }
+          if (KFID==3312){ //Xi-
+            ETXim+=partE;
+            pETXim+=partE;
+            ETAll+=partE;
+            PTXim+=pT;
+            pPTXim+=pT;
+            PTAll+=pT;
+            PTcharge=+pT;
+            cXim++;
+            ccXim++;
+          }
+          if (KFID==3222){ //Sigma+
+              ETSigmap+=partE;
+              pETSigmap+=partE;
+              ETAll+=partE;
+              PTSigmap+=pT;
+              pPTSigmap+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigmap++;
+              ccSigmap++;
+          }
+          if (KFID==3112){ //sigma-
+              ETSigmam+=partE;
+              pETSigmam+=partE;
+              ETAll+=partE;
+              PTSigmam+=pT;
+              pPTSigmam+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigmam++;
+              ccSigmam++;
+          }
+          if (KFID==3212){ //sigma0
+              ETSigma0+=partE;
+              pETSigma0+=partE;
+              ETAll+=partE;
+              PTSigma0+=pT;
+              pPTSigma0+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigma0++;
+              ccSigma0++;
+          }
+          if (KFID==2212){ //proton
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETp+=partE;
+              pETp+=partE;
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTp+=pT;
+              pPTp+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cp++;
+              ccp++;
+          }}
+          if (KFID==2112){ //neutron
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETn+=partE;
+              pETn+=partE;
+              ETAll+=partE;
+              PTn+=pT;
+              pPTn+=pT;
+              PTAll+=pT;
+              cn++;
+              ccn++;
+          }}
+          if (KFID==-2212){ //antiproton
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETp_+=partE;
+              pETp_+=partE;
+              ETAll+=partE;
+              ETcharge+=partE;
+              PTp_+=pT;
+              pPTp_+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cp_++;
+              ccp_++;
+          }}
+          if (KFID==-2112){ //antineutron
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=310)&&(XEM!=3122)&&(XEM!=-3122)&&(XEM!=3222)&&(XEM!=3112)&&(XEM!=3312)&&(XEM!=3322)&&(XEM!=3334)){ //not daughter of k0s,lam,lambar,sig+,sig-,xi0,xi-
+              ETn_+=partE;
+              pETn_+=partE;
+              ETAll+=partE;
+              PTn_+=pT;
+              pPTn_+=pT;
+              PTAll+=pT;
+              cn_++;
+              ccn_++;
+          }}
+          if (KFID==22){ //gamma
+            XEM=pylis[ind].KFpart;
+            if ((XEM!=111)&&(XEM!=221)&&(XEM!=223)&&(XEM!=3212)){
+              ETgamma+=partE;
+              pETgamma+=partE;
+              ETAll+=partE;
+              PTgamma+=pT;
+              pPTgamma+=pT;
+              PTAll+=pT;
+              cgamma++;
+              ccgamma++;
+              out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
+            }
+          }
+          if ((KFID!=211)&&(KFID!=-211)&&(KFID!=111)&&(KFID!=321)&&(KFID!=-321)&&(KFID!=130)&&(KFID!=310)&&(KFID!=221)&&(KFID!=223)&&(KFID!=3122)&&(KFID!=-3122)&&(KFID!=3334)&&(KFID!=3322)&&(KFID!=3312)&&(KFID!=3222)&&(KFID!=3112)&&(KFID!=3212)&&(KFID!=2212)&&(KFID!=2112)&&(KFID!=-2212)&&(KFID!=-2112)&&(KFID!=22)&&((KFID>=100)||(KFID==11)||(KFID==12)||(KFID==13)||(KFID==14)||(KFID==15)||(KFID==16)||(KFID==17)||(KFID==18)||(KFID==-11)||(KFID==-12)||(KFID==-13)||(KFID==-14)||(KFID==-15)||(KFID==-16)||(KFID==-17)||(KFID==-18))) {
+            if (mpartD==0){
+              XEM=pylis[ind].KFpart;
+              if ((XEM!=221)&&(XEM!=223)){
+              ETother+=partE;
+              pETother+=partE;
+              ETAll+=partE;
+              PTother+=pT;
+              pPTother+=pT;
+              PTAll+=pT;
+              cother++;
+              ccother++;
               out2<<event<<"\t"<<KFID<<"\t"<<partE<<"\t"<<pT<<"\t"<<STATUS<<endl;
           }}}
         }//END DMODE 'd'
@@ -1780,90 +1901,118 @@ Total Run Counters and Data
     { //ALL HISTOGRAM FILL
     if (ETpip!=0){
       hETpip->Fill(ETpip);
+      hPTpip->Fill(PTpip);
+      hccpip->Fill(ccpip);
     }
     if (ETpim!=0){
       hETpim->Fill(ETpim);
       hPTpim->Fill(PTpim);
+      hccpim->Fill(ccpim);
     }
     if (ETpi0!=0){
       hETpi0->Fill(ETpi0);
       hPTpi0->Fill(PTpi0);
+      hccpi0->Fill(ccpi0);
     }
     if (ETKp!=0){
       hETKp->Fill(ETKp);
       hPTKp->Fill(PTKp);
+      hccKp->Fill(ccKp);
     }
     if (ETKm!=0){
       hETKm->Fill(ETKm);
       hPTKm->Fill(PTKm);
+      hccKm->Fill(ccKm);
     }
     if (ETKL!=0){
       hETKL->Fill(ETKL);
       hPTKL->Fill(PTKL);
+      hccKL->Fill(ccKL);
     }
     if (ETKS!=0){
       hETKS->Fill(ETKS);
       hPTKS->Fill(PTKS);
+      hccKS->Fill(ccKS);
     }
     if (ETEta!=0){
       hETEta->Fill(ETEta);
       hPTEta->Fill(PTEta);
+      hccEta->Fill(ccEta);
     }
     if (ETOmega!=0){
       hETOmega->Fill(ETOmega);
       hPTOmega->Fill(PTOmega);
+      hccOmega->Fill(ccOmega);
     }
     if (ETLambda0!=0){
       hETLambda0->Fill(ETLambda0);
       hPTLambda0->Fill(PTLambda0);
+      hccLambda0->Fill(ccLambda0);
     }
     if (ETLambdaBar0!=0){
       hETLambdaBar0->Fill(ETLambdaBar0);
       hPTLambdaBar0->Fill(PTLambdaBar0);
+      hccLambdaBar0->Fill(ccLambdaBar0);
     }
     if (ETOMEGAm!=0){
       hETOMEGAm->Fill(ETOMEGAm);
       hPTOMEGAm->Fill(PTOMEGAm);
+      hccOMEGAm->Fill(ccOMEGAm);
     }
     if (ETXi0!=0){
       hETXi0->Fill(ETXi0);
       hPTXi0->Fill(PTXi0);
+      hccXi0->Fill(ccXi0);
     }
     if (ETXim!=0){
       hETXim->Fill(ETXim);
       hPTXim->Fill(PTXim);
+      hccXim->Fill(ccXim);
     }
     if (ETSigmap!=0){
       hETSigmap->Fill(ETSigmap);
       hPTSigmap->Fill(PTSigmap);
+      hccSigmap->Fill(ccSigmap);
     }
     if (ETSigmam!=0){
       hETSigmam->Fill(ETSigmam);
       hPTSigmam->Fill(PTSigmam);
+      hccSigmam->Fill(ccSigmam);
     }
     if (ETSigma0!=0){
       hETSigma0->Fill(ETSigma0);
       hPTSigma0->Fill(PTSigma0);
+      hccSigma0->Fill(ccSigma0);
     }
     if (ETp!=0){
       hETp->Fill(ETp);
       hPTp->Fill(PTp);
+      hccp->Fill(ccp);
     }
     if (ETn!=0){
       hETn->Fill(ETn);
       hPTn->Fill(PTn);
+      hccn->Fill(ccn);
     }
     if (ETp_!=0){
       hETp_->Fill(ETp_);
       hPTp_->Fill(PTp_);
+      hccp_->Fill(ccp_);
     }
     if (ETn_!=0){
       hETn_->Fill(ETn_);
       hPTn_->Fill(PTn_);
+      hccn_->Fill(ccn_);
+    }
+    if (ETgamma!=0){
+      hETgamma->Fill(ETgamma);
+      hPTgamma->Fill(PTgamma);
+      hccgamma->Fill(ccgamma);
     }
     if (ETother!=0){
       hETother->Fill(ETother);
       hPTother->Fill(PTother);
+      hccother->Fill(ccother);
     }
     }
     //TheEvent->free();
@@ -1922,10 +2071,32 @@ Writing to File
   hPTp_->Write();
   hPTn_->Write();
   hPTother->Write();
+  hccpip->Write();
+  hccpim->Write();
+  hccpi0->Write();
+  hccKp->Write();
+  hccKm->Write();
+  hccKL->Write();
+  hccKS->Write();
+  hccEta->Write();
+  hccOmega->Write();
+  hccLambda0->Write();
+  hccLambdaBar0->Write();
+  hccOMEGAm->Write();
+  hccXi0->Write();
+  hccXim->Write();
+  hccSigmap->Write();
+  hccSigmam->Write();
+  hccSigma0->Write();
+  hccp->Write();
+  hccn->Write();
+  hccp_->Write();
+  hccn_->Write();
+  hccother->Write();
 
   //to .txt
-  double TET=pETpip+pETpim+pETpi0+pETKp+pETKm+pETKL+pETKS+pETLambda0+pETLambdaBar0+pETp+pETn+pETp_+pETn_+pETEta+pETOmega+pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0+pETother;
-  double TPT=pPTpip+pPTpim+pPTpi0+pPTKp+pPTKm+pPTKL+pPTKS+pPTLambda0+pPTLambdaBar0+pPTp+pPTn+pPTp_+pPTn_+pPTEta+pPTOmega+pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0+pETother;
+  double TET=pETpip+pETpim+pETpi0+pETKp+pETKm+pETKL+pETKS+pETLambda0+pETLambdaBar0+pETp+pETn+pETp_+pETn_+pETEta+pETOmega+pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0+pETgamma+pETother;
+  double TPT=pPTpip+pPTpim+pPTpi0+pPTKp+pPTKm+pPTKL+pPTKS+pPTLambda0+pPTLambdaBar0+pPTp+pPTn+pPTp_+pPTn_+pPTEta+pPTOmega+pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0+pPTgamma+pPTother;
   out<<"Total Transverse Energy: "<<TET<<"\tTotal Transverse Momentum: "<<TPT<<"\n\n";
 
 
@@ -1951,6 +2122,7 @@ Writing to File
   out<<"Sigma+:\t"<<cSigmap<<"\t"<<pETSigmap<<"\t"<<pPTSigmap<<"\t"<<(pETSigmap/TET)*100<<"\t"<<(pPTSigmap/TPT)*100<<endl;
   out<<"Sigma-:\t"<<cSigmam<<"\t"<<pETSigmam<<"\t"<<pPTSigmam<<"\t"<<(pETSigmam/TET)*100<<"\t"<<(pPTSigmam/TPT)*100<<endl;
   out<<"Sigma0:\t"<<cSigma0<<"\t"<<pETSigma0<<"\t"<<pPTSigma0<<"\t"<<(pETSigma0/TET)*100<<"\t"<<(pPTSigma0/TPT)*100<<endl;
+  out<<"gamma:\t"<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
   out<<endl;
   out<<"[Pions]:\t"<<(cpip+cpim+cpi0)<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<((pETpip+pETpim+pETpi0)/TET)*100<<"\t"<<((pPTpip+pPTpim+pPTpi0)/TPT)*100<<endl;
   out<<"[Kaons]:\t"<<(cKp+cKm+cKL+cKS)<<"\t"<<(pETKp+pETKm+pETKL+pETKS)<<"\t"<<(pPTKp+pPTKm+pPTKL+pPTKS)<<"\t"<<((pETKp+pETKm+pETKL+pETKS)/TET)*100<<"\t"<<((pPTKp+pPTKm+pPTKL+pPTKS)/TPT)*100<<endl;
@@ -1958,8 +2130,11 @@ Writing to File
   out<<"[p,pbar]:\t"<<(cp+cp_)<<"\t"<<(pETp+pETp_)<<"\t"<<(pPTp+pPTp_)<<"\t"<<((pETp+pETp_)/TET)*100<<"\t"<<((pPTp+pPTp_)/TPT)*100<<endl;
   out<<"[n,nbar]:\t"<<(cn+cn_)<<"\t"<<(pETn+pETn_)<<"\t"<<(pPTn+pPTn_)<<"\t"<<((pETn+pETn_)/TET)*100<<"\t"<<((pPTn+pPTn_)/TPT)*100<<endl;
   out<<"[eta,ome]:\t"<<(cEta+cOmega)<<"\t"<<(pETEta+pETOmega)<<"\t"<<(pPTEta+pPTOmega)<<"\t"<<((pETEta+pETOmega)/TET)*100<<"\t"<<((pPTEta+pPTOmega)/TPT)*100<<endl;
-  out<<"[exotics]:\t"<<(cOMEGAm+cXi0+cXim+cSigmap+cSigmam+cSigma0)<<"\t"<<(pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)<<"\t"<<(pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)<<"\t"<<((pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)/TET)*100<<"\t"<<((pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)/TPT)*100<<endl;
-  out<<"[other]:\t"<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
+  out<<"[Xi,Om,Sig]:\t"<<(cOMEGAm+cXi0+cXim+cSigmap+cSigmam+cSigma0)<<"\t"<<(pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)<<"\t"<<(pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)<<"\t"<<((pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)/TET)*100<<"\t"<<((pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)/TPT)*100<<endl;
+  out<<"[gamma]:\t"<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
+  out<<"[exotic]:\t"<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
+  out<<endl;
+  out<<"counted ET:\t"<<TET<<"\tTotal ET:\t"<<pETALL<<"\t(counted/total)%:\t"<<(TET/pETALL)*100<<endl;
   out<<endl;
   out<<"Decay Products vs 'Primary'\nGroup\tET\tPT\tORIGINAL: ETo\tPTo\tET%\tPT%\n";
   out<<"[Pions (eta)]\t"<<ETetapis<<"\t"<<PTetapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETetapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTetapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
