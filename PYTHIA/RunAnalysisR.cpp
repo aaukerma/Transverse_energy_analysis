@@ -5,6 +5,7 @@ stacked graph
 File outputs: ETBinContent, ETBinLowEdge, PTBinContent, PTBinLowEdge
 ******************************************************************************/
 
+
 #include "Riostream.h"
 #include <cstdio>
 #include <vector>
@@ -41,24 +42,37 @@ struct txtdat{
   double pPT;
 };
 
-
+double GetValues(TH1F* histo){
+  double total=0;
+  Double_t BinCent=0;
+  Double_t BinCont=0;
+  double maths=0;
+  Int_t binCount=histo->GetNbinsX();
+  for (Int_t i=0;i<binCount;i++){
+    BinCent=histo->GetBinCenter(i);
+    BinCont=histo->GetBinContent(i);
+    maths=BinCent*BinCont;
+    total+=maths;
+  }
+  return total;
+}
 
 int RunAnalysisR(){
   Int_t IDNUM=1;
   Int_t a=0;//type count 0-1
   Int_t b=0;//part count 0-15
   Int_t c=0;//info count 0-2
-  vector<Int_t> SNN {7,11,19,27,39,62,130,200,900,2760,5020,7000,8000,13000,14000};
-  vector<double> SNNACTUAL {7.7,11.6,19.6,27,39,62.4,130,200,900,2760,5020,7000,8000,13000,14000};
+  vector<Int_t> SNN {7,11,19,27,39,62,130,200,2760,5020,7000,8000,13000,14000};
+  vector<double> SNNACTUAL {7.7,11.5,19.6,27,39,62.4,130,200,2760,5020,7000,8000,13000,14000};
   /*****************************************************************************
   THE FOLLOWING is a reference for counters a, b ,and c
   a{"ET","PT"};
   b{"ALL","PiP","PiM","Pi0","KaP","KaM","K0L","K0S","ETA","OMG","La0","LB0","PRO","NEU","PRB","NEB","OMm","XI0","XIM","SIP","SIM","SI0"};
   c{"AVG","S","N"};
   *****************************************************************************/
-  vector<vector<vector<dat>>> Stuff(15, vector<vector<dat>>(2, vector<dat>(16)));
-  vector<vector<vector<d>>> StuffTXT(15, vector<vector<d>>(2, vector<d>(24)));
-  vector<vector<vector<d>>> TOTs(15, vector<vector<d>>(2, vector<d>(9)));
+  vector<vector<vector<dat>>> Stuff(10, vector<vector<dat>>(2, vector<dat>(16)));
+  vector<vector<vector<d>>> StuffTXT(10, vector<vector<d>>(2, vector<d>(24)));
+  vector<vector<vector<d>>> TOTs(10, vector<vector<d>>(2, vector<d>(9)));
 
   //VALUEs for each histo
   Double_t ETALLAVG;
@@ -165,13 +179,22 @@ int RunAnalysisR(){
   Double_t PTPRBN;
   Double_t PTNEBN;
 
+  Double_t BinCent;
+  Double_t BinCont;
+  Double_t BinErr;
+  double e=0;
+  double d=0;
+  double STDDEVfh=0;
+
   string TRASH;
   int JOBIDD;
   double NUMBER;
+  char ty;
 
   cout<<"Select Run Number (int): "<<endl;
   cin>>IDNUM;
-
+  cout<<"pp or pA?:"<<endl;
+  cin>>ty;
   cout<<"preparing data for run: "<<IDNUM<<endl<<endl;
   for (int x=0;x<10;x++){
     double TET;
@@ -181,8 +204,8 @@ int RunAnalysisR(){
     double pt;
     double pet;
     double ppt;
-    char* temp = Form("%i_%iGeVoutfile.root",IDNUM,SNN[x]);
-    char* temptxt = Form("%i_%iGeVoutfile.txt",IDNUM,SNN[x]);
+    char* temp = Form("p%c%i_%iGeVoutfile.root",ty,IDNUM,SNN[x]);
+    char* temptxt = Form("p%c%i_%iGeVoutfile.txt",ty,IDNUM,SNN[x]);
     TFile f(temp);
     f.Open(temp);
     ifstream f2;
@@ -191,8 +214,9 @@ int RunAnalysisR(){
         cout<<"error opening file"<<endl;
         exit(-1);
     }
-    f2>>TRASH>>TRASH>>TRASH>>TRASH>>JOBIDD;
+    f2>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>JOBIDD;
     //cout<<"JOB: "<<JOBIDD<<"\t";
+    //cout<<TRASH<<endl;
     f2>>TRASH>>TRASH>>NUMBER;
     cout<<"No.Events: "<<NUMBER<<"\t";
     f2>>TRASH>>NUMBER;
@@ -211,7 +235,7 @@ int RunAnalysisR(){
     f2>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH>>TRASH;
     //start DATA
     //b=pi+,pi-,pi0,K+,K-,K0L,K0S,Lam,Lam_,p,pBAR,n,nBAR,eta,[eta],omega,[omega],Om-,Xi0,Xi-,Sig+,Sig-,Sig0,other
-    for (int b=0;b<23;b++){
+    for (int b=0;b<21;b++){
       f2>>TRASH>>num>>et>>pt>>pet>>ppt;
       //cout<<TRASH<<" "<<num<<" "<<et<<" "<<pt<<" "<<pet<<" "<<ppt<<endl;
       StuffTXT[x][0][b].V=et;
@@ -292,232 +316,520 @@ int RunAnalysisR(){
 
     a=0;
     b=0;
-    ETALLAVG=hETAll->Integral(); //THIS NEEDS TO BE INTEGRAL!!!
-    Stuff[x][a][b].VALUE=ETALLAVG; //
-    ETALLS=hETAll->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETALLS;
-    ETALLN=hETAll->GetEntries();
-    Stuff[x][a][b].entries=ETALLN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETAll->GetBinCenter(i);
+      BinCont=hETAll->GetBinContent(i);
+      BinErr=sqrt(hETAll->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETAll->GetEntries();
+
     b++;
-    ETPiPAVG=hETPiPlus->Integral();
-    Stuff[x][a][b].VALUE=ETPiPAVG;
-    ETPiPS=hETPiPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPiPS;
-    ETPiPN=hETPiPlus->GetEntries();
-    Stuff[x][a][b].entries=ETPiPN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETPiPlus->GetBinCenter(i);
+      BinCont=hETPiPlus->GetBinContent(i);
+      BinErr=sqrt(hETPiPlus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETPiPlus->GetEntries();
+
     b++;
-    ETPiMAVG=hETPiMinus->Integral();
-    Stuff[x][a][b].VALUE=ETPiMAVG;
-    ETPiMS=hETPiMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPiMS;
-    ETPiMN=hETPiMinus->GetEntries();
-    Stuff[x][a][b].entries=ETPiMN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETPiMinus->GetBinCenter(i);
+      BinCont=hETPiMinus->GetBinContent(i);
+      BinErr=sqrt(hETPiMinus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETPiMinus->GetEntries();
+
     b++;
-    ETPi0AVG=hETPi0->Integral();
-    Stuff[x][a][b].VALUE=ETPi0AVG;
-    ETPi0S=hETPi0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPi0S;
-    ETPi0N=hETPi0->GetEntries();
-    Stuff[x][a][b].entries=ETPi0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETPi0->GetBinCenter(i);
+      BinCont=hETPi0->GetBinContent(i);
+      BinErr=sqrt(hETPi0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETPi0->GetEntries();
+
     b++;
-    ETKaPAVG=hETKPlus->Integral();
-    Stuff[x][a][b].VALUE=ETKaPAVG;
-    ETKaPS=hETKPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETKaPS;
-    ETKaPN=hETKPlus->GetEntries();
-    Stuff[x][a][b].entries=ETKaPN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETKPlus->GetBinCenter(i);
+      BinCont=hETKPlus->GetBinContent(i);
+      BinErr=sqrt(hETKPlus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETKPlus->GetEntries();
+
     b++;
-    ETKaMAVG=hETKMinus->Integral();
-    Stuff[x][a][b].VALUE=ETKaMAVG;
-    ETKaMS=hETKMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETKaMS;
-    ETKaMN=hETKMinus->GetEntries();
-    Stuff[x][a][b].entries=ETKaMN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETKMinus->GetBinCenter(i);
+      BinCont=hETKMinus->GetBinContent(i);
+      BinErr=sqrt(hETKMinus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETKMinus->GetEntries();
+
     b++;
-    ETK0LAVG=hETKL->Integral();
-    Stuff[x][a][b].VALUE=ETK0LAVG;
-    ETK0LS=hETKL->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETK0LS;
-    ETK0LN=hETKL->GetEntries();
-    Stuff[x][a][b].entries=ETK0LN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETKL->GetBinCenter(i);
+      BinCont=hETKL->GetBinContent(i);
+      BinErr=sqrt(hETKL->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETKL->GetEntries();
+
     b++;
-    ETK0SAVG=hETKS->Integral();
-    Stuff[x][a][b].VALUE=ETK0SAVG;
-    ETK0SS=hETKS->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETK0SS;
-    ETK0SN=hETKS->GetEntries();
-    Stuff[x][a][b].entries=ETK0SN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETKS->GetBinCenter(i);
+      BinCont=hETKS->GetBinContent(i);
+      BinErr=sqrt(hETKS->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETKS->GetEntries();
+
     b++;
-    ETETAAVG=hETEta->Integral();
-    Stuff[x][a][b].VALUE=ETETAAVG;
-    ETETAS=hETEta->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETETAS;
-    ETETAN=hETEta->GetEntries();
-    Stuff[x][a][b].entries=ETETAN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETEta->GetBinCenter(i);
+      BinCont=hETEta->GetBinContent(i);
+      BinErr=sqrt(hETEta->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETEta->GetEntries();
+
     b++;
-    ETOMGAVG=hETomega->Integral();
-    Stuff[x][a][b].VALUE=ETOMGAVG;
-    ETOMGS=hETomega->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETOMGS;
-    ETOMGN=hETomega->GetEntries();
-    Stuff[x][a][b].entries=ETOMGN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETomega->GetBinCenter(i);
+      BinCont=hETomega->GetBinContent(i);
+      BinErr=sqrt(hETomega->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETomega->GetEntries();
+
     b++;
-    ETLa0AVG=hETLambda0->Integral();
-    Stuff[x][a][b].VALUE=ETLa0AVG;
-    ETLa0S=hETLambda0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETLa0S;
-    ETLa0N=hETLambda0->GetEntries();
-    Stuff[x][a][b].entries=ETLa0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETLambda0->GetBinCenter(i);
+      BinCont=hETLambda0->GetBinContent(i);
+      BinErr=sqrt(hETLambda0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETLambda0->GetEntries();
+
     b++;
-    ETLB0AVG=hETLambdaBar0->Integral();
-    Stuff[x][a][b].VALUE=ETLB0AVG;
-    ETLB0S=hETLambdaBar0->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETLB0S;
-    ETLB0N=hETLambdaBar0->GetEntries();
-    Stuff[x][a][b].entries=ETLB0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETLambdaBar0->GetBinCenter(i);
+      BinCont=hETLambdaBar0->GetBinContent(i);
+      BinErr=sqrt(hETLambdaBar0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETLambdaBar0->GetEntries();
+
     b++;
-    ETPROAVG=hETp->Integral();
-    Stuff[x][a][b].VALUE=ETPROAVG;
-    ETPROS=hETp->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPROS;
-    ETPRON=hETp->GetEntries();
-    Stuff[x][a][b].entries=ETPRON;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETp->GetBinCenter(i);
+      BinCont=hETp->GetBinContent(i);
+      BinErr=sqrt(hETp->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETp->GetEntries();
+
     b++;
-    ETNEUAVG=hETn->Integral();
-    Stuff[x][a][b].VALUE=ETNEUAVG;
-    ETNEUS=hETn->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETNEUS;
-    ETNEUN=hETn->GetEntries();
-    Stuff[x][a][b].entries=ETNEUN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETn->GetBinCenter(i);
+      BinCont=hETn->GetBinContent(i);
+      BinErr=sqrt(hETn->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETn->GetEntries();
+
     b++;
-    ETPRBAVG=hETpBar->Integral();
-    Stuff[x][a][b].VALUE=ETPRBAVG;
-    ETPRBS=hETpBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETPRBS;
-    ETPRBN=hETpBar->GetEntries();
-    Stuff[x][a][b].entries=ETPRBN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETpBar->GetBinCenter(i);
+      BinCont=hETpBar->GetBinContent(i);
+      BinErr=sqrt(hETpBar->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETpBar->GetEntries();
+
     b++;
-    ETNEBAVG=hETnBar->Integral();
-    Stuff[x][a][b].VALUE=ETNEBAVG;
-    ETNEBS=hETnBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=ETNEBS;
-    ETNEBN=hETnBar->GetEntries();
-    Stuff[x][a][b].entries=ETNEBN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hETnBar->GetBinCenter(i);
+      BinCont=hETnBar->GetBinContent(i);
+      BinErr=sqrt(hETnBar->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hETnBar->GetEntries();
+
     b=0;
 
 
     a++;
-    PTALLAVG=hPTAll->Integral();
-    Stuff[x][a][b].VALUE=PTALLAVG;
-    PTALLS=hPTAll->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTALLS;
-    PTALLN=hPTAll->GetEntries();
-    Stuff[x][a][b].entries=PTALLN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hPTAll->GetBinCenter(i);
+      BinCont=hPTAll->GetBinContent(i);
+      BinErr=sqrt(hPTAll->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hPTAll->GetEntries();
+
     b++;
-    PTPiPAVG=hptPiPlus->Integral();
-    Stuff[x][a][b].VALUE=PTPiPAVG;
-    PTPiPS=hptPiPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPiPS;
-    PTPiPN=hptPiPlus->GetEntries();
-    Stuff[x][a][b].entries=PTPiPN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptPiPlus->GetBinCenter(i);
+      BinCont=hptPiPlus->GetBinContent(i);
+      BinErr=sqrt(hptPiPlus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptPiPlus->GetEntries();
+
     b++;
-    PTPiMAVG=hptPiMinus->Integral();
-    Stuff[x][a][b].VALUE=PTPiMAVG;
-    PTPiMS=hptPiMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPiMS;
-    PTPiMN=hptPiMinus->GetEntries();
-    Stuff[x][a][b].entries=PTPiMN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptPiMinus->GetBinCenter(i);
+      BinCont=hptPiMinus->GetBinContent(i);
+      BinErr=sqrt(hptPiMinus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptPiMinus->GetEntries();
+
     b++;
-    PTPi0AVG=hptPi0->Integral();
-    Stuff[x][a][b].VALUE=PTPi0AVG;
-    PTPi0S=hptPi0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPi0S;
-    PTPi0N=hptPi0->GetEntries();
-    Stuff[x][a][b].entries=PTPi0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptPi0->GetBinCenter(i);
+      BinCont=hptPi0->GetBinContent(i);
+      BinErr=sqrt(hptPi0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptPi0->GetEntries();
+
     b++;
-    PTKaPAVG=hptKPlus->Integral();
-    Stuff[x][a][b].VALUE=PTKaPAVG;
-    PTKaPS=hptKPlus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTKaPS;
-    PTKaPN=hptKPlus->GetEntries();
-    Stuff[x][a][b].entries=PTKaPN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptKPlus->GetBinCenter(i);
+      BinCont=hptKPlus->GetBinContent(i);
+      BinErr=sqrt(hptKPlus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptKPlus->GetEntries();
+
     b++;
-    PTKaMAVG=hptKMinus->Integral();
-    Stuff[x][a][b].VALUE=PTKaMAVG;
-    PTKaMS=hptKMinus->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTKaMS;
-    PTKaMN=hptKMinus->GetEntries();
-    Stuff[x][a][b].entries=PTKaMN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptKMinus->GetBinCenter(i);
+      BinCont=hptKMinus->GetBinContent(i);
+      BinErr=sqrt(hptKMinus->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptKMinus->GetEntries();
+
     b++;
-    PTK0LAVG=hptKL->Integral();
-    Stuff[x][a][b].VALUE=PTK0LAVG;
-    PTK0LS=hptKL->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTK0LS;
-    PTK0LN=hptKL->GetEntries();
-    Stuff[x][a][b].entries=PTK0LN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptKL->GetBinCenter(i);
+      BinCont=hptKL->GetBinContent(i);
+      BinErr=sqrt(hptKL->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptKL->GetEntries();
+
     b++;
-    PTK0SAVG=hptKS->Integral();
-    Stuff[x][a][b].VALUE=PTK0SAVG;
-    PTK0SS=hptKS->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTK0SS;
-    PTK0SN=hptKS->GetEntries();
-    Stuff[x][a][b].entries=PTK0SN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptKS->GetBinCenter(i);
+      BinCont=hptKS->GetBinContent(i);
+      BinErr=sqrt(hptKS->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptKS->GetEntries();
+
     b++;
-    PTETAAVG=hptEta->Integral();
-    Stuff[x][a][b].VALUE=PTETAAVG;
-    PTETAS=hptEta->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTETAS;
-    PTETAN=hptEta->GetEntries();
-    Stuff[x][a][b].entries=PTETAN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptEta->GetBinCenter(i);
+      BinCont=hptEta->GetBinContent(i);
+      BinErr=sqrt(hptEta->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptEta->GetEntries();
+
     b++;
-    PTOMGAVG=hptomega->Integral();
-    Stuff[x][a][b].VALUE=PTOMGAVG;
-    PTOMGS=hptomega->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTOMGS;
-    PTOMGN=hptomega->GetEntries();
-    Stuff[x][a][b].entries=PTOMGN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptomega->GetBinCenter(i);
+      BinCont=hptomega->GetBinContent(i);
+      BinErr=sqrt(hptomega->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptomega->GetEntries();
+
     b++;
-    PTLa0AVG=hptLambda0->Integral();
-    Stuff[x][a][b].VALUE=PTLa0AVG;
-    PTLa0S=hptLambda0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTLa0S;
-    PTLa0N=hptLambda0->GetEntries();
-    Stuff[x][a][b].entries=PTLa0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptLambda0->GetBinCenter(i);
+      BinCont=hptLambda0->GetBinContent(i);
+      BinErr=sqrt(hptLambda0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptLambda0->GetEntries();
+
     b++;
-    PTLB0AVG=hptLambdaBar0->Integral();
-    Stuff[x][a][b].VALUE=PTLB0AVG;
-    PTLB0S=hptLambdaBar0->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTLB0S;
-    PTLB0N=hptLambdaBar0->GetEntries();
-    Stuff[x][a][b].entries=PTLB0N;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptLambdaBar0->GetBinCenter(i);
+      BinCont=hptLambdaBar0->GetBinContent(i);
+      BinErr=sqrt(hptLambdaBar0->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptLambdaBar0->GetEntries();
+
     b++;
-    PTPROAVG=hptp->Integral();
-    Stuff[x][a][b].VALUE=PTPROAVG;
-    PTPROS=hptp->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPROS;
-    PTPRON=hptp->GetEntries();
-    Stuff[x][a][b].entries=PTPRON;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptp->GetBinCenter(i);
+      BinCont=hptp->GetBinContent(i);
+      BinErr=sqrt(hptp->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptp->GetEntries();
+
     b++;
-    PTNEUAVG=hptn->Integral();
-    Stuff[x][a][b].VALUE=PTNEUAVG;
-    PTNEUS=hptn->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTNEUS;
-    PTNEUN=hptn->GetEntries();
-    Stuff[x][a][b].entries=PTNEUN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptn->GetBinCenter(i);
+      BinCont=hptn->GetBinContent(i);
+      BinErr=sqrt(hptn->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptn->GetEntries();
+
     b++;
-    PTPRBAVG=hptpBar->Integral();
-    Stuff[x][a][b].VALUE=PTPRBAVG;
-    PTPRBS=hptpBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTPRBS;
-    PTPRBN=hptpBar->GetEntries();
-    Stuff[x][a][b].entries=PTPRBN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptpBar->GetBinCenter(i);
+      BinCont=hptpBar->GetBinContent(i);
+      BinErr=sqrt(hptpBar->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptpBar->GetEntries();
+
     b++;
-    PTNEBAVG=hptnBar->Integral();
-    Stuff[x][a][b].VALUE=PTNEBAVG;
-    PTNEBS=hptnBar->GetStdDev(1);
-    Stuff[x][a][b].stddev=PTNEBS;
-    PTNEBN=hptnBar->GetEntries();
-    Stuff[x][a][b].entries=PTNEBN;
+    d=0;
+    STDDEVfh=0;
+    for (Int_t i=0;i<1000;i++){
+      BinCent=hptnBar->GetBinCenter(i);
+      BinCont=hptnBar->GetBinContent(i);
+      BinErr=sqrt(hptnBar->GetBinError(i));
+      e=BinCent*BinCont;
+      d+=e;
+      e=BinErr*BinCont;
+      STDDEVfh+=e;
+    }
+    Stuff[x][a][b].VALUE=d;
+    Stuff[x][a][b].stddev=STDDEVfh;
+    Stuff[x][a][b].entries=hptnBar->GetEntries();
+
     b=0;
 
 
@@ -1196,7 +1508,7 @@ TGraph* gl=new TGraph(n1,x1,y1);
   gl->Draw("L");
 c16->SetLogx();
 c16->Update();
-char* file16= Form("%iPi0Check.png",IDNUM);
+char* file16= Form("p%c%iPi0Check.png",ty,IDNUM);
 c16->SaveAs(file16);
 
 //kaon check
@@ -1283,7 +1595,7 @@ TGraphErrors* gc7=new TGraphErrors(n,x,y,ex,ey);
 gl->Draw("L");
 c17->SetLogx();
 c17->Update();
-char* file17= Form("%iKaonChecks.png",IDNUM);
+char* file17= Form("p%c%iKaonChecks.png",ty,IDNUM);
 c17->SaveAs(file17);
 
 //pi0 test
@@ -1346,7 +1658,7 @@ TGraphErrors* gc11=new TGraphErrors(n,x,y,ex,ey);
 gl->Draw("L");
 c18->SetLogx();
 c18->Update();
-char* file18= Form("%ipncheck.png",IDNUM);
+char* file18= Form("p%c%ipncheck.png",ty,IDNUM);
 c18->SaveAs(file18);
 
 {/*//vsALL
@@ -1487,7 +1799,7 @@ TGraph* gl73=new TGraph(n1,x1,y1);
   gl73->Draw("L");
 c80->SetLogx();
 c80->Update();
-char* file80= Form("%iPi0CheckFROMTXT.png",IDNUM);
+char* file80= Form("p%c%iPi0CheckFROMTXT.png",ty,IDNUM);
 c80->SaveAs(file80);
 
 
@@ -1577,7 +1889,7 @@ TGraphErrors* gc78=new TGraphErrors(n,x,y,ex,ey);
 gl73->Draw("L");
 c81->SetLogx();
 c81->Update();
-char* file81= Form("%iKaonChecksFROMTXT.png",IDNUM);
+char* file81= Form("p%c%iKaonChecksFROMTXT.png",ty,IDNUM);
 c81->SaveAs(file81);
 
 //proton/neutron
@@ -1640,7 +1952,7 @@ TGraphErrors* gc81=new TGraphErrors(n,x,y,ex,ey);
 gl73->Draw("L");
 c82->SetLogx();
 c82->Update();
-char* file82= Form("%ipncheckFROMTXT.png",IDNUM);
+char* file82= Form("p%c%ipncheckFROMTXT.png",ty,IDNUM);
 c82->SaveAs(file82);
 
 
