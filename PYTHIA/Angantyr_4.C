@@ -294,15 +294,19 @@ Pythia startup and tuning
   pythia.checkVersion();
   pVERSION="Pythia8 Angantyr";
   pythia.initPtrs();
-  pythia.readFile("PAngantyr.cmnd");
+  pythia.readFile("Angantyr_4.cmnd");
   char* SNNthing=Form("Beams:eCM = %f",SNN);
   char* IDthing=Form("Random:seed = %i",jobID);
   char* Eventthing=Form("Main:numberOfEvents = %i",nEvents);
   pythia.readString(SNNthing);
   pythia.readString(IDthing);
   pythia.readString(Eventthing);
-  //pythia.settings.listChanged();
-  pythia.init();
+  int colparA = pythia.mode("Beams:idA");
+  int colparB = pythia.mode("Beams:idB");
+  pythia.settings.listChanged();
+  if (!pythia.init()){
+    cout << "something went wrong\n";
+  }
   pythia.settings.listChanged();                      //list of changed tune switches only
   //pythia.settings.listAll();                        //Full list of tuning switches
   int nAbort = pythia.mode("Main:timesAllowErrors");  //number of allowed .next() errors
@@ -338,9 +342,14 @@ Output Files
   else {
     modSNN=SNN;
   }
-  char *filename = Form("pA%i_%iGeVoutfile.root",jobID,modSNN);
-  char *filename2 = Form("pA%i_%iGeVoutfile.txt",jobID,modSNN);
-  char *filename3 = Form("pA%i_%iGeVexotics.txt",jobID,modSNN);
+  char ty;
+  if (colparA == 2212 && colparB == 2212) ty='p';
+  else if (colparA == 1000791970 && colparB == 1000791970) ty = 'A';
+  else if (colparA == 1000020040 && colparB == 1000020040) ty = 'a';
+  char *filename = Form("p%c%i_%iGeVoutfile.root",ty,jobID,modSNN);
+  char *filename2 = Form("p%c%i_%iGeVoutfile.txt",ty,jobID,modSNN);
+  char *filename3 = Form("p%c%i_%iGeVexotics.txt",ty,jobID,modSNN);
+  char *filename4 = Form("p%c%i_%iGeVDecayStats.txt",ty,jobID,modSNN);
   TFile* file = TFile::Open(filename, "RECREATE");
   if (!file || !file->IsOpen()) {
     Error("TEST", "Couldn't open file %s", filename);
@@ -351,6 +360,7 @@ Output Files
   ofstream out3;
   out.open(filename2);
   out2.open(filename3);
+  out3.open(filename4);
 
   //following loads header to output .txt files
   out<<"Event ET Analysis\n******************************************************\n";
@@ -359,6 +369,9 @@ Output Files
   out2<<"Exotic Particle Analysis\n******************************************************\n";
   out2<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
   out2<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
+  out3<<"Decay (eta and omega) Analysis\n******************************************************\n";
+  out3<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
+  out3<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
   if (CUT=='y'){
     temporarything = "rapidity (y)";
   }
@@ -369,6 +382,8 @@ Output Files
   out<<"Counting method: "<<DMODE<<endl<<endl;
   out2<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
   out2<<"Counting method: "<<DMODE<<endl<<endl;
+  out3<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
+  out3<<"Counting method: "<<DMODE<<endl<<endl;
   out2<<"Event\tParticle\tET\tpT\n";
   cout<<"Output files created\n";
 
@@ -397,6 +412,9 @@ Histogram Intialization
   TH1F *hETSigmap = CreateEnergyHistogram("hETSigmap"); //3222
   TH1F *hETSigmam = CreateEnergyHistogram("hETSigmam"); //3112
   TH1F *hETSigma0 = CreateEnergyHistogram("hETSigma0"); //3212
+  TH1F *hETSigmapBAR = CreateEnergyHistogram("hETSigmapBAR"); //3222
+  TH1F *hETSigmamBAR = CreateEnergyHistogram("hETSigmamBAR"); //3112
+  TH1F *hETSigma0BAR = CreateEnergyHistogram("hETSigma0BAR"); //3212
   TH1F *hETp = CreateEnergyHistogram("hETp");
   TH1F *hETn = CreateEnergyHistogram("hETn");
   TH1F *hETp_ = CreateEnergyHistogram("hETpBar");
@@ -424,6 +442,9 @@ Histogram Intialization
   TH1F *hPTSigmap = CreatePTHistogram("hptSigmap"); //3222
   TH1F *hPTSigmam = CreatePTHistogram("hptSigmam"); //3112
   TH1F *hPTSigma0 = CreatePTHistogram("hptSigma0"); //3212
+  TH1F *hPTSigmapBAR = CreateEnergyHistogram("hPTSigmapBAR"); //3222
+  TH1F *hPTSigmamBAR = CreateEnergyHistogram("hPTSigmamBAR"); //3112
+  TH1F *hPTSigma0BAR = CreateEnergyHistogram("hPTSigma0BAR"); //3212
   TH1F *hPTp = CreatePTHistogram("hptp");
   TH1F *hPTn = CreatePTHistogram("hptn");
   TH1F *hPTp_ = CreatePTHistogram("hptpBar");
@@ -451,6 +472,9 @@ Histogram Intialization
   TH1F *hccSigmap = CreateMultHistogram("hccSigmap"); //3222
   TH1F *hccSigmam = CreateMultHistogram("hccSigmam"); //3112
   TH1F *hccSigma0 = CreateMultHistogram("hccSigma0"); //3212
+  TH1F *hccSigmapBAR = CreateMultHistogram("hccSigmapBAR"); //3222
+  TH1F *hccSigmamBAR = CreateMultHistogram("hccSigmamBAR"); //3112
+  TH1F *hccSigma0BAR = CreateMultHistogram("hccSigma0BAR"); //3212
   TH1F *hccp = CreateMultHistogram("hccp");
   TH1F *hccn = CreateMultHistogram("hccn");
   TH1F *hccp_ = CreateMultHistogram("hccpBar");
@@ -482,6 +506,9 @@ Total Run Counters and Data
   Int_t cSigmap=0;
   Int_t cSigmam=0;
   Int_t cSigma0=0;
+  Int_t cSigmapBAR=0;
+  Int_t cSigmamBAR=0;
+  Int_t cSigma0BAR=0;
   Int_t cp=0;
   Int_t cn=0;
   Int_t cp_=0;
@@ -512,6 +539,9 @@ Total Run Counters and Data
   Double_t pETSigmap=0;
   Double_t pETSigmam=0;
   Double_t pETSigma0=0;
+  Double_t pETSigmapBAR=0;
+  Double_t pETSigmamBAR=0;
+  Double_t pETSigma0BAR=0;
   Double_t pETp=0;
   Double_t pETn=0;
   Double_t pETp_=0;
@@ -544,6 +574,9 @@ Total Run Counters and Data
   Double_t pPTSigmap=0;
   Double_t pPTSigmam=0;
   Double_t pPTSigma0=0;
+  Double_t pPTSigmapBAR=0;
+  Double_t pPTSigmamBAR=0;
+  Double_t pPTSigma0BAR=0;
   Double_t pPTp=0;
   Double_t pPTn=0;
   Double_t pPTp_=0;
@@ -559,6 +592,8 @@ Total Run Counters and Data
   //DECAY COUNTERS
   vector <double> ETADECAYS ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   vector <double> OMEGADECAYS ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  vector <double> ETADECAYSET ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  vector <double> OMEGADECAYSET ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   cout<<"Beginning Events\n";
 
 /***********************
@@ -592,6 +627,9 @@ Total Run Counters and Data
     Int_t ccSigmap=0;
     Int_t ccSigmam=0;
     Int_t ccSigma0=0;
+    Int_t ccSigmapBAR=0;
+    Int_t ccSigmamBAR=0;
+    Int_t ccSigma0BAR=0;
     Int_t ccp=0;
     Int_t ccn=0;
     Int_t ccp_=0;
@@ -622,6 +660,9 @@ Total Run Counters and Data
     Double_t ETSigmap=0;
     Double_t ETSigmam=0;
     Double_t ETSigma0=0;
+    Double_t ETSigmapBAR=0;
+    Double_t ETSigmamBAR=0;
+    Double_t ETSigma0BAR=0;
     Double_t ETp=0;
     Double_t ETn=0;
     Double_t ETp_=0;
@@ -650,6 +691,9 @@ Total Run Counters and Data
     Double_t PTSigmap=0;
     Double_t PTSigmam=0;
     Double_t PTSigma0=0;
+    Double_t PTSigmapBAR=0;
+    Double_t PTSigmamBAR=0;
+    Double_t PTSigma0BAR=0;
     Double_t PTp=0;
     Double_t PTn=0;
     Double_t PTp_=0;
@@ -676,26 +720,27 @@ Total Run Counters and Data
     if(debug)cout << "3 ";             //DEBUG STATEMENT
     Event* TheEvent =& pythia.event;
     npart = TheEvent->size();
-    //cout<<npart<<endl;
+    cout<<npart<<endl;
 
     /****************************************
     Particle Parent and Decay Chain Structure
     *****************************************/
     for (int parta=0; parta<npart; parta++) {
+      //cout<<"-";
       Particle particle = TheEvent->at(parta);
       pylis.push_back(pylista());
       pylis[parta].inde=parta;
       pylis[parta].indePar=particle.mother1();
       pylis[parta].KFpart=TheEvent->at(pylis[parta].indePar).id();
+      //cout<<"=="<<pylis.size()<<"==";
     }
-
     /************************
     =========================
          PARTICLE LOOP
     =========================
     ************************/
-
     for (int part=0; part<npart; part++) {
+      //cout<<".";
       Particle MPart = TheEvent->at(part);
       Int_t KFID = MPart.id();
       Int_t Ckf=GetKFConversion(KFID,partname);
@@ -706,16 +751,20 @@ Total Run Counters and Data
       Float_t px=MPart.px();
       Float_t py=MPart.py();
       Float_t pz=MPart.pz();
+      Float_t p=sqrt(px*px+py*py+pz*pz);
       if (pz<0){
         pz*=(-1); //useful to keep numbers positive while calculating
         N='y'; //not used but can be used to make pz negative again later
       }
       Float_t pT= sqrt(pow(px,2)+pow(py,2));
-      Float_t Theta = atan(pT/pz);
+      Float_t Theta1 = atan(pT/pz);
+      Float_t Theta = MPart.theta();
       Float_t p_tot=(pT)/sin(Theta);
       Float_t m=MPart.m();
       Float_t Ei_TOT= sqrt(pow(p_tot,2)+pow(m,2));
-      Float_t pseudorapidity=-log(tan(Theta/2));
+      //Float_t pseudorapidity=-log(tan(Theta/2));
+//      cout<<-log(tan(Theta/2))<<" vs "<<0.5*log((p+pz)/(p-pz))<<"      and      "<<Theta<<" vs "<<Theta1<<endl;
+      Float_t pseudorapidity = 0.5*log((p+pz)/(p-pz));
       Float_t rapidity=(0.5)*log((E+pz)/(E-pz));
       //cout<<pseudorapidity<<" "<<rapidity<<endl;
       Int_t mpartD = MPart.daughter1();
@@ -732,7 +781,6 @@ Total Run Counters and Data
       Int_t XEM2=31;
       Int_t decayed=0;
       Float_t cuttype;
-      ETAll+=partE;
       if (CUT=='y'){
         cuttype=rapidity;
       }
@@ -753,7 +801,7 @@ Total Run Counters and Data
         }
         else if (DTYPE=='c')
         partE=Ei_TOT;
-        if ((STATUS>=81)&&(STATUS<=89)){pETALL+=partE;}
+        if ((STATUS>=81)&&(STATUS<=86)){pETALL+=partE;} //all particles that are primary
         if (DMODE=='a'){//ALL INCLUDED
           if (KFID==211){ //pi+ all included
             ETpip+=partE; //repeated for event
@@ -1684,6 +1732,7 @@ Total Run Counters and Data
             }
             decayed = GetEtaDecayMode(DAU2);
             ETADECAYS[decayed]+=1;
+            ETADECAYSET[decayed]+=partE;
             //cout<<ETADECAYS[decayed]<<"\t";
             cETAall++;
             ETEta+=partE;
@@ -1703,6 +1752,7 @@ Total Run Counters and Data
             }
             decayed = GetOmegaDecayMode(DAU2);
             OMEGADECAYS[decayed]+=1;
+            OMEGADECAYSET[decayed]+=partE;
             cOmegaall++;
             ETOmega+=partE;
             pETOmega+=partE;
@@ -1801,6 +1851,39 @@ Total Run Counters and Data
               PTcharge=+pT;
               cSigma0++;
               ccSigma0++;
+          }
+          if (KFID==-3222){ //Sigma+BAR
+              ETSigmapBAR+=partE;
+              pETSigmapBAR+=partE;
+              ETAll+=partE;
+              PTSigmapBAR+=pT;
+              pPTSigmapBAR+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigmapBAR++;
+              ccSigmapBAR++;
+          }
+          if (KFID==-3112){ //sigma-BAR
+              ETSigmamBAR+=partE;
+              pETSigmamBAR+=partE;
+              ETAll+=partE;
+              PTSigmamBAR+=pT;
+              pPTSigmamBAR+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigmamBAR++;
+              ccSigmamBAR++;
+          }
+          if (KFID==-3212){ //sigma0BAR
+              ETSigma0BAR+=partE;
+              pETSigma0BAR+=partE;
+              ETAll+=partE;
+              PTSigma0BAR+=pT;
+              pPTSigma0BAR+=pT;
+              PTAll+=pT;
+              PTcharge=+pT;
+              cSigma0BAR++;
+              ccSigma0BAR++;
           }
           if (KFID==2212){ //proton
             XEM=pylis[ind].KFpart;
@@ -1984,6 +2067,21 @@ Total Run Counters and Data
       hPTSigma0->Fill(PTSigma0);
       hccSigma0->Fill(ccSigma0);
     }
+    if (ETSigmapBAR!=0){
+      hETSigmapBAR->Fill(ETSigmapBAR);
+      hPTSigmapBAR->Fill(PTSigmapBAR);
+      hccSigmapBAR->Fill(ccSigmapBAR);
+    }
+    if (ETSigmamBAR!=0){
+      hETSigmamBAR->Fill(ETSigmamBAR);
+      hPTSigmamBAR->Fill(PTSigmamBAR);
+      hccSigmamBAR->Fill(ccSigmamBAR);
+    }
+    if (ETSigma0!=0){
+      hETSigma0BAR->Fill(ETSigma0BAR);
+      hPTSigma0BAR->Fill(PTSigma0BAR);
+      hccSigma0BAR->Fill(ccSigma0BAR);
+    }
     if (ETp!=0){
       hETp->Fill(ETp);
       hPTp->Fill(PTp);
@@ -2043,6 +2141,9 @@ Writing to File
   hETSigmap->Write();
   hETSigmam->Write();
   hETSigma0->Write();
+  hETSigmapBAR->Write();
+  hETSigmamBAR->Write();
+  hETSigma0BAR->Write();
   hETp->Write();
   hETn->Write();
   hETp_->Write();
@@ -2066,6 +2167,9 @@ Writing to File
   hPTSigmap->Write();
   hPTSigmam->Write();
   hPTSigma0->Write();
+  hPTSigmapBAR->Write();
+  hPTSigmamBAR->Write();
+  hPTSigma0BAR->Write();
   hPTp->Write();
   hPTn->Write();
   hPTp_->Write();
@@ -2100,45 +2204,93 @@ Writing to File
   out<<"Total Transverse Energy: "<<TET<<"\tTotal Transverse Momentum: "<<TPT<<"\n\n";
 
 
-  out<<"Particle\tNumber\tEt\tPt\t%EtVsTotal\t%PtVsTotal\n";
-  out<<"Pi+:\t\t"<<cpip<<"\t"<<pETpip<<"\t"<<pPTpip<<"\t"<<(pETpip/TET)*100<<"\t"<<(pPTpip/TPT)*100<<endl;
-  out<<"Pi-:\t\t"<<cpim<<"\t"<<pETpim<<"\t"<<pPTpim<<"\t"<<(pETpim/TET)*100<<"\t"<<(pPTpim/TPT)*100<<endl;
-  out<<"Pi0:\t\t"<<cpi0<<"\t"<<pETpi0<<"\t"<<pPTpi0<<"\t"<<(pETpi0/TET)*100<<"\t"<<(pPTpi0/TPT)*100<<endl;
-  out<<"K+:\t\t"<<cKp<<"\t"<<pETKp<<"\t"<<pPTKp<<"\t"<<(pETKp/TET)*100<<"\t"<<(pPTKp/TPT)*100<<endl;
-  out<<"K-:\t\t"<<cKm<<"\t"<<pETKm<<"\t"<<pPTKm<<"\t"<<(pETKm/TET)*100<<"\t"<<(pPTKm/TPT)*100<<endl;
-  out<<"K0L:\t\t"<<cKL<<"\t"<<pETKL<<"\t"<<pPTKL<<"\t"<<(pETKL/TET)*100<<"\t"<<(pPTKL/TPT)*100<<endl;
-  out<<"K0S:\t\t"<<cKS<<"\t"<<pETKS<<"\t"<<pPTKS<<"\t"<<(pETKS/TET)*100<<"\t"<<(pPTKS/TPT)*100<<endl;
-  out<<"Lambda0:\t"<<cLambda0<<"\t"<<pETLambda0<<"\t"<<pPTLambda0<<"\t"<<(pETLambda0/TET)*100<<"\t"<<(pPTLambda0/TPT)*100<<endl;
-  out<<"LambdaBar0:\t"<<cLambdaBar0<<"\t"<<pETLambdaBar0<<"\t"<<pPTLambdaBar0<<"\t"<<(pETLambdaBar0/TET)*100<<"\t"<<(pPTLambdaBar0/TPT)*100<<endl;
-  out<<"Proton:\t"<<cp<<"\t"<<pETp<<"\t"<<pPTp<<"\t"<<(pETp/TET)*100<<"\t"<<(pPTp/TPT)*100<<endl;
-  out<<"Antiproton:\t"<<cp_<<"\t"<<pETp_<<"\t"<<pPTp_<<"\t"<<(pETp_/TET)*100<<"\t"<<(pPTp_/TPT)*100<<endl;
-  out<<"Neutron:\t"<<cn<<"\t"<<pETn<<"\t"<<pPTn<<"\t"<<(pETn/TET)*100<<"\t"<<(pPTn/TPT)*100<<endl;
-  out<<"Antineutron:\t"<<cn_<<"\t"<<pETn_<<"\t"<<pPTn_<<"\t"<<(pETn_/TET)*100<<"\t"<<(pPTn_/TPT)*100<<endl;
-  out<<"eta:\t"<<cEta<<"\t"<<pETEta<<"\t"<<pPTEta<<"\t"<<(pETEta/TET)*100<<"\t"<<(pPTEta/TPT)*100<<endl;
-  out<<"omega:\t"<<cOmega<<"\t"<<pETOmega<<"\t"<<pPTOmega<<"\t"<<(pETOmega/TET)*100<<"\t"<<(pPTOmega/TPT)*100<<endl;
-  out<<"Omega-:\t"<<cOMEGAm<<"\t"<<pETOMEGAm<<"\t"<<pPTOMEGAm<<"\t"<<(pETOMEGAm/TET)*100<<"\t"<<(pPTOMEGAm/TPT)*100<<endl;
-  out<<"Xi0:\t"<<cXi0<<"\t"<<pETXi0<<"\t"<<pPTXi0<<"\t"<<(pETXi0/TET)*100<<"\t"<<(pPTXi0/TPT)*100<<endl;
-  out<<"Xi-:\t"<<cXim<<"\t"<<pETXim<<"\t"<<pPTXim<<"\t"<<(pETXim/TET)*100<<"\t"<<(pPTXim/TPT)*100<<endl;
-  out<<"Sigma+:\t"<<cSigmap<<"\t"<<pETSigmap<<"\t"<<pPTSigmap<<"\t"<<(pETSigmap/TET)*100<<"\t"<<(pPTSigmap/TPT)*100<<endl;
-  out<<"Sigma-:\t"<<cSigmam<<"\t"<<pETSigmam<<"\t"<<pPTSigmam<<"\t"<<(pETSigmam/TET)*100<<"\t"<<(pPTSigmam/TPT)*100<<endl;
-  out<<"Sigma0:\t"<<cSigma0<<"\t"<<pETSigma0<<"\t"<<pPTSigma0<<"\t"<<(pETSigma0/TET)*100<<"\t"<<(pPTSigma0/TPT)*100<<endl;
-  out<<"gamma:\t"<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
+  out<<"Particle     Number\tEt\tPt\t%EtVsTotal\t%PtVsTotal\n";
+  out<<"Pi+:         "<<cpip<<"\t"<<pETpip<<"\t"<<pPTpip<<"\t"<<(pETpip/TET)*100<<"\t"<<(pPTpip/TPT)*100<<endl;
+  out<<"Pi-:         "<<cpim<<"\t"<<pETpim<<"\t"<<pPTpim<<"\t"<<(pETpim/TET)*100<<"\t"<<(pPTpim/TPT)*100<<endl;
+  out<<"Pi0:         "<<cpi0<<"\t"<<pETpi0<<"\t"<<pPTpi0<<"\t"<<(pETpi0/TET)*100<<"\t"<<(pPTpi0/TPT)*100<<endl;
+  out<<"K+:          "<<cKp<<"\t"<<pETKp<<"\t"<<pPTKp<<"\t"<<(pETKp/TET)*100<<"\t"<<(pPTKp/TPT)*100<<endl;
+  out<<"K-:          "<<cKm<<"\t"<<pETKm<<"\t"<<pPTKm<<"\t"<<(pETKm/TET)*100<<"\t"<<(pPTKm/TPT)*100<<endl;
+  out<<"K0L:         "<<cKL<<"\t"<<pETKL<<"\t"<<pPTKL<<"\t"<<(pETKL/TET)*100<<"\t"<<(pPTKL/TPT)*100<<endl;
+  out<<"K0S:         "<<cKS<<"\t"<<pETKS<<"\t"<<pPTKS<<"\t"<<(pETKS/TET)*100<<"\t"<<(pPTKS/TPT)*100<<endl;
+  out<<"Lambda0:     "<<cLambda0<<"\t"<<pETLambda0<<"\t"<<pPTLambda0<<"\t"<<(pETLambda0/TET)*100<<"\t"<<(pPTLambda0/TPT)*100<<endl;
+  out<<"LambdaBar0:  "<<cLambdaBar0<<"\t"<<pETLambdaBar0<<"\t"<<pPTLambdaBar0<<"\t"<<(pETLambdaBar0/TET)*100<<"\t"<<(pPTLambdaBar0/TPT)*100<<endl;
+  out<<"Proton:      "<<cp<<"\t"<<pETp<<"\t"<<pPTp<<"\t"<<(pETp/TET)*100<<"\t"<<(pPTp/TPT)*100<<endl;
+  out<<"Antiproton:  "<<cp_<<"\t"<<pETp_<<"\t"<<pPTp_<<"\t"<<(pETp_/TET)*100<<"\t"<<(pPTp_/TPT)*100<<endl;
+  out<<"Neutron:     "<<cn<<"\t"<<pETn<<"\t"<<pPTn<<"\t"<<(pETn/TET)*100<<"\t"<<(pPTn/TPT)*100<<endl;
+  out<<"Antineutron: "<<cn_<<"\t"<<pETn_<<"\t"<<pPTn_<<"\t"<<(pETn_/TET)*100<<"\t"<<(pPTn_/TPT)*100<<endl;
+  out<<"eta:         "<<cEta<<"\t"<<pETEta<<"\t"<<pPTEta<<"\t"<<(pETEta/TET)*100<<"\t"<<(pPTEta/TPT)*100<<endl;
+  out<<"omega:       "<<cOmega<<"\t"<<pETOmega<<"\t"<<pPTOmega<<"\t"<<(pETOmega/TET)*100<<"\t"<<(pPTOmega/TPT)*100<<endl;
+  out<<"Omega-:      "<<cOMEGAm<<"\t"<<pETOMEGAm<<"\t"<<pPTOMEGAm<<"\t"<<(pETOMEGAm/TET)*100<<"\t"<<(pPTOMEGAm/TPT)*100<<endl;
+  out<<"Xi0:         "<<cXi0<<"\t"<<pETXi0<<"\t"<<pPTXi0<<"\t"<<(pETXi0/TET)*100<<"\t"<<(pPTXi0/TPT)*100<<endl;
+  out<<"Xi-:         "<<cXim<<"\t"<<pETXim<<"\t"<<pPTXim<<"\t"<<(pETXim/TET)*100<<"\t"<<(pPTXim/TPT)*100<<endl;
+  out<<"Sigma+:      "<<cSigmap<<"\t"<<pETSigmap<<"\t"<<pPTSigmap<<"\t"<<(pETSigmap/TET)*100<<"\t"<<(pPTSigmap/TPT)*100<<endl;
+  out<<"Sigma-:      "<<cSigmam<<"\t"<<pETSigmam<<"\t"<<pPTSigmam<<"\t"<<(pETSigmam/TET)*100<<"\t"<<(pPTSigmam/TPT)*100<<endl;
+  out<<"Sigma0:      "<<cSigma0<<"\t"<<pETSigma0<<"\t"<<pPTSigma0<<"\t"<<(pETSigma0/TET)*100<<"\t"<<(pPTSigma0/TPT)*100<<endl;
+  out<<"Sigma+BAR:   "<<cSigmapBAR<<"\t"<<pETSigmapBAR<<"\t"<<pPTSigmapBAR<<"\t"<<(pETSigmapBAR/TET)*100<<"\t"<<(pPTSigmapBAR/TPT)*100<<endl;
+  out<<"Sigma-BAR:   "<<cSigmamBAR<<"\t"<<pETSigmamBAR<<"\t"<<pPTSigmamBAR<<"\t"<<(pETSigmamBAR/TET)*100<<"\t"<<(pPTSigmamBAR/TPT)*100<<endl;
+  out<<"Sigma0BAR:   "<<cSigma0BAR<<"\t"<<pETSigma0BAR<<"\t"<<pPTSigma0BAR<<"\t"<<(pETSigma0BAR/TET)*100<<"\t"<<(pPTSigma0BAR/TPT)*100<<endl;
+  out<<"gamma:       "<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
   out<<endl;
-  out<<"[Pions]:\t"<<(cpip+cpim+cpi0)<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<((pETpip+pETpim+pETpi0)/TET)*100<<"\t"<<((pPTpip+pPTpim+pPTpi0)/TPT)*100<<endl;
-  out<<"[Kaons]:\t"<<(cKp+cKm+cKL+cKS)<<"\t"<<(pETKp+pETKm+pETKL+pETKS)<<"\t"<<(pPTKp+pPTKm+pPTKL+pPTKS)<<"\t"<<((pETKp+pETKm+pETKL+pETKS)/TET)*100<<"\t"<<((pPTKp+pPTKm+pPTKL+pPTKS)/TPT)*100<<endl;
-  out<<"[Lambdas]:\t"<<(cLambda0+cLambdaBar0)<<"\t"<<(pETLambda0+pETLambdaBar0)<<"\t"<<(pPTLambda0+pPTLambdaBar0)<<"\t"<<((pETLambda0+pETLambdaBar0)/TET)*100<<"\t"<<((pPTLambda0+pPTLambdaBar0)/TPT)*100<<endl;
-  out<<"[p,pbar]:\t"<<(cp+cp_)<<"\t"<<(pETp+pETp_)<<"\t"<<(pPTp+pPTp_)<<"\t"<<((pETp+pETp_)/TET)*100<<"\t"<<((pPTp+pPTp_)/TPT)*100<<endl;
-  out<<"[n,nbar]:\t"<<(cn+cn_)<<"\t"<<(pETn+pETn_)<<"\t"<<(pPTn+pPTn_)<<"\t"<<((pETn+pETn_)/TET)*100<<"\t"<<((pPTn+pPTn_)/TPT)*100<<endl;
-  out<<"[eta,ome]:\t"<<(cEta+cOmega)<<"\t"<<(pETEta+pETOmega)<<"\t"<<(pPTEta+pPTOmega)<<"\t"<<((pETEta+pETOmega)/TET)*100<<"\t"<<((pPTEta+pPTOmega)/TPT)*100<<endl;
-  out<<"[Xi,Om,Sig]:\t"<<(cOMEGAm+cXi0+cXim+cSigmap+cSigmam+cSigma0)<<"\t"<<(pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)<<"\t"<<(pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)<<"\t"<<((pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)/TET)*100<<"\t"<<((pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)/TPT)*100<<endl;
-  out<<"[gamma]:\t"<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
-  out<<"[exotic]:\t"<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
+  out<<"[Pions]:     "<<(cpip+cpim+cpi0)<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<((pETpip+pETpim+pETpi0)/TET)*100<<"\t"<<((pPTpip+pPTpim+pPTpi0)/TPT)*100<<endl;
+  out<<"[Kaons]:     "<<(cKp+cKm+cKL+cKS)<<"\t"<<(pETKp+pETKm+pETKL+pETKS)<<"\t"<<(pPTKp+pPTKm+pPTKL+pPTKS)<<"\t"<<((pETKp+pETKm+pETKL+pETKS)/TET)*100<<"\t"<<((pPTKp+pPTKm+pPTKL+pPTKS)/TPT)*100<<endl;
+  out<<"[Lambdas]:   "<<(cLambda0+cLambdaBar0)<<"\t"<<(pETLambda0+pETLambdaBar0)<<"\t"<<(pPTLambda0+pPTLambdaBar0)<<"\t"<<((pETLambda0+pETLambdaBar0)/TET)*100<<"\t"<<((pPTLambda0+pPTLambdaBar0)/TPT)*100<<endl;
+  out<<"[p,pbar]:    "<<(cp+cp_)<<"\t"<<(pETp+pETp_)<<"\t"<<(pPTp+pPTp_)<<"\t"<<((pETp+pETp_)/TET)*100<<"\t"<<((pPTp+pPTp_)/TPT)*100<<endl;
+  out<<"[n,nbar]:    "<<(cn+cn_)<<"\t"<<(pETn+pETn_)<<"\t"<<(pPTn+pPTn_)<<"\t"<<((pETn+pETn_)/TET)*100<<"\t"<<((pPTn+pPTn_)/TPT)*100<<endl;
+  out<<"[eta,ome]:   "<<(cEta+cOmega)<<"\t"<<(pETEta+pETOmega)<<"\t"<<(pPTEta+pPTOmega)<<"\t"<<((pETEta+pETOmega)/TET)*100<<"\t"<<((pPTEta+pPTOmega)/TPT)*100<<endl;
+  out<<"[Xi,Om,Sig]: "<<(cOMEGAm+cXi0+cXim+cSigmap+cSigmam+cSigma0)<<"\t"<<(pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)<<"\t"<<(pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)<<"\t"<<((pETOMEGAm+pETXi0+pETXim+pETSigmap+pETSigmam+pETSigma0)/TET)*100<<"\t"<<((pPTOMEGAm+pPTXi0+pPTXim+pPTSigmap+pPTSigmam+pPTSigma0)/TPT)*100<<endl;
+  out<<"[gamma]:     "<<cgamma<<"\t"<<pETgamma<<"\t"<<pPTgamma<<"\t"<<(pETgamma/TET)*100<<"\t"<<(pPTgamma/TPT)*100<<endl;
+  out<<"[exotic]:    "<<cother<<"\t"<<pETother<<"\t"<<pPTother<<"\t"<<(pETother/TET)*100<<"\t"<<(pPTother/TPT)*100<<endl;
   out<<endl;
-  out<<"counted ET:\t"<<TET<<"\tTotal ET:\t"<<pETALL<<"\t(counted/total)%:\t"<<(TET/pETALL)*100<<endl;
+  out<<"counted ET:  "<<TET<<"\tTotal ET:\t"<<pETALL<<"\t(counted/total)%:\t"<<(TET/pETALL)*100<<endl;
   out<<endl;
   out<<"Decay Products vs 'Primary'\nGroup\tET\tPT\tORIGINAL: ETo\tPTo\tET%\tPT%\n";
-  out<<"[Pions (eta)]\t"<<ETetapis<<"\t"<<PTetapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETetapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTetapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
-  out<<"[Pions (omega)]\t"<<ETomegapis<<"\t"<<PTomegapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETomegapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTomegapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
+  out<<"[Pions (eta)]   "<<ETetapis<<"\t"<<PTetapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETetapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTetapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
+  out<<"[Pions (omega)] "<<ETomegapis<<"\t"<<PTomegapis<<"\t"<<(pETpip+pETpim+pETpi0)<<"\t"<<(pPTpip+pPTpim+pPTpi0)<<"\t"<<(ETomegapis/(pETpip+pETpim+pETpi0))*100<<"\t"<<(PTomegapis/(pPTpip+pPTpim+pPTpi0))*100<<endl;
+
+  for (int i=0;i<16;i++){
+    double t = ETADECAYS[i];
+    ETADECAYS[i]=(t/cETAall)*100.;
+  }
+  cout<<"\n";
+  for (int j=0;j<15;j++){
+    double t = OMEGADECAYS[j];
+    OMEGADECAYS[j]=(t/cOmegaall)*100.;
+  }
+
+  out3<<"  Decay Mode       ET \t %of_particle_total \t %ofTotal_ET \t fraction \t expected [Particle Physics Booklet 2018]\n";
+  out3<<"--------------eta Decay Branching Ratios-----------------\n";
+  out3<<"  2gamma          "<<ETADECAYSET[0]<<"\t"<<(ETADECAYSET[0]/pETEta)*100<<"\t"<<(ETADECAYSET[0]/TET)*100<<"\t"<<ETADECAYS[0]<<"%\t 39.41%\n";
+  out3<<"  3pi0            "<<ETADECAYSET[1]<<"\t"<<(ETADECAYSET[1]/pETEta)*100<<"\t"<<(ETADECAYSET[1]/TET)*100<<"\t"<<ETADECAYS[1]<<"%\t 32.68%\n";
+  out3<<"  pi+,pi-,pi0     "<<ETADECAYSET[2]<<"\t"<<(ETADECAYSET[2]/pETEta)*100<<"\t"<<(ETADECAYSET[2]/TET)*100<<"\t"<<ETADECAYS[2]<<"%\t 22.92%\n";
+  out3<<"  pi+,pi-,gamma   "<<ETADECAYSET[3]<<"\t"<<(ETADECAYSET[3]/pETEta)*100<<"\t"<<(ETADECAYSET[3]/TET)*100<<"\t"<<ETADECAYS[3]<<"%\t 4.22%\n";
+  out3<<"  e+,e-,gamma     "<<ETADECAYSET[4]<<"\t"<<(ETADECAYSET[4]/pETEta)*100<<"\t"<<(ETADECAYSET[4]/TET)*100<<"\t"<<ETADECAYS[4]<<"%\t 6.9E-3%\n";
+  out3<<"  mu+,mu-,gamma   "<<ETADECAYSET[5]<<"\t"<<(ETADECAYSET[5]/pETEta)*100<<"\t"<<(ETADECAYSET[5]/TET)*100<<"\t"<<ETADECAYS[5]<<"%\t 3.1E-4%\n";
+  out3<<"  pi0,2gamma      "<<ETADECAYSET[6]<<"\t"<<(ETADECAYSET[6]/pETEta)*100<<"\t"<<(ETADECAYSET[6]/TET)*100<<"\t"<<ETADECAYS[6]<<"%\t 2.56E-4%\n";
+  out3<<"  2pi0,2gamma     "<<ETADECAYSET[7]<<"\t"<<(ETADECAYSET[7]/pETEta)*100<<"\t"<<(ETADECAYSET[7]/TET)*100<<"\t"<<ETADECAYS[7]<<"%\t <1.2E-3%\n";
+  out3<<"  4gamma          "<<ETADECAYSET[8]<<"\t"<<(ETADECAYSET[8]/pETEta)*100<<"\t"<<(ETADECAYSET[8]/TET)*100<<"\t"<<ETADECAYS[8]<<"%\t <2.8E-4%\n";
+  out3<<"  e+,e-           "<<ETADECAYSET[9]<<"\t"<<(ETADECAYSET[9]/pETEta)*100<<"\t"<<(ETADECAYSET[9]/TET)*100<<"\t"<<ETADECAYS[9]<<"%\t <2.3E-6%\n";
+  out3<<"  mu+,mu-         "<<ETADECAYSET[10]<<"\t"<<(ETADECAYSET[10]/pETEta)*100<<"\t"<<(ETADECAYSET[10]/TET)*100<<"\t"<<ETADECAYS[10]<<"%\t 5.8E-6%\n";
+  out3<<"  2e+,2e-         "<<ETADECAYSET[11]<<"\t"<<(ETADECAYSET[11]/pETEta)*100<<"\t"<<(ETADECAYSET[11]/TET)*100<<"\t"<<ETADECAYS[11]<<"%\t 2.4E-5%\n";
+  out3<<"  pi+,pi-,e+,e-,(gamma) "<<ETADECAYSET[12]<<"\t"<<(ETADECAYSET[12]/pETEta)*100<<"\t"<<(ETADECAYSET[12]/TET)*100<<"\t"<<ETADECAYS[12]<<"%\t 2.68E-4%\n";
+  out3<<"  e+,e-,mu+,mu-   "<<ETADECAYSET[13]<<"\t"<<(ETADECAYSET[13]/pETEta)*100<<"\t"<<(ETADECAYSET[13]/TET)*100<<"\t"<<ETADECAYS[13]<<"%\t <1.6E-4%\n";
+  out3<<"  2mu+,2mu-       "<<ETADECAYSET[14]<<"\t"<<(ETADECAYSET[14]/pETEta)*100<<"\t"<<(ETADECAYSET[14]/TET)*100<<"\t"<<ETADECAYS[14]<<"%\t <3.6E-4%\n";
+  out3<<"  [OTHER]         "<<ETADECAYSET[15]<<"\t"<<(ETADECAYSET[15]/pETEta)*100<<"\t"<<(ETADECAYSET[15]/TET)*100<<"\t"<<ETADECAYS[15]<<"%\t -------%\n";
+  out3<<"--------------omega Decay Branching Ratios-----------------\n";
+  out3<<"  pi+,pi-,pi0     "<<OMEGADECAYSET[0]<<"\t"<<(OMEGADECAYSET[0]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[0]/TET)*100<<"\t"<<OMEGADECAYS[0]<<"%\t 89.2%\n";
+  out3<<"  pi0,gamma       "<<OMEGADECAYSET[1]<<"\t"<<(OMEGADECAYSET[1]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[1]/TET)*100<<"\t"<<OMEGADECAYS[1]<<"%\t 8.40%\n";
+  out3<<"  pi+,pi-         "<<OMEGADECAYSET[2]<<"\t"<<(OMEGADECAYSET[2]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[2]/TET)*100<<"\t"<<OMEGADECAYS[2]<<"%\t 1.53%\n";
+  out3<<"  eta,gamma       "<<OMEGADECAYSET[3]<<"\t"<<(OMEGADECAYSET[3]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[3]/TET)*100<<"\t"<<OMEGADECAYS[3]<<"%\t 4.5E-4%\n";
+  out3<<"  pi0,e+,e-       "<<OMEGADECAYSET[4]<<"\t"<<(OMEGADECAYSET[4]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[4]/TET)*100<<"\t"<<OMEGADECAYS[4]<<"%\t 7.7E-4%\n";
+  out3<<"  pi0,mu+,mu-     "<<OMEGADECAYSET[5]<<"\t"<<(OMEGADECAYSET[5]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[5]/TET)*100<<"\t"<<OMEGADECAYS[5]<<"%\t 1.34E-4%\n";
+  out3<<"  e+,e-           "<<OMEGADECAYSET[6]<<"\t"<<(OMEGADECAYSET[6]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[6]/TET)*100<<"\t"<<OMEGADECAYS[6]<<"%\t 7.36E-5%\n";
+  out3<<"  pi+,pi-,2pi0    "<<OMEGADECAYSET[7]<<"\t"<<(OMEGADECAYSET[7]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[7]/TET)*100<<"\t"<<OMEGADECAYS[7]<<"%\t <2E-4%\n";
+  out3<<"  pi+,pi-,gamma   "<<OMEGADECAYSET[8]<<"\t"<<(OMEGADECAYSET[8]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[8]/TET)*100<<"\t"<<OMEGADECAYS[8]<<"%\t <3.6E-3%\n";
+  out3<<"  2pi+,2pi-       "<<OMEGADECAYSET[9]<<"\t"<<(OMEGADECAYSET[9]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[9]/TET)*100<<"\t"<<OMEGADECAYS[9]<<"%\t <1E-3%\n";
+  out3<<"  2pi0,gamma      "<<OMEGADECAYSET[10]<<"\t"<<(OMEGADECAYSET[10]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[10]/TET)*100<<"\t"<<OMEGADECAYS[10]<<"%\t 6.7E-5%\n";
+  out3<<"  eta,pi0,gamma   "<<OMEGADECAYSET[11]<<"\t"<<(OMEGADECAYSET[11]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[11]/TET)*100<<"\t"<<OMEGADECAYS[11]<<"%\t <3.3E-5%\n";
+  out3<<"  mu+,mu-         "<<OMEGADECAYSET[12]<<"\t"<<(OMEGADECAYSET[12]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[12]/TET)*100<<"\t"<<OMEGADECAYS[12]<<"%\t 7.4E-5%\n";
+  out3<<"  3gamma          "<<OMEGADECAYSET[13]<<"\t"<<(OMEGADECAYSET[13]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[13]/TET)*100<<"\t"<<OMEGADECAYS[13]<<"%\t <1.9E-4%\n";
+  out3<<"  [OTHER]         "<<OMEGADECAYSET[14]<<"\t"<<(OMEGADECAYSET[14]/pETOmega)*100<<"\t"<<(OMEGADECAYSET[14]/TET)*100<<"\t"<<OMEGADECAYS[14]<<"%\t -------%\n";
 
   out.close();
   out2.close();

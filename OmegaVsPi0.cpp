@@ -428,8 +428,8 @@ void OmegaVsPi0(){
 
   x6[0]=0;
   x6[1]=18;
-  y6[0]=.8;
-  y6[1]=.8;
+  y6[0]=1;
+  y6[1]=1;
   TGraph* gr6=new TGraph(n6,x6,y6);
     gr6->SetMarkerStyle(27);
     gr6->SetMarkerSize(1.5);
@@ -522,6 +522,8 @@ void OmegaVsPi0(){
   TGraphErrors* gr12= new TGraphErrors(n12,x12,y12,ex12,ey12);
     gr12->SetMarkerStyle(41);
     gr12->SetMarkerSize(1);
+    //gr12->SetLineWidth(5);
+    //gr12->SetLineColor(kGray);
     //gr8->SetLineColor(kRed);
     gr12->SetMarkerColor(kViolet-7);
     legend->AddEntry(gr12,"Au+Au BES 39","p");
