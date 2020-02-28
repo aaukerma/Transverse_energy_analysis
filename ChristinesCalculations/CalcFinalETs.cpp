@@ -22,49 +22,49 @@ int main(){
   //systematic uncertainty from experimental errors
   double ETpiplusSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETpiplusSysExtrap = 0.05;
+  double ETpiplusSysExtrap = 0.00;
   //value
   double ETpiminus =1;
   //systematic uncertainty from experimental errors
   double ETpiminusSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETpiminusSysExtrap = 0.05;
+  double ETpiminusSysExtrap = 0.00;
   //value
   double ETKplus =1;
   //systematic uncertainty from experimental errors
   double ETKplusSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETKplusSysExtrap = 0.05;
+  double ETKplusSysExtrap = 0.00;
   //value
   double ETKminus =1;
   //systematic uncertainty from experimental errors
   double ETKminusSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETKminusSysExtrap = 0.05;
+  double ETKminusSysExtrap = 0.00;
   //value
   double ETproton =1;
   //systematic uncertainty from experimental errors
   double ETprotonSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETprotonSysExtrap = 0.05;
+  double ETprotonSysExtrap = 0.00;
   //value
   double ETantiproton =1;
   //systematic uncertainty from experimental errors
   double ETantiprotonSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETantiprotonSysExtrap = 0.05;
+  double ETantiprotonSysExtrap = 0.00;
   //value
   double ETlambda =1;
   //systematic uncertainty from experimental errors
   double ETlambdaSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETlambdaSysExtrap = 0.05;
+  double ETlambdaSysExtrap = 0.00;
   //value
   double ETantilambda =1;
   //systematic uncertainty from experimental errors
   double ETantilambdaSysExp = 0.1;
   //systematic uncertainty from experimental errors
-  double ETantilambdaSysExtrap = 0.05;
+  double ETantilambdaSysExtrap = 0;
   //value
   double ETetaomega =.00000001;
   //systematic uncertainty - we're just rolling this into one because the scale factor uncertainty is dominant
@@ -229,11 +229,11 @@ int main(){
   double extrapSysUncertaintyCorrelated = fpi*(ETpiplusSysExtrap+ETpiminusSysExtrap)+fp*(ETprotonSysExtrap+ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap+ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap+ETlambdaSysExtrap);
 
   out<<"dETdEta\n";
-  out<<" SNN, bin, corr, nominalET +/- factorSysUncertainty +/- expSysUncertainty +/- extrapSysUncertainty\n";
+  out<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
   out2<<"dNdEta\n";
-  out2<<" SNN, bin, corr, nominalET +/- factorSysUncertainty +/- expSysUncertainty +/- extrapSysUncertainty\n";
+  out2<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
   out3<<"npart\n";
-  out3<<" SNN, bin, corr, nominalET +/- factorSysUncertainty +/- expSysUncertainty +/- extrapSysUncertainty\n";
+  out3<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
   for(int i=0;i<8;i++){
     for(int j=0;j<9;j++){
       nominalETdETdEta=fpi*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+fp*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fK*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLam*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+ETetaomega;
@@ -264,12 +264,12 @@ int main(){
       expSysUncertaintyCorrelateddNdEta = fpi*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err)+fp*(ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err)+fK*(ETKm[i][j].dNdEta_err+ETKp[i][j].dNdEta_err)+fLam*(ETLab[i][j].dNdEta_err+ETLa[i][j].dNdEta_err);
       expSysUncertaintyCorrelatednpart = fpi*(ETpip[i][j].npart_err+ETpim[i][j].npart_err)+fp*(ETp[i][j].npart_err+ETap[i][j].npart_err)+fK*(ETKm[i][j].npart_err+ETKp[i][j].npart_err)+fLam*(ETLab[i][j].npart_err+ETLa[i][j].npart_err);
 
-      out<<SNN[i]<<"\t"<<j<<" u "<<nominalETdETdEta<<" +/- "<<factorSysUncertaintydETdEta<<" +/- "<<expSysUncertaintydETdEta<<" +/- "<<extrapSysUncertainty<<endl;
-      out<<SNN[i]<<"\t"<<j<<" c "<<nominalETdETdEta<<" +/- "<<factorSysUncertaintydETdEta<<" +/- "<<expSysUncertaintyCorrelateddETdEta<<" +/- "<<extrapSysUncertaintyCorrelated<<endl;
-      out2<<SNN[i]<<"\t"<<j<<" u "<<nominalETdNdEta<<" +/- "<<factorSysUncertaintydNdEta<<" +/- "<<expSysUncertaintydNdEta<<" +/- "<<extrapSysUncertainty<<endl;
-      out2<<SNN[i]<<"\t"<<j<<" c "<<nominalETdNdEta<<" +/- "<<factorSysUncertaintydNdEta<<" +/- "<<expSysUncertaintyCorrelateddNdEta<<" +/- "<<extrapSysUncertaintyCorrelated<<endl;
-      out3<<SNN[i]<<"\t"<<j<<" u "<<nominalETnpart<<" +/- "<<factorSysUncertaintynpart<<" +/- "<<expSysUncertaintynpart<<" +/- "<<extrapSysUncertainty<<endl;
-      out3<<SNN[i]<<"\t"<<j<<" c "<<nominalETnpart<<" +/- "<<factorSysUncertaintynpart<<" +/- "<<expSysUncertaintyCorrelatednpart<<" +/- "<<extrapSysUncertaintyCorrelated<<endl;
+      //out<<SNN[i]<<"\t"<<j<<" u "<<nominalETdETdEta<<"   "<<factorSysUncertaintydETdEta<<"   "<<expSysUncertaintydETdEta<<"   "<<extrapSysUncertainty<<endl;
+      out<<SNN[i]<<"\t"<<j<<" "<<nominalETdETdEta<<" "<<factorSysUncertaintydETdEta<<"   "<<expSysUncertaintyCorrelateddETdEta<<"   "<<extrapSysUncertaintyCorrelated<<endl;
+      //out2<<SNN[i]<<"\t"<<j<<" u "<<nominalETdNdEta<<"   "<<factorSysUncertaintydNdEta<<"   "<<expSysUncertaintydNdEta<<"   "<<extrapSysUncertainty<<endl;
+      out2<<SNN[i]<<"\t"<<j<<" "<<nominalETdNdEta<<" "<<factorSysUncertaintydNdEta<<"   "<<expSysUncertaintyCorrelateddNdEta<<"   "<<extrapSysUncertaintyCorrelated<<endl;
+      //out3<<SNN[i]<<"\t"<<j<<" u "<<nominalETnpart<<"   "<<factorSysUncertaintynpart<<"   "<<expSysUncertaintynpart<<"   "<<extrapSysUncertainty<<endl;
+      out3<<SNN[i]<<"\t"<<j<<" "<<nominalETnpart<<"   "<<factorSysUncertaintynpart<<"   "<<expSysUncertaintyCorrelatednpart<<"   "<<extrapSysUncertaintyCorrelated<<endl;
     }
     out<<endl;
     out2<<endl;
@@ -301,9 +301,9 @@ int main(){
   //double extrapSysUncertaintyCorrelated = fpi*(ETpiplusSysExtrap+ETpiminusSysExtrap)+fp*(ETprotonSysExtrap+ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap+ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap+ETlambdaSysExtrap);
 
   //cout<<"Assuming uncorrelated"<<endl;
-  //cout<<"ET "<<nominalET<<" +/- "<<factorSysUncertainty<<" +/- "<<expSysUncertainty<<" +/- "<<extrapSysUncertainty<<endl;
+  //cout<<"ET "<<nominalET<<"   "<<factorSysUncertainty<<"   "<<expSysUncertainty<<"   "<<extrapSysUncertainty<<endl;
   //cout<<"Assuming Correlated"<<endl;
-  //cout<<"ET "<<nominalET<<" +/- "<<factorSysUncertainty<<" +/- "<<expSysUncertaintyCorrelated<<" +/- "<<extrapSysUncertaintyCorrelated<<endl;
+  //cout<<"ET "<<nominalET<<"   "<<factorSysUncertainty<<"   "<<expSysUncertaintyCorrelated<<"   "<<extrapSysUncertaintyCorrelated<<endl;
   out.close();
   return 0;
 }
