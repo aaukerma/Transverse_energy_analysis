@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 using namespace std;
 
 //value
@@ -76,7 +77,7 @@ struct particle {
   double npart_err;
 };
 void EtaMath(Double_t pt, Double_t bin){
-  Double_t et = TMath::Sqrt(pt*pt+EtaMass*EtaMass);
+  Double_t et = sqrt(pt*pt+EtaMass*EtaMass);
   Double_t J = pt/et;
   Double_t tr = 2. *TMath::Pi() *pt;
   //Double_t dETdEta = bincont*tr*J*et*dx;
@@ -231,7 +232,7 @@ void CalcFinalETs(){
   Double_t expSysUncertaintyCorrelatednpart;
 
   Double_t extrapVariance =fpi*(ETpiplusSysExtrap*ETpiplusSysExtrap+ETpiminusSysExtrap*ETpiminusSysExtrap)+fp*(ETprotonSysExtrap*ETprotonSysExtrap+ETantiprotonSysExtrap*ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap*ETKminusSysExtrap+ETKplusSysExtrap*ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap*ETantilambdaSysExtrap+ETlambdaSysExtrap*ETlambdaSysExtrap) ;
-  Double_t extrapSysUncertainty = TMath::Sqrt(extrapVariance);
+  Double_t extrapSysUncertainty = sqrt(extrapVariance);
   Double_t extrapSysUncertaintyCorrelated = fpi*(ETpiplusSysExtrap+ETpiminusSysExtrap)+fp*(ETprotonSysExtrap+ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap+ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap+ETlambdaSysExtrap);
 
   out<<"dETdEta\n";
@@ -253,18 +254,18 @@ void CalcFinalETs(){
       factorVariancedNdEta = fpiErr*fpiErr*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+fpErr*fpErr*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)+fKErr*fKErr*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)+fLamErr*fLamErr*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)+ETetaomegaSys*ETetaomegaSys;
       factorVariancenpart = fpiErr*fpiErr*(ETpip[i][j].npart+ETpim[i][j].npart)*(ETpip[i][j].npart+ETpim[i][j].npart)+fpErr*fpErr*(ETp[i][j].npart+ETap[i][j].npart)*(ETp[i][j].npart+ETap[i][j].npart)+fKErr*fKErr*(ETKm[i][j].npart+ETKp[i][j].npart)*(ETKm[i][j].npart+ETKp[i][j].npart)+fLamErr*fLamErr*(ETLab[i][j].npart+ETLa[i][j].npart)*(ETLab[i][j].npart+ETLa[i][j].npart)+ETetaomegaSys*ETetaomegaSys;
 
-      factorSysUncertaintydETdEta = TMath::Sqrt(factorVariancedETdEta);
-      factorSysUncertaintydNdEta = TMath::Sqrt(factorVariancedNdEta);
-      factorSysUncertaintynpart = TMath::Sqrt(factorVariancenpart);
+      factorSysUncertaintydETdEta = sqrt(factorVariancedETdEta);
+      factorSysUncertaintydNdEta = sqrt(factorVariancedNdEta);
+      factorSysUncertaintynpart = sqrt(factorVariancenpart);
 
       //2.  Experimental uncertainties
       expVariancedETdEta = fpi*(ETpip[i][j].dETdEta_err*ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err*ETpim[i][j].dETdEta_err)+fp*(ETp[i][j].dETdEta_err*ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err*ETap[i][j].dETdEta_err)+fK*(ETKp[i][j].dETdEta_err*ETKp[i][j].dETdEta_err+ETKm[i][j].dETdEta_err*ETKm[i][j].dETdEta_err)+fLam*(ETLa[i][j].dETdEta_err*ETLa[i][j].dETdEta_err+ETLab[i][j].dETdEta_err*ETLab[i][j].dETdEta_err);
       expVariancedNdEta = fpi*(ETpip[i][j].dNdEta_err*ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err*ETpim[i][j].dNdEta_err)+fp*(ETp[i][j].dNdEta_err*ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err*ETap[i][j].dNdEta_err)+fK*(ETKp[i][j].dNdEta_err*ETKp[i][j].dNdEta_err+ETKm[i][j].dNdEta_err*ETKm[i][j].dNdEta_err)+fLam*(ETLa[i][j].dNdEta_err*ETLa[i][j].dNdEta_err+ETLab[i][j].dNdEta_err*ETLab[i][j].dNdEta_err);
       expVariancenpart = fpi*(ETpip[i][j].npart_err*ETpip[i][j].npart_err+ETpim[i][j].npart_err*ETpim[i][j].npart_err)+fp*(ETp[i][j].npart_err*ETp[i][j].npart_err+ETap[i][j].npart_err*ETap[i][j].npart_err)+fK*(ETKp[i][j].npart_err*ETKp[i][j].npart_err+ETKm[i][j].npart_err*ETKm[i][j].npart_err)+fLam*(ETLa[i][j].npart_err*ETLa[i][j].npart_err+ETLab[i][j].npart_err*ETLab[i][j].npart_err);
 
-      expSysUncertaintydETdEta = TMath::Sqrt(expVariancedETdEta);
-      expSysUncertaintydNdEta = TMath::Sqrt(expVariancedNdEta);
-      expSysUncertaintynpart = TMath::Sqrt(expVariancenpart);
+      expSysUncertaintydETdEta = sqrt(expVariancedETdEta);
+      expSysUncertaintydNdEta = sqrt(expVariancedNdEta);
+      expSysUncertaintynpart = sqrt(expVariancenpart);
 
       expSysUncertaintyCorrelateddETdEta = fpi*(ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err)+fp*(ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err)+fK*(ETKm[i][j].dETdEta_err+ETKp[i][j].dETdEta_err)+fLam*(ETLab[i][j].dETdEta_err+ETLa[i][j].dETdEta_err);
       expSysUncertaintyCorrelateddNdEta = fpi*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err)+fp*(ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err)+fK*(ETKm[i][j].dNdEta_err+ETKp[i][j].dNdEta_err)+fLam*(ETLab[i][j].dNdEta_err+ETLa[i][j].dNdEta_err);
@@ -291,18 +292,18 @@ void CalcFinalETs(){
   //Here we are going to treat everything as constant except the factors and we're going to add the uncertainties from the factors as if they are uncorrelated with each other
   //We are going to add in the eta uncertainty because this is largely dominated by the scaling uncertainties
   //Double_t factorVariance = fpiErr*fpiErr*(ETpiplus+ETpiminus)*(ETpiplus+ETpiminus)+fpErr*fpErr*(ETproton+ETantiproton)*(ETproton+ETantiproton)+fKErr*fKErr*(ETKminus+ETKplus)*(ETKminus+ETKplus)+fLamErr*fLamErr*(ETantilambda+ETlambda)*(ETantilambda+ETlambda)+ETetaomegaSys*ETetaomegaSys;
-  //Double_t factorSysUncertainty = TMath::Sqrt(factorVariance);
+  //Double_t factorSysUncertainty = sqrt(factorVariance);
 
   //2.  Experimental uncertainties
   //Assuming totally uncorrelated
   //Double_t expVariance =fpi*(ETpiplusSysExp*ETpiplusSysExp+ETpiminusSysExp*ETpiminusSysExp)+fp*(ETprotonSysExp*ETprotonSysExp+ETantiprotonSysExp*ETantiprotonSysExp)+fK*(ETKminusSysExp*ETKminusSysExp+ETKplusSysExp*ETKplusSysExp)+fLam*(ETantilambdaSysExp*ETantilambdaSysExp+ETlambdaSysExp*ETlambdaSysExp) ;
-  //Double_t expSysUncertainty = TMath::Sqrt(expVariance);
+  //Double_t expSysUncertainty = sqrt(expVariance);
   //Assuming totally correlated
   //Double_t expSysUncertaintyCorrelated = fpi*(ETpiplusSysExp+ETpiminusSysExp)+fp*(ETprotonSysExp+ETantiprotonSysExp)+fK*(ETKminusSysExp+ETKplusSysExp)+fLam*(ETantilambdaSysExp+ETlambdaSysExp);
 
   //3.  Extrapolation uncertainties
   //Double_t extrapVariance =fpi*(ETpiplusSysExtrap*ETpiplusSysExtrap+ETpiminusSysExtrap*ETpiminusSysExtrap)+fp*(ETprotonSysExtrap*ETprotonSysExtrap+ETantiprotonSysExtrap*ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap*ETKminusSysExtrap+ETKplusSysExtrap*ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap*ETantilambdaSysExtrap+ETlambdaSysExtrap*ETlambdaSysExtrap) ;
-  //Double_t extrapSysUncertainty = TMath::Sqrt(extrapVariance);
+  //Double_t extrapSysUncertainty = sqrt(extrapVariance);
   //Assuming totally correlated
   //Double_t extrapSysUncertaintyCorrelated = fpi*(ETpiplusSysExtrap+ETpiminusSysExtrap)+fp*(ETprotonSysExtrap+ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap+ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap+ETlambdaSysExtrap);
 
