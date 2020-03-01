@@ -224,10 +224,10 @@ int main(){
   double extrapSysUncertainty = sqrt(extrapVariance);
   double extrapSysUncertaintyCorrelated = fpi*(ETpiplusSysExtrap+ETpiminusSysExtrap)+ fp[0]*(ETprotonSysExtrap+ETantiprotonSysExtrap)+fK*(ETKminusSysExtrap+ETKplusSysExtrap)+fLam*(ETantilambdaSysExtrap+ETlambdaSysExtrap);
 
-  out<<"dETdEta\n";
-  out<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
-  out2<<"dNdEta\n";
-  out2<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
+  //out<<"dETdEta\n";
+  //out<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
+  //out2<<"dNdEta\n";
+  //out2<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
   for(int i=0;i<8;i++){
     for(int j=0;j<9;j++){
       nominalETdETdEta=fpi*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+ fp[i]*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fK*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLam*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+feta*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+fome*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta);
@@ -257,8 +257,8 @@ int main(){
       //out2<<SNN[i]<<"\t"<<j<<" u "<<nominalETdNdEta<<"   "<<factorSysUncertaintydNdEta<<"   "<<expSysUncertaintydNdEta<<"   "<<extrapSysUncertainty<<endl;
       out2<<SNN[i]<<"\t"<<j<<" "<<nominalETdNdEta<<" "<<factorSysUncertaintydNdEta<<"   "<<expSysUncertaintyCorrelateddNdEta<<"   "<<extrapSysUncertaintyCorrelated<<endl;
     }
-    out<<endl;
-    out2<<endl;
+    //out<<endl;
+    //out2<<endl;
   }
   //double nominalET = fpi*(ETpiplus+ETpiminus)+ fp[i]*(ETproton+ETantiproton)+fK*(ETKminus+ETKplus)+fLam*(ETantilambda+ETlambda)+ETetaomega;
   //We are going to separate the uncertainties into
