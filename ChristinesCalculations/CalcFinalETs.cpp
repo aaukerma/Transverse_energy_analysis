@@ -165,11 +165,13 @@ int main(){
       ETap[i][j].npart=dat5;
       ETap[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){//etas
+    for(int j=0;j<a;j++){//pi0, not used
       in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
+      //cout<<GRBG<<endl;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//eta
       in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
+      //cout<<GRBG<<endl;
     }
   }
   in.close();
