@@ -89,8 +89,9 @@ int main(){
   double grbgd;
   ifstream in;
   particle q;
-  int a = 9;
-  int E  =8;
+  int numcolumns = 9;
+  int a = 9;//number of centralities
+  int E  =8;//number of energies
   cout<<"I'm Running!\n";
   vector < vector< particle > > ETpip (E, vector<particle>(a));
   vector < vector< particle > > ETpim (E,vector<particle>(a));
@@ -104,11 +105,13 @@ int main(){
   int cent;
   double dat1,dat2,dat3,dat4,dat5,dat6;
   in.open("Averaged_PiKp_ET_results.txt");
-  for (int i = 0; i<a;i++){
+  for (int i = 0; i<numcolumns;i++){//read in header, which we don't use
     in>>GRBG;
+    //cout<<" i "<<i<<" "<<GRBG;
   }
-  for (int i=0;i<E;i++){
-    for(int j=0;j<a;j++){
+  cout<<endl;
+  for (int i=0;i<E;i++){//loop over all energies
+    for(int j=0;j<a;j++){//loop over all centralities, read in pi+
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETpip[i][j].dETdEta=dat1;
       ETpip[i][j].dETdEta_err=dat2;
@@ -117,7 +120,7 @@ int main(){
       ETpip[i][j].npart=dat5;
       ETpip[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//loop over all centralities, read in pi+
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETpim[i][j].dETdEta=dat1;
       ETpim[i][j].dETdEta_err=dat2;
@@ -126,7 +129,7 @@ int main(){
       ETpim[i][j].npart=dat5;
       ETpim[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//loop over all centralities, read in K+
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETKp[i][j].dETdEta=dat1;
       ETKp[i][j].dETdEta_err=dat2;
@@ -135,7 +138,7 @@ int main(){
       ETKp[i][j].npart=dat5;
       ETKp[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//loop over all centralities, read in K-
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETKm[i][j].dETdEta=dat1;
       ETKm[i][j].dETdEta_err=dat2;
@@ -144,7 +147,7 @@ int main(){
       ETKm[i][j].npart=dat5;
       ETKm[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//loop over all centralities, read in protons
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETp[i][j].dETdEta=dat1;
       ETp[i][j].dETdEta_err=dat2;
@@ -153,7 +156,7 @@ int main(){
       ETp[i][j].npart=dat5;
       ETp[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//loop over all centralities, read in antiprotons
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6;
       ETap[i][j].dETdEta=dat1;
       ETap[i][j].dETdEta_err=dat2;
@@ -162,7 +165,7 @@ int main(){
       ETap[i][j].npart=dat5;
       ETap[i][j].npart_err=dat6;
     }
-    for(int j=0;j<a;j++){
+    for(int j=0;j<a;j++){//etas
       in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
     }
     for(int j=0;j<a;j++){
