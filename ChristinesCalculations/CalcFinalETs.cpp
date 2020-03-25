@@ -71,6 +71,7 @@ int main(){
   double ETetaomega =.00000001;
   //systematic uncertainty - we're just rolling this into one because the scale factor uncertainty is dominant
   double ETetaomegaSys = 0.1;
+
   double fpi=1.588;
   double fpiErr=0.029;
   double fK=1.8; //fk- = 1.5+-0.1        fk+ = 0.5 +- 0.05
