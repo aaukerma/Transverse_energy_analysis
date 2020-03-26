@@ -569,14 +569,14 @@ void OmegaVsPi0(){
   gr5->GetFunction("expo2")->SetLineWidth(.5);
   cout<<"==================================================================="<<endl;
   cout<<"ISR(pp) fit is: "<<endl;
-  gr5->Fit("expo2");
-  gr5->GetFunction("expo2")->SetLineColor(kViolet);
-  gr5->GetFunction("expo2")->SetLineWidth(1);
+  gr13->Fit("expo2");
+  gr13->GetFunction("expo2")->SetLineColor(kViolet);
+  gr13->GetFunction("expo2")->SetLineWidth(1);
   cout<<"==================================================================="<<endl;
   cout<<"E706 fit is: "<<endl;
-  gr5->Fit("expo2");
-  gr5->GetFunction("expo2")->SetLineColor(kMagenta);
-  gr5->GetFunction("expo2")->SetLineWidth(1);
+  gr14->Fit("expo2");
+  gr14->GetFunction("expo2")->SetLineColor(kMagenta);
+  gr14->GetFunction("expo2")->SetLineWidth(1);
   cout<<"==================================================================="<<endl;
 
 

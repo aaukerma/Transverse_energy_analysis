@@ -175,8 +175,8 @@ void omegaBuilder(const vector<vector<Bin>>& vect1, vector<vector<Bin>>& omega){
   double h;
   double a = -.455275;
   double b = 1.27055;
-  vector<double> p0{0.0000000000205391,0.0000000000111022,0.0000000000355271,0,0.00000000522138,0,0};
-  vector<double> p1{1.08474, .88624, .918029, .424807, .813936, .813922, .813922};
+  vector<double> p0{0.0000000000205391,0.0000000000111022,0.0000000000355271,0,0.00000000522138,0.0000000889688,1.34042};
+  vector<double> p1{1.08474, .88624, .918029, .424807, .813936, .413360, 6.33824};
   vector<double> s0{0,0,0,0,0,0,0};
   double scale;
   double parameter;
