@@ -84,6 +84,7 @@ int main(){
   double fetaErr=.111;
   double fome=.147;
   double fomeErr=.147;
+  double fexotic = 0.0137;
   double fSigma = 0.0258; //(ET_sigplus + ET_sigminus + ETsig0)/(ET_piplus + ET_piminus) (difference between sigma species is sigplus~=0.007909 sigminus~=0.008591 sig0~=0.009361)
   double fSigmaErr = 0.0258;
   vector <double> fp = {1.26,1.25,1.23,1.21,1.18,1.14,1.10,1.05,1.03};
