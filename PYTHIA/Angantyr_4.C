@@ -34,7 +34,7 @@ class TPythia8;
 
 struct KF_Code {
   Int_t KFc;
-  TString name;
+  string name;
 };
 struct pylista {
   Int_t inde;
@@ -78,7 +78,7 @@ Int_t GetKFConversion(const Int_t kfc, const vector<KF_Code>& partname){  //This
   Int_t KF;
   Int_t comp;
   Int_t comp1;
-  TString name;
+  string name;
   KF=kfc;
 
   if (KF<0){
@@ -350,6 +350,7 @@ Output Files
   char *filename2 = Form("p%c%i_%iGeVoutfile.txt",ty,jobID,modSNN);
   char *filename3 = Form("p%c%i_%iGeVexotics.txt",ty,jobID,modSNN);
   char *filename4 = Form("p%c%i_%iGeVDecayStats.txt",ty,jobID,modSNN);
+  char *filename5 = Form("p%c%i_%iGeVList.txt",ty,jobID,modSNN);
   TFile* file = TFile::Open(filename, "RECREATE");
   if (!file || !file->IsOpen()) {
     Error("TEST", "Couldn't open file %s", filename);
@@ -358,9 +359,11 @@ Output Files
   ofstream out;
   ofstream out2;
   ofstream out3;
+  ofstream out4;
   out.open(filename2);
   out2.open(filename3);
   out3.open(filename4);
+  out4.open(filename5);
 
   //following loads header to output .txt files
   out<<"Event ET Analysis\n******************************************************\n";
@@ -372,6 +375,9 @@ Output Files
   out3<<"Decay (eta and omega) Analysis\n******************************************************\n";
   out3<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
   out3<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
+  out4<<"Event List\n******************************************************\n";
+  out4<<"JobID: "<<jobID<<"\tNo. Events: "<<nEvents<<"\tSNN: "<<SNN<<endl<<endl;
+  out4<<"Simulation Parameters:\nVersion: "<<pVERSION<<"\nType of Cut: ";
   if (CUT=='y'){
     temporarything = "rapidity (y)";
   }
@@ -384,6 +390,8 @@ Output Files
   out2<<"Counting method: "<<DMODE<<endl<<endl;
   out3<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
   out3<<"Counting method: "<<DMODE<<endl<<endl;
+  out4<<temporarything<<"\nCut: "<<yncut<<"\nCalorimeter (r=regular, c=calorimeter): "<<DTYPE<<endl;
+  out4<<"Counting method: "<<DMODE<<endl<<endl;
   out2<<"Event\tParticle\tET\tpT\n";
   cout<<"Output files created\n";
 
@@ -605,6 +613,8 @@ Total Run Counters and Data
     if (event % print == 0){
       cout <<"Collision Energy: "<< SNN <<" Event # " << event <<endl;
     }
+    out4<<"Event # "<<event<<endl;
+    out4<<"    I\tparticle/jet\t       PDG\t    parent\t       p_x\t       p_y\t        p_z\t         E\t         m\t   status\n";
     /**************************
     In-Event Counters and Data
     **************************/
@@ -742,10 +752,23 @@ Total Run Counters and Data
     for (int part=0; part<npart; part++) {
       //cout<<".";
       Particle MPart = TheEvent->at(part);
+      string particleName;
+      char partype='a';
       Int_t KFID = MPart.id();
+      if (KFID<0){
+        partype='b';
+        KFID*= (-1);
+      }
       Int_t Ckf=GetKFConversion(KFID,partname);
       Int_t ind = part+1; //index
       char N ='n';
+      if (partype == 'b'){
+        string tempname = partname[Ckf].name;
+        particleName = Form("(%s)",tempname.c_str());
+      } else {
+        if (KFID == 1000791970) particleName = "Au";
+        else particleName = partname[Ckf].name;
+      }
       Float_t E= MPart.e();
       Float_t partE;
       Float_t px=MPart.px();
@@ -781,6 +804,39 @@ Total Run Counters and Data
       Int_t XEM2=31;
       Int_t decayed=0;
       Float_t cuttype;
+      if (DTYPE=='r'){
+        if ((KFID==3122)||(KFID==2212)||(KFID==2112)){
+          partE = (Ei_TOT-m) * sin(Theta);
+        }
+        else if ((KFID==-3122)||(KFID==-2212)||(KFID==-2112)){
+          partE = (Ei_TOT+m) * sin(Theta);
+        }
+        else {
+          partE = Ei_TOT * sin(Theta);
+        }
+      }
+      else if (DTYPE=='c') partE=Ei_TOT;
+      if (partype == 'b') KFID *= (-1);
+      out4.width(5);
+      out4<<ind<<"\t";
+      out4.width(12);
+      out4<<particleName<<"\t";
+      out4.width(10);
+      out4<<KFID<<"\t";
+      out4.width(10);
+      out4<<mpP<<"\t";
+      out4.width(10);
+      out4<<px<<"\t";
+      out4.width(10);
+      out4<<py<<"\t";
+      out4.width(10);
+      out4<<pz<<"\t";
+      out4.width(10);
+      out4<<E<<"\t";
+      out4.width(10);
+      out4<<m<<"\t";
+      out4.width(10);
+      out4<<STATUS<<endl;;
       if (CUT=='y'){
         cuttype=rapidity;
       }
@@ -788,19 +844,6 @@ Total Run Counters and Data
         cuttype=pseudorapidity;
       }
       if (cuttype<yncut){
-        if (DTYPE=='r'){
-          if ((KFID==3122)||(KFID==2212)||(KFID==2112)){
-            partE = (Ei_TOT-m) * sin(Theta);
-          }
-          else if ((KFID==-3122)||(KFID==-2212)||(KFID==-2112)){
-            partE = (Ei_TOT+m) * sin(Theta);
-          }
-          else {
-            partE = Ei_TOT * sin(Theta);
-          }
-        }
-        else if (DTYPE=='c')
-        partE=Ei_TOT;
         if ((STATUS>=81)&&(STATUS<=86)){pETALL+=partE;} //all particles that are primary
         if (DMODE=='a'){//ALL INCLUDED
           if (KFID==211){ //pi+ all included
