@@ -112,7 +112,7 @@ int main(){
   vector <float> SNN = {7.7,11.5,19.6,27,39,62.4,130,200};
   int cent;
   double dat1,dat2,dat3,dat4,dat5,dat6;
-  in.open("Averaged_PiKp_ET_results.txt");
+  in.open("avgfitResults.dat");
   for (int i = 0; i<numcolumns;i++){//read in header, which we don't use
     in>>GRBG;
     //cout<<" i "<<i<<" "<<GRBG;
@@ -213,7 +213,7 @@ int main(){
     }
   }
   in.close();
-  in.open("Averaged_Lam_ET_resutls.txt");
+  in.open("avgLAMResults.dat");
   for (int i = 0; i<a;i++){
     in>>GRBG;
   }
