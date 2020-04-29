@@ -78,15 +78,15 @@ int main(){
   double fKErr=0.1;
   //double fp=1.26; //add in for energy dependance
   //double fpErr=0.26;
-  double fLam=1.08;//.4373948
-  double fLamErr=0.51;//.12
-  double feta=.111;
-  double fetaErr=.111;
-  double fome=.147;
-  double fomeErr=.147;
+  double fLam=1.07;//.4373948
+  double fLamErr=0.50;//.12
+  double feta=.409; //.111
+  double fetaErr=.023237;
+  double fome=.0127;//.147
+  double fomeErr=.0445;
   double fexotic = 0.0137;
-  double fSigma = 0.0258; //(ET_sigplus + ET_sigminus + ETsig0)/(ET_piplus + ET_piminus) (difference between sigma species is sigplus~=0.007909 sigminus~=0.008591 sig0~=0.009361)
-  double fSigmaErr = 0.0258;
+  double fSigma = 1.57; //(ET_sigplus + ET_sigminus + ETsig0)/(ET_piplus + ET_piminus) (difference between sigma species is sigplus~=0.007909 sigminus~=0.008591 sig0~=0.009361)
+  double fSigmaErr = 0.07;
   vector <double> fp = {1.26,1.25,1.23,1.21,1.18,1.14,1.10,1.05,1.03};
   vector <double> fpErr = {0.26,0.25,0.23,0.21,0.18,0.14,0.10,0.05,0.03};
 
@@ -105,6 +105,8 @@ int main(){
   vector < vector< particle > > ETKm (E,vector<particle>(a));
   vector < vector< particle > > ETp (E,vector<particle>(a));
   vector < vector< particle > > ETap (E,vector<particle>(a));
+  vector < vector< particle > > ETeta (E,vector<particle>(a));
+  vector < vector< particle > > ETome (E,vector<particle>(a));
   vector < vector< particle > > ETLa (E,vector<particle>(a));
   vector < vector< particle > > ETLab (E,vector<particle>(a));
   vector <float> SNN = {7.7,11.5,19.6,27,39,62.4,130,200};
@@ -117,6 +119,17 @@ int main(){
   }
   cout<<endl;
   for (int i=0;i<E;i++){//loop over all energies
+    for(int j=0;j<a;j++){//loop over all centralities, read in pi-
+      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
+      ETpim[i][j].dETdEta=dat1;
+      ETpim[i][j].dETdEta_err=dat2;
+      ETpim[i][j].dNdEta=dat3;
+      ETpim[i][j].dNdEta_err=dat4;
+      ETpim[i][j].npart=dat5;
+      ETpim[i][j].npart_err=dat6;
+      //ETpim[i][j].dETdEta_exterr=dat7;
+      //ETpim[i][j].dNdEta_exterr=dat8;
+    }
     for(int j=0;j<a;j++){//loop over all centralities, read in pi+
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
       ETpip[i][j].dETdEta=dat1;
@@ -128,27 +141,9 @@ int main(){
       //ETpip[i][j].dETdEta_exterr=dat7;
       //ETpip[i][j].dNdEta_exterr=dat8;
     }
-    for(int j=0;j<a;j++){//loop over all centralities, read in pi+
-      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
-      ETpim[i][j].dETdEta=dat1;
-      ETpim[i][j].dETdEta_err=dat2;
-      ETpim[i][j].dNdEta=dat3;
-      ETpim[i][j].dNdEta_err=dat4;
-      ETpim[i][j].npart=dat5;
-      ETpim[i][j].npart_err=dat6;
-      //ETpim[i][j].dETdEta_exterr=dat7;
-      //ETpim[i][j].dNdEta_exterr=dat8;
-    }
-    for(int j=0;j<a;j++){//loop over all centralities, read in K+
-      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
-      ETKp[i][j].dETdEta=dat1;
-      ETKp[i][j].dETdEta_err=dat2;
-      ETKp[i][j].dNdEta=dat3;
-      ETKp[i][j].dNdEta_err=dat4;
-      ETKp[i][j].npart=dat5;
-      ETKp[i][j].npart_err=dat6;
-      //ETKp[i][j].dETdEta_exterr=dat7;
-      //ETKp[i][j].dNdEta_exterr=dat8;
+    for(int j=0;j<a;j++){//pi0, not used
+      in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
+      //cout<<GRBG<<endl;
     }
     for(int j=0;j<a;j++){//loop over all centralities, read in K-
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
@@ -161,16 +156,16 @@ int main(){
       //ETKm[i][j].dETdEta_exterr=dat7;
       //ETKm[i][j].dNdEta_exterr=dat8;
     }
-    for(int j=0;j<a;j++){//loop over all centralities, read in protons
+    for(int j=0;j<a;j++){//loop over all centralities, read in K+
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
-      ETp[i][j].dETdEta=dat1;
-      ETp[i][j].dETdEta_err=dat2;
-      ETp[i][j].dNdEta=dat3;
-      ETp[i][j].dNdEta_err=dat4;
-      ETp[i][j].npart=dat5;
-      ETp[i][j].npart_err=dat6;
-      //ETp[i][j].dETdEta_exterr=dat7;
-      //ETp[i][j].dNdEta_exterr=dat8;
+      ETKp[i][j].dETdEta=dat1;
+      ETKp[i][j].dETdEta_err=dat2;
+      ETKp[i][j].dNdEta=dat3;
+      ETKp[i][j].dNdEta_err=dat4;
+      ETKp[i][j].npart=dat5;
+      ETKp[i][j].npart_err=dat6;
+      //ETKp[i][j].dETdEta_exterr=dat7;
+      //ETKp[i][j].dNdEta_exterr=dat8;
     }
     for(int j=0;j<a;j++){//loop over all centralities, read in antiprotons
       in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
@@ -183,13 +178,38 @@ int main(){
       //ETap[i][j].dETdEta_exterr=dat7;
       //ETap[i][j].dNdEta_exterr=dat8;
     }
-    for(int j=0;j<a;j++){//pi0, not used
-      in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
-      //cout<<GRBG<<endl;
+    for(int j=0;j<a;j++){//loop over all centralities, read in protons
+      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
+      ETp[i][j].dETdEta=dat1;
+      ETp[i][j].dETdEta_err=dat2;
+      ETp[i][j].dNdEta=dat3;
+      ETp[i][j].dNdEta_err=dat4;
+      ETp[i][j].npart=dat5;
+      ETp[i][j].npart_err=dat6;
+      //ETp[i][j].dETdEta_exterr=dat7;
+      //ETp[i][j].dNdEta_exterr=dat8;
     }
-    for(int j=0;j<a;j++){//eta
-      in>>grbgd>>GRBG>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd>>grbgd;
-      //cout<<GRBG<<endl;
+    for(int j=0;j<a;j++){//loop over all centralities, read in eta
+      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
+      ETeta[i][j].dETdEta=dat1;
+      ETeta[i][j].dETdEta_err=dat2;
+      ETeta[i][j].dNdEta=dat3;
+      ETeta[i][j].dNdEta_err=dat4;
+      ETeta[i][j].npart=dat5;
+      ETeta[i][j].npart_err=dat6;
+      //ETeta[i][j].dETdEta_exterr=dat7;
+      //ETeta[i][j].dNdEta_exterr=dat8;
+    }
+    for(int j=0;j<a;j++){//loop over all centralities, read in omega
+      in>>grbgd>>GRBG>>cent>>dat1>>dat2>>dat3>>dat4>>dat5>>dat6; //>>dat7>>dat8;
+      ETome[i][j].dETdEta=dat1;
+      ETome[i][j].dETdEta_err=dat2;
+      ETome[i][j].dNdEta=dat3;
+      ETome[i][j].dNdEta_err=dat4;
+      ETome[i][j].npart=dat5;
+      ETome[i][j].npart_err=dat6;
+      //ETome[i][j].dETdEta_exterr=dat7;
+      //ETome[i][j].dNdEta_exterr=dat8;
     }
   }
   in.close();
@@ -266,27 +286,27 @@ int main(){
   //out2<<" SNN, bin, corr, nominalET   factorSysUncertainty   expSysUncertainty   extrapSysUncertainty\n";
   for(int i=0;i<8;i++){
     for(int j=0;j<9;j++){
-      nominalETdETdEta=fpi*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+ fp[i]*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fK*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLam*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+feta*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+fome*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta);
-      nominalETdNdEta=fpi*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+ fp[i]*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)+fK*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)+fLam*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)+feta*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+fome*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta);
+      nominalETdETdEta=fpi*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+ fp[i]*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fK*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLam*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+feta*ETeta[i][j].dETdEta+fome*ETome[i][j].dETdEta;
+      nominalETdNdEta=fpi*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+ fp[i]*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)+fK*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)+fLam*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)+feta*ETeta[i][j].dNdEta+fome*ETome[i][j].dNdEta;
 
       //1.  Factor uncertainties:
         //Here we are going to treat everything as constant except the factors and we're going to add the uncertainties from the factors as if they are uncorrelated with each other
         //We are going to add in the eta uncertainty because this is largely dominated by the scaling uncertainties
-      factorVariancedETdEta = fpiErr*fpiErr*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+ fpErr[i]* fpErr[i]*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fKErr*fKErr*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLamErr*fLamErr*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+fetaErr*fetaErr*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+fomeErr*fomeErr*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta);
-      factorVariancedNdEta = fpiErr*fpiErr*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+ fpErr[i]* fpErr[i]*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)+fKErr*fKErr*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)+fLamErr*fLamErr*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)+ETetaomegaSys*ETetaomegaSys+fetaErr*fetaErr*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+fomeErr*fomeErr*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta);
+      factorVariancedETdEta = fpiErr*fpiErr*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)*(ETpip[i][j].dETdEta+ETpim[i][j].dETdEta)+ fpErr[i]* fpErr[i]*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)*(ETp[i][j].dETdEta+ETap[i][j].dETdEta)+fKErr*fKErr*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)*(ETKm[i][j].dETdEta+ETKp[i][j].dETdEta)+fLamErr*fLamErr*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)*(ETLab[i][j].dETdEta+ETLa[i][j].dETdEta)+fetaErr*fetaErr*ETeta[i][j].dETdEta+fomeErr*fomeErr*ETome[i][j].dETdEta;
+      factorVariancedNdEta = fpiErr*fpiErr*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)*(ETpip[i][j].dNdEta+ETpim[i][j].dNdEta)+ fpErr[i]* fpErr[i]*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)*(ETp[i][j].dNdEta+ETap[i][j].dNdEta)+fKErr*fKErr*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)*(ETKm[i][j].dNdEta+ETKp[i][j].dNdEta)+fLamErr*fLamErr*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)*(ETLab[i][j].dNdEta+ETLa[i][j].dNdEta)+ETetaomegaSys*ETetaomegaSys+fetaErr*fetaErr*ETeta[i][j].dNdEta+fomeErr*fomeErr*ETome[i][j].dNdEta;
 
       factorSysUncertaintydETdEta = sqrt(factorVariancedETdEta);
       factorSysUncertaintydNdEta = sqrt(factorVariancedNdEta);
 
       //2.  Experimental uncertainties
-      expVariancedETdEta = fpi*(ETpip[i][j].dETdEta_err*ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err*ETpim[i][j].dETdEta_err)+ fp[i]*(ETp[i][j].dETdEta_err*ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err*ETap[i][j].dETdEta_err)+fK*(ETKp[i][j].dETdEta_err*ETKp[i][j].dETdEta_err+ETKm[i][j].dETdEta_err*ETKm[i][j].dETdEta_err)+fLam*(ETLa[i][j].dETdEta_err*ETLa[i][j].dETdEta_err+ETLab[i][j].dETdEta_err*ETLab[i][j].dETdEta_err)+feta*(ETpip[i][j].dETdEta_err*ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err*ETpim[i][j].dETdEta_err)+fome*(ETpip[i][j].dETdEta_err*ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err*ETpim[i][j].dETdEta_err);
-      expVariancedNdEta = fpi*(ETpip[i][j].dNdEta_err*ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err*ETpim[i][j].dNdEta_err)+ fp[i]*(ETp[i][j].dNdEta_err*ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err*ETap[i][j].dNdEta_err)+fK*(ETKp[i][j].dNdEta_err*ETKp[i][j].dNdEta_err+ETKm[i][j].dNdEta_err*ETKm[i][j].dNdEta_err)+fLam*(ETLa[i][j].dNdEta_err*ETLa[i][j].dNdEta_err+ETLab[i][j].dNdEta_err*ETLab[i][j].dNdEta_err)+feta*(ETpip[i][j].dNdEta_err*ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err*ETpim[i][j].dNdEta_err)+fome*(ETpip[i][j].dNdEta_err*ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err*ETpim[i][j].dNdEta_err);
+      expVariancedETdEta = fpi*(ETpip[i][j].dETdEta_err*ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err*ETpim[i][j].dETdEta_err)+ fp[i]*(ETp[i][j].dETdEta_err*ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err*ETap[i][j].dETdEta_err)+fK*(ETKp[i][j].dETdEta_err*ETKp[i][j].dETdEta_err+ETKm[i][j].dETdEta_err*ETKm[i][j].dETdEta_err)+fLam*(ETLa[i][j].dETdEta_err*ETLa[i][j].dETdEta_err+ETLab[i][j].dETdEta_err*ETLab[i][j].dETdEta_err)+feta*ETeta[i][j].dETdEta_err*ETeta[i][j].dETdEta_err+fome*ETome[i][j].dETdEta_err*ETome[i][j].dETdEta_err;
+      expVariancedNdEta = fpi*(ETpip[i][j].dNdEta_err*ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err*ETpim[i][j].dNdEta_err)+ fp[i]*(ETp[i][j].dNdEta_err*ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err*ETap[i][j].dNdEta_err)+fK*(ETKp[i][j].dNdEta_err*ETKp[i][j].dNdEta_err+ETKm[i][j].dNdEta_err*ETKm[i][j].dNdEta_err)+fLam*(ETLa[i][j].dNdEta_err*ETLa[i][j].dNdEta_err+ETLab[i][j].dNdEta_err*ETLab[i][j].dNdEta_err)+feta*ETeta[i][j].dNdEta_err*ETeta[i][j].dNdEta_err+fome*ETome[i][j].dNdEta_err*ETome[i][j].dNdEta_err;
 
       expSysUncertaintydETdEta = sqrt(expVariancedETdEta);
       expSysUncertaintydNdEta = sqrt(expVariancedNdEta);
 
-      expSysUncertaintyCorrelateddETdEta = fpi*(ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err)+ fp[i]*(ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err)+fK*(ETKm[i][j].dETdEta_err+ETKp[i][j].dETdEta_err)+fLam*(ETLab[i][j].dETdEta_err+ETLa[i][j].dETdEta_err)+feta*(ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err)+fome*(ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err);
-      expSysUncertaintyCorrelateddNdEta = fpi*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err)+ fp[i]*(ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err)+fK*(ETKm[i][j].dNdEta_err+ETKp[i][j].dNdEta_err)+fLam*(ETLab[i][j].dNdEta_err+ETLa[i][j].dNdEta_err)+feta*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err)+fome*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err);
+      expSysUncertaintyCorrelateddETdEta = fpi*(ETpip[i][j].dETdEta_err+ETpim[i][j].dETdEta_err)+ fp[i]*(ETp[i][j].dETdEta_err+ETap[i][j].dETdEta_err)+fK*(ETKm[i][j].dETdEta_err+ETKp[i][j].dETdEta_err)+fLam*(ETLab[i][j].dETdEta_err+ETLa[i][j].dETdEta_err)+feta*ETeta[i][j].dETdEta_err+fome*ETome[i][j].dETdEta_err;
+      expSysUncertaintyCorrelateddNdEta = fpi*(ETpip[i][j].dNdEta_err+ETpim[i][j].dNdEta_err)+ fp[i]*(ETp[i][j].dNdEta_err+ETap[i][j].dNdEta_err)+fK*(ETKm[i][j].dNdEta_err+ETKp[i][j].dNdEta_err)+fLam*(ETLab[i][j].dNdEta_err+ETLa[i][j].dNdEta_err)+feta*ETeta[i][j].dNdEta_err+fome*ETome[i][j].dNdEta_err;
       /*
       //3.  Extrapolation uncertainties
       extrapVariancedETdEta = fpi*(ETpip[i][j].dETdEta_exterr*ETpip[i][j].dETdEta_exterr+ETpim[i][j].dETdEta_exterr*ETpim[i][j].dETdEta_exterr)+ fp[i]*(ETp[i][j].dETdEta_exterr*ETp[i][j].dETdEta_exterr+ETap[i][j].dETdEta_exterr*ETap[i][j].dETdEta_exterr)+fK*(ETKp[i][j].dETdEta_exterr*ETKp[i][j].dETdEta_exterr+ETKm[i][j].dETdEta_exterr*ETKm[i][j].dETdEta_exterr)+fLam*(ETLa[i][j].dETdEta_exterr*ETLa[i][j].dETdEta_exterr+ETLab[i][j].dETdEta_exterr*ETLab[i][j].dETdEta_exterr)+feta*(ETpip[i][j].dETdEta_exterr*ETpip[i][j].dETdEta_exterr+ETpim[i][j].dETdEta_exterr*ETpim[i][j].dETdEta_exterr)+fome*(ETpip[i][j].dETdEta_exterr*ETpip[i][j].dETdEta_exterr+ETpim[i][j].dETdEta_exterr*ETpim[i][j].dETdEta_exterr);
