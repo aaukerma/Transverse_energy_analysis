@@ -1,0 +1,270 @@
+********************************************************************************
+ ||||||| |||      ||| |||||||||| ||       || ||||||||||   |||    //\      //\\
+ ||    ||  ||    ||       ||     ||       ||     ||      |||||   |     &  |  |
+ ||    ||   ||  ||        ||     ||       ||     ||     ||   ||  //\\     //\\
+ |||||||     ||||         ||     |||||||||||     ||     |||||||  |  |     |  |
+ ||           ||          ||     ||       ||     ||     ||   ||  \\//     \\//
+ ||           ||          ||     ||       ||     ||     ||   ||
+ ||           ||          ||     ||       ||     ||     ||   ||  FOR RHIP UTK
+ ||           ||          ||     ||       || |||||||||| ||   ||    Vs 1.00
+********************************************************************************
+           ----------   Written by: Benjamin W Smith   -----------
+********************************************************************************
+
+These programs were made for use in the Relativistic Heavy Ion Physics group
+through the University of Tennessee Knoxville.
+
+                            Table of Contents:
+            Part I..........................System Dependencies
+            Part II...........................File Dependencies
+            Part III...........................Running Pythia 6
+            Part IV...................Running Pythia 8 Angantyr
+            Part V.............................Running Analysis
+            Part VI...........Specifications and Run Parameters
+            Part VII.....................................Tuning
+            Part VIII.................Particle Counting Methods
+
+================================================================================
+PART I
+System Dependencies:
+================================================================================
+  ROOT6:
+    Version--6.18/00*
+  Pythia6:
+    Version--6.428
+  Pythia8:
+    Version--8.242
+
+*ROOT must be built with Pythia6 and Pythia8 as plugins.
+
+================================================================================
+PART II
+File Dependencies:
+================================================================================
+  Pythia 6:
+    Pythia6.C
+    PythiaStartUpRoot.C
+    PythiaFullRunRoot.C
+    RunAnalysisR.C
+    KF_Code.dat
+
+  Pythia 8 Angantyr:
+    Angantry.C
+    AngantryStartUpRoot.C
+    Angantyr.cmnd
+    RunAnalysisR.C
+    KF_Code.dat
+
+================================================================================
+PART III
+RUNNING PYTHIA6 FOR ANALYZING TRANSVERSE ENERGY PER COLLISION ENERGY:
+================================================================================
+There are two ways to run the program,
+
+1) if you wish to run a single event:
+      (a)   open PythiaStartUpRoot.C in an editor and modify the inputs to your
+      specifications (see below)
+
+      (b)   while open to the directory containing the file dependencies, run:
+
+          root PythiaStartUpRoot.C
+
+      (c)   You can either close root with .q or you can run another event with
+      the line:
+
+          makeEventSample(EVN,ID,TUNE,SNN,CUT,YNCUT,DTYPE,DMODE)
+
+       where each of the inputs are as described below (see below). Resulting
+       files are of the form: "pp[ID]_[SNN]GeV[type].[ext]" where [type] is the
+       output file type and [ext] is either .txt or .root
+       (ID and SNN  are described below)
+
+2) to run a full analysis across 10 energies:
+      (a)   open PythiaFullRunRoot.C in an editor and modify the inputs to your
+      specifications.(see below)
+
+      (b)   Run the program with the following command:
+
+          root PythiaFullRunRoot.C
+
+      (c)   The run is now complete. Resulting files are of the form:
+      "pp[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
+      ext is either .txt or .root (ID and SNN  are described below)
+
+================================================================================
+PART IV
+RUNNING PYTHIA8 ANGANTYR FOR ANALYZING TRANSVERSE ENERGY PER COLLISION ENERGY:
+================================================================================
+To run Angantyr:
+
+        (a)   open AngantyrStartUpRoot.C in an editor and modify the inputs to
+        your specifications and be sure to specify which angantyr to run (see
+        below) To change the type of particle open the Angantyr_4.cmnd file and
+        modify the "Beams: idA" and "Beams: idB" to one of the following:
+
+              2212 = p
+             -2212 = pbar
+              2112 = n
+             -2112 = nbar
+              211  = pi^+
+             -211  = pi^-
+              111  = pi0
+              1000020040 = Alpha (He)
+              1000791970 = Au
+
+        (b)   Run the program with the following command:
+
+            root AngantyrStartUpRoot.C
+
+        (c)   IMPORTANT: Due to a memory glitch, step (b) may need to be
+        repeated multiple times. Once the program reaches "Event 20", it will
+        continue to work through completion. Due to this complication, it is not
+        recommended to use: ** (see below)
+
+            AngantyrFullRunRoot.C
+
+        To increase the efficiency of this program, it is recommended to run the
+        program through multiple terminals to utilize more processor threads.
+        Opening a number of terminals greater that the number of threads
+        available will seriously impact performance.
+
+        (d)   The run is now complete. Resulting files are of the form:
+        "pA[ID]_[SNN]GeV[type].[ext]" where type is the output file type and
+        ext is either .txt or .root (ID and SNN  are described below)
+
+    **This memory issue can be bypassed by running the program with gdb active.
+    follow the following command instructions to run with gdb:
+
+      :~<Path/To/Pythia_Simulation_Software>$ gdb root.exe
+      (gdb) run
+      root [0] .x AngantyrStartUpRoot.C
+      ----------------or----------------
+      root [0] .x AngantyrFullRunRoot.C
+
+================================================================================
+PART V
+RUNNING ANALYSIS:
+================================================================================
+To run the analysis:
+    (1) RunAnalysisR
+
+        (a)   Ensure number of SNNs ran for match the number in the vector in
+              the beginning of the RunAnalysisR.C. 7.7GeV is required.
+        (b)   Run the program with the following command:
+
+            root RunAnalysisR.C
+
+        (c)   The program will prompt you with the ID (see below) and version.
+              The ID should match the files.
+                  ex: pp20190815_7GeVoutfile.root
+                  ID is 20190815
+              The version will be asked via "pp or pA?". Input 'p' for pp and
+              'A' for pA.
+                  ex: pp20190815_7GeVoutfile.root
+                  pp or pA? is 'p'
+        (d)   The analysis will result with 6 graphs. Any that end with the
+              string "FROMTXT" are from the .txt files and are universal numbers
+              meaning that the ET is a total over all events. The other plots
+              are based on histograms filled in each event which are from the
+              .root files
+
+    (2) Calculate Ratios
+
+        (a)   Ensure number of SNNs ran for match the number in the vector in
+              the beginning of the calculateRatio0.cpp. 7.7GeV is required.
+        (b)   Run the program with the following command:
+
+            root calculateRatio0.cpp
+
+        (c)   The program will prompt you with the char and date (see below).
+              The char will be asked via "pp or pA?". Input 'p' for pp and
+              'A' for pA.
+                  ex: pA20190815_7GeVoutfile.root
+                  pp or pA? is 'A'
+              The date should match the files.
+                  ex: pA20190815_7GeVoutfile.root
+                  char is A
+                  date is 20190815
+        (d)   This will output to screen a series of ratios, these can and may
+              need to be modified to suit the users needs.
+
+================================================================================
+PART VI
+Specifications and Run Parameters:
+================================================================================
+There are a number of parameters that can be modified to run Pythia in the
+desired manner:
+
+(1)   ENV   [modifies the number of events to be run]
+(2)   ID    [Changes the ID of the job preferred method is the date as YYYYMMDD]
+(3)   TUNE  [PYTHIA6 ONLY Default is 350 changes tuning]
+(4)   SNN   [Collision Energy choose from list in xxStartUpRoot.C Program]
+(5)   CUT   [type of cut: 'y' for rapidity cut and 'n' for pseudorapidity cut]
+(6)   YNCUT [Range of above cut]
+(7)   DTYPE [Detector type, chooses to either measure the ET equally  with 'c'
+             or to measure ET with consideration for baryons 'r' which is
+             defined as
+                ET=Etot-m0    for baryons
+                ET=Etot+m0    for antibaryons
+                ET=Etot       for mesons and other
+             and Etot is described as:
+                Etot=sqrt(p^2+(m0)^2)]
+(8)   DMODE [This refers to the counting method. There are four main counting
+             modes:
+                'd' [DEFAULT]
+             where mode 'd' is the default and has no double counting. The
+             method of counting for each mode is described in detail at
+             the bottom of this README.
+             [to add custom modes or modify, see LINE 854-1228 of Angantyr.C]
+(9)   HIGHEVN  [number of events for LHC energies 2760GeV and 5020GeV as they
+                tend to take longer to run. It is recommended that his value is
+                lower than EVN]
+
+================================================================================
+PART VII
+Tuning:
+================================================================================
+Pythia6 is running the Perugia 2011 tune*
+Pythia8 Angantyr is running the MONASH 2013 tune*
+
+*for specifics see Pythia6.C and Angantyr.cmnd
+
+================================================================================
+PART VIII
+DMODE COUNTING METHODS:
+================================================================================
+'d'
+NOTE: when observing code refer to KF_Code.dat for XEM variable table
+
+Particle:        inclusion requirements:
+pion+-           All except daughters of K0s,Lambda0,Lambda0bar,
+                    Sigma+,Sigma-,Xi0,Xi-,Omega-
+pion0            All except daughters of K0s,Lambda0,Lambda0bar,
+                    Sigma+,Sigma-,Xi0,Xi-,Omega-
+kaon+            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+kaon-            All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+kaon0_L          ALL INCLUDED
+kaon0_S          ALL INCLUDED
+eta              ALL INCLUDED: subtraction of daughter pions
+omega            ALL INCLUDED: subtraction of daughter pions
+Lambda0          All except daughters of Sigma+,Sigma-,Xi0,Xi-,Omega-
+LambdaBar0       All except daughters of Sigma+,Sigma-,Xi0,Xi-,Omega-
+Omega-           ALL INCLUDED
+Xi0              ALL INCLUDED
+Xi-              ALL INCLUDED
+Sigma+           ALL INCLUDED
+Sigma0           ALL INCLUDED
+Sigma-           ALL INCLUDED
+proton           All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+antiproton       All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+neutron          All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+Antineutron      All except daughters of K0s,Lambda0,Lambda0bar,Sigma+,Sigma-,
+                    Xi0,Xi-,Omega-
+gamma            All expect daughters of pi0,eta,omega,Sigma0
+exotics          Primary Particles Only (WIP)
+================================================================================

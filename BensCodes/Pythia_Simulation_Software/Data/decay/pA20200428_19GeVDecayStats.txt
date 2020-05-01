@@ -1,0 +1,45 @@
+Decay (eta and omega) Analysis
+******************************************************
+JobID: 20200428	No. Events: 10000	SNN: 19.6
+
+Simulation Parameters:
+Version: Pythia8 Angantyr
+Type of Cut: pseudorapidity (n)
+Cut: 0.1
+Calorimeter (r=regular, c=calorimeter): r
+Counting method: d
+
+  Decay Mode       ET 	 %of_particle_total 	 %ofTotal_ET 	 fraction 	 expected [Particle Physics Booklet 2018]
+--------------eta Decay Branching Ratios-----------------
+  2gamma          3625.89	95.5042	1.8126	39.282%	 39.41%
+  3pi0            3047.27	80.2637	1.52334	32.8082%	 32.68%
+  pi+,pi-,pi0     2067	54.4439	1.0333	22.2859%	 22.92%
+  pi+,pi-,gamma   443.812	11.6898	0.221864	4.79328%	 4.22%
+  e+,e-,gamma     69.765	1.83758	0.0348758	0.773417%	 6.9E-3%
+  mu+,mu-,gamma   0.727719	0.0191678	0.00036379	0.00954836%	 3.1E-4%
+  pi0,2gamma      2.31003	0.060845	0.00115479	0.0286451%	 2.56E-4%
+  2pi0,2gamma     0	0	0	0%	 <1.2E-3%
+  4gamma          0	0	0	0%	 <2.8E-4%
+  e+,e-           0	0	0	0%	 <2.3E-6%
+  mu+,mu-         0	0	0	0%	 5.8E-6%
+  2e+,2e-         0	0	0	0%	 2.4E-5%
+  pi+,pi-,e+,e-,(gamma) 0	0	0	0%	 2.68E-4%
+  e+,e-,mu+,mu-   0	0	0	0%	 <1.6E-4%
+  2mu+,2mu-       0	0	0	0%	 <3.6E-4%
+  [OTHER]         2.00899	0.052916	0.0010043	0.0190967%	 -------%
+--------------omega Decay Branching Ratios-----------------
+  pi+,pi-,pi0     11118.3	4661.45	5.5581	89.8999%	 89.2%
+  pi0,gamma       1056.35	442.885	0.528076	8.53194%	 8.40%
+  pi+,pi-         172.48	72.3135	0.0862233	1.37326%	 1.53%
+  eta,gamma       9.99726	4.19143	0.00499767	0.0797378%	 4.5E-4%
+  pi0,e+,e-       10.2771	4.30875	0.00513755	0.0797378%	 7.7E-4%
+  pi0,mu+,mu-     2.14073	0.897519	0.00107016	0.0177195%	 1.34E-4%
+  e+,e-           0	0	0	0%	 7.36E-5%
+  pi+,pi-,2pi0    0	0	0	0%	 <2E-4%
+  pi+,pi-,gamma   0	0	0	0%	 <3.6E-3%
+  2pi+,2pi-       0	0	0	0%	 <1E-3%
+  2pi0,gamma      0	0	0	0%	 6.7E-5%
+  eta,pi0,gamma   0	0	0	0%	 <3.3E-5%
+  mu+,mu-         1.81582	0.761299	0.000907738	0.0177195%	 7.4E-5%
+  3gamma          0	0	0	0%	 <1.9E-4%
+  [OTHER]         0	0	0	0%	 -------%

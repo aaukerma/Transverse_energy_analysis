@@ -1,0 +1,23 @@
+! 1) Settings related to the physics processes generated. Here
+! a simple pp soft QCD run at 7 TeV.
+Beams:idA =  1000791970      ! first beam p = 2212 1000791970 1000020040
+Beams:idB =  1000791970      ! second beam p = 2212 1000791970 1000020040
+Beams:frameType = 1
+Tune:ee = 7                   !MONASH 2013
+Tune:pp = 14                  !MONASH 2013
+
+! 2) Settings related to the run
+HeavyIon:SigFitNGen = 0
+Main:timesAllowErrors = 10
+Next:numberShowEvent = 1
+PartonLevel:all = 1
+!PDF:nPDFBeamA = 1000791970
+!PDF:nPDFBeamB = 1000791970
+ProcessLevel:all = 1
+ParticleDecays:limitTau0 = on      ! Only Particles with tau0 < tau0Max are decayed
+ParticleDecays:tau0Max = 10.       ! Tau0Max = 10. mm/c
+Random:setSeed = on
+SoftQCD:all = on
+HardQCD:all = on
+
+! 3) Settings related to output

@@ -1,0 +1,52 @@
+Eta:
+The [eta] contribution was determined via transverse mass scaling using the data
+ from [1]. The data from Au+Au at central collisions, Au+Au at semi-central
+ collisions, Au+Au at peripheral collisions, d+Au with minimum bias [6], and p+p [6]
+ collisions were used. An interpolation was made for each of these data sets
+ using the fit function:
+ y=exp(a-b/x)
+ which is the best guess for the fit of the pythia v6.131 results given in the
+ transverse mass paper[7]
+ A scale function was then created from these results by taking the average fit
+ for each corresponding [pi0] momentum bin.
+
+ [
+ pT=vect1[i][j].Dat.pTl;                //pt from pi0 ptspectra for given bin
+ for (int k=0;k<5;k++){
+   parameter= p0[k]-(p1[k]/pT);         //finds scale of eta to pi0 for each data set
+   s0[k]=exp(parameter);
+ }
+ scale=(s0[0]+s0[1]+s0[2]+s0[3]+s0[4])/5;  //takes average across all fits to make average scale
+ ]
+
+ after finding the scale factor for each individual bin, the eta spectra was
+ extrapolated from the pi0 spectra bin for bin using the scale function.
+
+Omega:
+  this was calculated in exactly the same manner as [eta] save that the data was
+  collected for several [omega] decay modes (w->e+,e-;w->pi+,pi-,pi0;w->pi0,gamma;
+  w->pi+,pi-,pi0 PRC75; w->pi0,gamma PRC75)[2][3] as well as the ISR(p+p at SNN=62.4GeV)[4]
+  and E706 (pi- + Be at SNN=31GeV)[5]. In the same manner an interpolation for each
+  data set was created and then a scale function was applied to extrapolate for
+  the omega ptSpectra
+
+Assumtion check with pythia:
+  MAKE PYTHIA COMPARISON ON ETA AND OMEGA PLOTS
+
+
+Results:
+  It was found that the eta to pi0 pt spectra ratio was on average around .4 while
+  the omega to pi0 pt spectra was around .8 with large uncertainty. This means that
+  the ET contribution based on PT spectra from omega is rouhgly double that of eta
+
+
+references:
+  [1]*          S. Adler et al. (PHENIX Collaboration), Phys. Rev. Lett. 2006 May 26;96(20):202301    {common supression pattern of eta and pi0 mesons at high transverse momentum in Au+Au collisions at snn=200GeV} [https://www.ncbi.nlm.nih.gov/pubmed/16803168]
+  [2]*          A. Adare et al. (PHENIX Collaboration), Phys. Rev. C84, 044902 (2011).                {production of omega mesons in p+p,d+Au,Cu+Cu, and Au+Au collisions at SNN=200GeV} [https://ui.adsabs.harvard.edu/abs/2011PhRvC..84d4902A/abstract]
+  [3]:2.[8]     S. Adler et al. (PHENIX Collaboration), Phys. Rev. C75, 051902 (2007).                {Production of omega mesons at Large Transverse Momenta in p+p and d+Au collisions at S**(1/2)(NN)=200-GeV} [http://inspirehep.net/record/732097?ln=en]
+  [4]:2.[26]    M. Diakonou et al. (ISR Collaboration) (1979), CERN-EP/79-144                         {Inclusive high-pT omega0 and eta' production at the ISR} [https://cds.cern.ch/record/133506/files/198001389.pdf]
+  [5]:2.[25]    L. Apanasevich et al. (E706 Collaboration) (2000),0004012.                            {Inclusive production of omega mesons at large transverse momenta in pi-Be interactions at 515GeV/c} [https://arxiv.org/abs/hep-ex/0004012]
+  [6]:1.[27]    P. Khandai et al. [PHENIX], Phys. Rev. C84, 054904 (2011).                            {Meson spectra and mT scaling in p+p, d+Au, and Au+Au collisions at SNN=200GeV} [http://inspirehep.net/record/940386?ln=en]
+  [7]:1.[32]    T. Sjöstrand, Comput. Phys. Commun. 82, 74 (1994)                                     {computer code PYTHIA v6.131 with default parameters.}
+
+  *choosen as it is at 200GeV which is closest available results to BES SNNs

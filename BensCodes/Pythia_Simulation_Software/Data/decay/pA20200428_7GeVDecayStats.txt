@@ -1,0 +1,45 @@
+Decay (eta and omega) Analysis
+******************************************************
+JobID: 20200428	No. Events: 10000	SNN: 7.7
+
+Simulation Parameters:
+Version: Pythia8 Angantyr
+Type of Cut: pseudorapidity (n)
+Cut: 0.1
+Calorimeter (r=regular, c=calorimeter): r
+Counting method: d
+
+  Decay Mode       ET 	 %of_particle_total 	 %ofTotal_ET 	 fraction 	 expected [Particle Physics Booklet 2018]
+--------------eta Decay Branching Ratios-----------------
+  2gamma          2299.55	90.4297	1.84774	39.3603%	 39.41%
+  3pi0            1940.06	76.2926	1.55887	32.6966%	 32.68%
+  pi+,pi-,pi0     1319.41	51.8855	1.06017	22.6714%	 22.92%
+  pi+,pi-,gamma   261.081	10.267	0.209783	4.27958%	 4.22%
+  e+,e-,gamma     53.545	2.10565	0.0430245	0.903302%	 6.9E-3%
+  mu+,mu-,gamma   1.29967	0.0511092	0.00104431	0.0296165%	 3.1E-4%
+  pi0,2gamma      1.35919	0.05345	0.00109214	0.0296165%	 2.56E-4%
+  2pi0,2gamma     0	0	0	0%	 <1.2E-3%
+  4gamma          0	0	0	0%	 <2.8E-4%
+  e+,e-           0	0	0	0%	 <2.3E-6%
+  mu+,mu-         0	0	0	0%	 5.8E-6%
+  2e+,2e-         0	0	0	0%	 2.4E-5%
+  pi+,pi-,e+,e-,(gamma) 0	0	0	0%	 2.68E-4%
+  e+,e-,mu+,mu-   0	0	0	0%	 <1.6E-4%
+  2mu+,2mu-       0	0	0	0%	 <3.6E-4%
+  [OTHER]         1.94721	0.0765738	0.00156462	0.0296165%	 -------%
+--------------omega Decay Branching Ratios-----------------
+  pi+,pi-,pi0     6899.5	1574.71	5.54389	90.1165%	 89.2%
+  pi0,gamma       626.196	142.92	0.503161	8.14264%	 8.40%
+  pi+,pi-         126.377	28.8437	0.101546	1.65661%	 1.53%
+  eta,gamma       1.71496	0.391415	0.00137801	0.0280781%	 4.5E-4%
+  pi0,e+,e-       2.94368	0.671853	0.00236531	0.0421171%	 7.7E-4%
+  pi0,mu+,mu-     0	0	0	0%	 1.34E-4%
+  e+,e-           0	0	0	0%	 7.36E-5%
+  pi+,pi-,2pi0    0	0	0	0%	 <2E-4%
+  pi+,pi-,gamma   0	0	0	0%	 <3.6E-3%
+  2pi+,2pi-       0	0	0	0%	 <1E-3%
+  2pi0,gamma      1.06153	0.242278	0.000852957	0.014039%	 6.7E-5%
+  eta,pi0,gamma   0	0	0	0%	 <3.3E-5%
+  mu+,mu-         0	0	0	0%	 7.4E-5%
+  3gamma          0	0	0	0%	 <1.9E-4%
+  [OTHER]         0	0	0	0%	 -------%

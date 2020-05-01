@@ -1,0 +1,45 @@
+Decay (eta and omega) Analysis
+******************************************************
+JobID: 20200425	No. Events: 1000	SNN: 11.5
+
+Simulation Parameters:
+Version: Pythia8 Angantyr
+Type of Cut: pseudorapidity (n)
+Cut: 0.1
+Calorimeter (r=regular, c=calorimeter): r
+Counting method: d
+
+  Decay Mode       ET 	 %of_particle_total 	 %ofTotal_ET 	 fraction 	 expected [Particle Physics Booklet 2018]
+--------------eta Decay Branching Ratios-----------------
+  2gamma          280.729	41.1179	1.77771	40.589%	 39.41%
+  3pi0            206.18	30.1988	1.30563	30.2177%	 32.68%
+  pi+,pi-,pi0     157.249	23.032	0.995776	23.5595%	 22.92%
+  pi+,pi-,gamma   35.7842	5.24125	0.226602	5.24968%	 4.22%
+  e+,e-,gamma     2.79922	0.409997	0.017726	0.384123%	 6.9E-3%
+  mu+,mu-,gamma   0	0	0	0%	 3.1E-4%
+  pi0,2gamma      0	0	0	0%	 2.56E-4%
+  2pi0,2gamma     0	0	0	0%	 <1.2E-3%
+  4gamma          0	0	0	0%	 <2.8E-4%
+  e+,e-           0	0	0	0%	 <2.3E-6%
+  mu+,mu-         0	0	0	0%	 5.8E-6%
+  2e+,2e-         0	0	0	0%	 2.4E-5%
+  pi+,pi-,e+,e-,(gamma) 0	0	0	0%	 2.68E-4%
+  e+,e-,mu+,mu-   0	0	0	0%	 <1.6E-4%
+  2mu+,2mu-       0	0	0	0%	 <3.6E-4%
+  [OTHER]         0	0	0	0%	 -------%
+--------------omega Decay Branching Ratios-----------------
+  pi+,pi-,pi0     786.306	88.4572	4.97926	88.1707%	 89.2%
+  pi0,gamma       78.7529	8.85947	0.498701	9.02439%	 8.40%
+  pi+,pi-         19.9579	2.2452	0.126383	2.31707%	 1.53%
+  eta,gamma       1.75918	0.197903	0.01114	0.243902%	 4.5E-4%
+  pi0,e+,e-       1.04126	0.117139	0.00659377	0.121951%	 7.7E-4%
+  pi0,mu+,mu-     1.09416	0.12309	0.00692876	0.121951%	 1.34E-4%
+  e+,e-           0	0	0	0%	 7.36E-5%
+  pi+,pi-,2pi0    0	0	0	0%	 <2E-4%
+  pi+,pi-,gamma   0	0	0	0%	 <3.6E-3%
+  2pi+,2pi-       0	0	0	0%	 <1E-3%
+  2pi0,gamma      0	0	0	0%	 6.7E-5%
+  eta,pi0,gamma   0	0	0	0%	 <3.3E-5%
+  mu+,mu-         0	0	0	0%	 7.4E-5%
+  3gamma          0	0	0	0%	 <1.9E-4%
+  [OTHER]         0	0	0	0%	 -------%
