@@ -2,7 +2,7 @@ int nenergies = 8;
 double energies[] = {7.7,11.5,19.6,27,39, 62.4,130,200};
 double energiesMaster[] = {7.7,11.5,19.6,27,39, 62.4,130,200};
 double energiesUnc[10] = {0,0,0,0,0,0,0,0,0,0};
-Int_t markers[] = {20,21,22,23,29,33,34,20,20,20};
+Int_t markers[] = {20,21,22,23,29,33,34,21,21,21};
 // Int_t colors[] = {kViolet-6,kBlue+2,kBlue,kCyan+1,
 // 		  kTeal-6,kGreen+2, kOrange+1,kRed,kPink,1,1};
 Int_t colors[] = {kRed,kOrange+1,kGreen+2,kTeal-6,kCyan+1,kBlue,kBlue+2,kViolet-6,kViolet+3,kBlue+2,kBlue,kCyan+1,
@@ -72,8 +72,8 @@ void PlotOmega(){
     //}
       //}
   }
-  cout<<"eta "<<lowEta<<" - "<<highEta<<endl;
-  cout<<"omega "<<lowOmega<<" - "<<highOmega<<endl;
+  cout<<"eta "<<(lowEta+highEta)/2.0<<" +/- "<<(highEta-lowEta)/2.0<<endl;
+  cout<<"omega "<<(lowOmega+highOmega)/2.0<<" - "<<(highOmega-lowOmega)/2.0<<endl;
   float xlow = 5;
   float xhigh = 250;
   TBox *boxEta = new TBox(xlow,lowEta,xhigh,highEta);
@@ -131,7 +131,7 @@ void PlotOmega(){
    TGraphErrors *graphEta[9] = {NULL,NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL};
    TGraphErrors *graphOmega[9] = {NULL,NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL};
   for(int cb = 0; cb<9;cb++){
-    for(int e=0;e<nenergies;e++) energies[e] = energiesMaster[e]+cb*TMath::Log(0.1*energiesMaster[e]);
+    //for(int e=0;e<nenergies;e++) energies[e] = energiesMaster[e]+0*cb*TMath::Abs(TMath::Log(0.05*energiesMaster[e]));
     graphEta[cb] = GetsNNTGraph(eta[cb],etaerr[cb],colors[cb],markers[cb]);
     graphOmega[cb] = GetsNNTGraph(omega[cb],omegaerr[cb],colors[cb],markers[cb]);
   }
@@ -143,31 +143,35 @@ void PlotOmega(){
       //boxEta->Draw("lf");
       //lineEta->Draw();
     }
-    graphEta[cb]->Draw("P same");
+    if(cb==8) graphEta[cb]->Draw("P same");
   }
+  TLatex *tex = new TLatex(5.8892,0.228448,"(a)");
+  tex->SetTextSize(0.0695733);
+  tex->Draw();
   pad2->cd();
   for(int cb = 0; cb<9;cb++){
     if(cb==0)    graphOmega[cb]->Draw("AP Y+");
-    else{     graphOmega[cb]->Draw("P same");}
+    else{if(cb==8){     graphOmega[cb]->Draw("P same");}}
   }
-  TLegend *leg = new TLegend(0.00343178,0.643785,0.272081,0.980056);//0.695285,0.03239940.6272879,0.5570321,0.8943428,0.8925803,NULL,"brNDC");
+  pad1->cd();
+  TLegend *leg = new TLegend(0.611793,0.806122,0.878709,0.977737);//0.00343178,0.808442,0.272081,0.980056);//0.695285,0.03239940.6272879,0.5570321,0.8943428,0.8925803,NULL,"brNDC");
    leg->SetBorderSize(1);
    leg->SetTextFont(72);
-   leg->SetTextSize(0.0443459);
+   leg->SetTextSize(0.0695733);
    leg->SetLineColor(0);
    leg->SetLineStyle(0);
    leg->SetLineWidth(0);
    leg->SetFillColor(0);
    leg->SetFillStyle(0);
    leg->AddEntry(graphOmega[0],"0-5% (0-12%)","P");
-   leg->AddEntry(graphOmega[1],"5-10%","P");
-   leg->AddEntry(graphOmega[2],"10-20%","P");
-   leg->AddEntry(graphOmega[3],"20-30%","P");
-   leg->AddEntry(graphOmega[4],"30-40%","P");
+   //leg->AddEntry(graphOmega[1],"5-10%","P");
+   //leg->AddEntry(graphOmega[2],"10-20%","P");
+   //leg->AddEntry(graphOmega[3],"20-30%","P");
+   //leg->AddEntry(graphOmega[4],"30-40%","P");
    //leg->AddEntry(graphOmega[5],"40-50%","P");
    //leg->AddEntry(graphOmega[6],"50-60%","P");
    //leg->AddEntry(graphOmega[7],"60-70%","P");
-   //leg->AddEntry(graphOmega[8],"70-80%","P");
+   leg->AddEntry(graphOmega[8],"70-80%","P");
    leg->Draw();
    TLegend *leg2 = new TLegend(0.263415,0.727273,0.532065,0.980056);//0.6272879,0.5570321,0.8943428,0.8925803,NULL,"brNDC");
    leg2->SetBorderSize(1);
@@ -187,6 +191,10 @@ void PlotOmega(){
    leg2->AddEntry(graphOmega[6],"50-60%","P");
    leg2->AddEntry(graphOmega[7],"60-70%","P");
    leg2->AddEntry(graphOmega[8],"70-80%","P");
-   leg2->Draw();
+   //leg2->Draw();
+   pad2->cd();
+  TLatex *texb = new TLatex(5.8892,0.0501006,"(b)");
+  texb->Draw();
+  texb->SetTextSize(0.0695733);
    c1->SaveAs("Ratios.pdf");
 }
